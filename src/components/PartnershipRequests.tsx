@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ClipboardList, UserCheck, UserX } from "lucide-react";
 
 interface PartnershipRequest {
   id: string;
@@ -51,9 +53,64 @@ export const PartnershipRequests = () => {
     });
   };
 
+  const getWeeklyResponses = () => {
+    return requests.filter(req => req.status !== "pending");
+  };
+
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">Solicitações de Match</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-semibold">Solicitações de Match</h3>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <ClipboardList className="h-4 w-4" />
+              Resumo das atividades
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Resumo das Atividades da Semana</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-4">
+                {getWeeklyResponses().map((request) => (
+                  <div key={request.id} className="flex items-center justify-between p-2 hover:bg-accent/10 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={request.avatar} />
+                        <AvatarFallback>{request.name.substring(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{request.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {request.specialty}
+                        </span>
+                      </div>
+                    </div>
+                    {request.status === "accepted" ? (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <UserCheck className="h-4 w-4" />
+                        <span>Aceito</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-red-600">
+                        <UserX className="h-4 w-4" />
+                        <span>Recusado</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {getWeeklyResponses().length === 0 && (
+                  <p className="text-center text-muted-foreground">
+                    Nenhuma atividade nesta semana
+                  </p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       <ScrollArea className="h-[300px]">
         <div className="space-y-4">
           {requests.map((request) => (
