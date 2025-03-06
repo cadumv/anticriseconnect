@@ -57,6 +57,10 @@ export const PartnershipRequests = () => {
     return requests.filter(req => req.status !== "pending");
   };
 
+  const getPendingRequests = () => {
+    return requests.filter(req => req.status === "pending");
+  };
+
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -113,8 +117,8 @@ export const PartnershipRequests = () => {
       </div>
       <ScrollArea className="h-[300px]">
         <div className="space-y-4">
-          {requests.map((request) => (
-            request.status === "pending" && (
+          {getPendingRequests().length > 0 ? (
+            getPendingRequests().map((request) => (
               <div key={request.id} className="flex items-center justify-between p-2 hover:bg-accent/10 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Avatar>
@@ -145,8 +149,12 @@ export const PartnershipRequests = () => {
                   </Button>
                 </div>
               </div>
-            )
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground py-4">
+              Nenhuma solicitação ativa
+            </p>
+          )}
         </div>
       </ScrollArea>
     </Card>
