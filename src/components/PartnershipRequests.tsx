@@ -53,12 +53,22 @@ export const PartnershipRequests = () => {
     });
   };
 
-  const getWeeklyResponses = () => {
-    return requests.filter(req => req.status !== "pending");
+  const handleCancelMatch = (requestId: string) => {
+    setRequests(requests.map(req => 
+      req.id === requestId 
+        ? { ...req, status: "pending" }
+        : req
+    ));
+
+    toast({
+      title: "Match cancelado",
+      description: "A solicitação voltou para a lista de pendentes.",
+      duration: 3000,
+    });
   };
 
-  const getPendingRequests = () => {
-    return requests.filter(req => req.status === "pending");
+  const getWeeklyResponses = () => {
+    return requests.filter(req => req.status !== "pending");
   };
 
   return (
@@ -92,17 +102,29 @@ export const PartnershipRequests = () => {
                         </span>
                       </div>
                     </div>
-                    {request.status === "accepted" ? (
-                      <div className="flex items-center gap-2 text-green-600">
-                        <UserCheck className="h-4 w-4" />
-                        <span>Aceito</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-red-600">
-                        <UserX className="h-4 w-4" />
-                        <span>Recusado</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {request.status === "accepted" ? (
+                        <>
+                          <div className="flex items-center gap-2 text-green-600">
+                            <UserCheck className="h-4 w-4" />
+                            <span>Aceito</span>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="ml-2 hover:bg-red-100 hover:text-red-600"
+                            onClick={() => handleCancelMatch(request.id)}
+                          >
+                            Cancelar
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2 text-red-600">
+                          <UserX className="h-4 w-4" />
+                          <span>Recusado</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {getWeeklyResponses().length === 0 && (
