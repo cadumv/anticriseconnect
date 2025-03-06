@@ -1,22 +1,36 @@
-
-import { Medal, MapPin, Briefcase, Users } from "lucide-react";
+import { Medal, MapPin, Briefcase, Users, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
 
 export const ProfileHeader = () => {
   const [isFollowing, setIsFollowing] = useState(false);
-  const [showMatchRequest, setShowMatchRequest] = useState(false);
+  const [hasMatch, setHasMatch] = useState(false);
+  const { toast } = useToast();
 
   const toggleFollow = () => {
     setIsFollowing(!isFollowing);
   };
 
-  const sendMatchRequest = () => {
-    setShowMatchRequest(true);
-    setTimeout(() => setShowMatchRequest(false), 3000);
+  const handleMatchRequest = () => {
+    setHasMatch(true);
+    toast({
+      title: "Solicitação de Match enviada!",
+      description: "Você receberá uma notificação quando houver uma resposta.",
+      duration: 5000,
+    });
+  };
+
+  const cancelMatch = () => {
+    setHasMatch(false);
+    toast({
+      title: "Solicitação de Match cancelada",
+      description: "Você pode enviar uma nova solicitação quando quiser.",
+      duration: 3000,
+    });
   };
 
   return (
@@ -36,21 +50,33 @@ export const ProfileHeader = () => {
             </div>
           </div>
         </div>
+
         <div className="flex gap-2">
           <Button 
             variant={isFollowing ? "secondary" : "default"}
             onClick={toggleFollow}
-            className="hover-scale"
+            className="hover:scale-105 transition-transform"
           >
             {isFollowing ? "Seguindo" : "Seguir"}
           </Button>
-          <Button 
-            variant="outline"
-            onClick={sendMatchRequest}
-            className="hover-scale"
-          >
-            Match
-          </Button>
+          {hasMatch ? (
+            <Button 
+              variant="outline"
+              onClick={cancelMatch}
+              className="hover:bg-red-100 hover:text-red-600 transition-colors flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              Cancelar Match
+            </Button>
+          ) : (
+            <Button 
+              variant="outline"
+              onClick={handleMatchRequest}
+              className="hover:bg-primary/10 hover:text-primary transition-colors"
+            >
+              Match
+            </Button>
+          )}
         </div>
       </div>
 
@@ -73,12 +99,6 @@ export const ProfileHeader = () => {
           <span>3 conquistas</span>
         </div>
       </div>
-
-      {showMatchRequest && (
-        <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in">
-          Solicitação de Match enviada!
-        </div>
-      )}
     </Card>
   );
 };

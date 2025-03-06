@@ -3,6 +3,7 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { Achievements } from "@/components/Achievements";
 import { Feed } from "@/components/Feed";
 import { Discovery } from "@/components/Discovery";
+import { PartnershipRequests } from "@/components/PartnershipRequests";
 
 const Index = () => {
   return (
@@ -14,8 +15,9 @@ const Index = () => {
             <Achievements />
             <Feed />
           </div>
-          <div className="lg:col-span-4">
-            <div className="sticky top-4">
+          <div className="lg:col-span-4 space-y-8">
+            <div className="sticky top-4 space-y-8">
+              <PartnershipRequests />
               <Discovery />
             </div>
           </div>
