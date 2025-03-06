@@ -28,7 +28,6 @@ export const ProfileHeader = () => {
             <Badge className="mb-2">{user.user_metadata.engineering_type}</Badge>
           )}
           <h1 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h1>
-          <p className="text-gray-500">{user?.email}</p>
           
           {user?.user_metadata?.professional_description && (
             <p className="mt-2 text-sm text-gray-700">{user.user_metadata.professional_description}</p>
