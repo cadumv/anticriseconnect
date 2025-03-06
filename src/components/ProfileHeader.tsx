@@ -1,3 +1,4 @@
+
 import { Medal, MapPin, Briefcase, Users, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -38,12 +39,12 @@ export const ProfileHeader = () => {
       <div className="flex items-start justify-between">
         <div className="flex gap-4">
           <Avatar className="h-24 w-24">
-            <AvatarImage src="/placeholder.svg" alt="Profile" />
-            <AvatarFallback>EN</AvatarFallback>
+            <AvatarImage src="/lovable-uploads/6e9560e5-d1ff-4d44-80ea-38a5efa39e6a.png" alt="Profile" />
+            <AvatarFallback>AA</AvatarFallback>
           </Avatar>
           <div className="space-y-2">
             <Badge className="bg-primary/10 text-primary hover:bg-primary/20">Engenheiro Civil</Badge>
-            <h1 className="text-2xl font-bold">João Silva</h1>
+            <h1 className="text-2xl font-bold">Allan Assad</h1>
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>São Paulo, SP</span>

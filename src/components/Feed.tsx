@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MessageSquare, Heart, Share2, Bookmark } from "lucide-react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
@@ -21,8 +22,8 @@ interface Post {
 const mockPosts: Post[] = [
   {
     id: "1",
-    authorName: "João Silva",
-    authorAvatar: "/placeholder.svg",
+    authorName: "Allan Assad",
+    authorAvatar: "/lovable-uploads/6e9560e5-d1ff-4d44-80ea-38a5efa39e6a.png",
     content: "Finalizando mais um projeto estrutural sustentável! #EngenhariaVerde",
     type: "photo",
     imageUrl: "/lovable-uploads/0b1e82e3-364b-4742-aa7a-113b169d3f60.png",
