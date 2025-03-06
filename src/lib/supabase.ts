@@ -1,12 +1,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// These variables need to be set in your Supabase project
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase credentials. Please connect your Lovable project to Supabase.');
-}
+const supabaseUrl = 'https://ndqaokjyeimjspxlnzjq.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kcWFva2p5ZWltanNweGxuempxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyNjkxMTEsImV4cCI6MjA1Njg0NTExMX0.ceLZD-5ZckXp7UqmLNKvnglLnP1aHTKB3hVbn2PKTZ0';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
