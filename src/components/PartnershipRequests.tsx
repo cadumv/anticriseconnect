@@ -71,6 +71,10 @@ export const PartnershipRequests = () => {
     return requests.filter(req => req.status !== "pending");
   };
 
+  const getPendingRequests = () => {
+    return requests.filter(req => req.status === "pending");
+  };
+
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
