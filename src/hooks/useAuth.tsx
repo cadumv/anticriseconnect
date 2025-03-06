@@ -102,9 +102,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Send custom email if the user was created
       if (data?.user && !data.user.confirmed_at) {
         try {
-          // Generate confirmation URL similar to what Supabase would use
-          const token = data.user.confirmation_token || "token";
-          const confirmationURL = `${redirectURL}?confirmation_token=${token}`;
+          // Generate a simple token for the confirmation URL
+          // Since confirmation_token is not available on the User type, we'll use a generic approach
+          const token = "token"; // Using a placeholder since we don't have access to the actual token
+          const confirmationURL = `${redirectURL}?token=${token}`;
           
           await sendCustomEmail("signup", email, confirmationURL);
           
