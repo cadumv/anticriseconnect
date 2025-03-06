@@ -1,45 +1,49 @@
 
-import { Trophy, Award, Star } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Achievements = () => {
-  const achievements = [
-    {
-      icon: Trophy,
-      title: "Top Engenheiro",
-      description: "Entre os 10 mais ativos",
-      color: "text-yellow-500"
-    },
-    {
-      icon: Award,
-      title: "Parcerias de Sucesso",
-      description: "5 projetos concluídos",
-      color: "text-blue-500"
-    },
-    {
-      icon: Star,
-      title: "Reconhecimento",
-      description: "100+ recomendações",
-      color: "text-purple-500"
-    }
-  ];
+  const { user } = useAuth();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-      {achievements.map((achievement, index) => (
-        <Card 
-          key={index}
-          className="p-4 hover-scale glass-effect"
-        >
-          <div className="flex items-center gap-3">
-            <achievement.icon className={`h-8 w-8 ${achievement.color}`} />
-            <div>
-              <h3 className="font-semibold">{achievement.title}</h3>
-              <p className="text-sm text-muted-foreground">{achievement.description}</p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Conquistas</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {user ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                <span className="text-blue-500">🏆</span>
+              </div>
+              <span className="text-sm text-center">Perfil Completo</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                <span className="text-gray-400">🔄</span>
+              </div>
+              <span className="text-sm text-center">Primeira Parceria</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                <span className="text-gray-400">⭐</span>
+              </div>
+              <span className="text-sm text-center">5 Avaliações</span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg opacity-50">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                <span className="text-gray-400">📝</span>
+              </div>
+              <span className="text-sm text-center">Publicar Artigo</span>
             </div>
           </div>
-        </Card>
-      ))}
-    </div>
+        ) : (
+          <div className="text-center py-6">
+            <p className="text-gray-500">Faça login para ver suas conquistas</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };

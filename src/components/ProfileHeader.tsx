@@ -1,105 +1,41 @@
 
-import { Medal, MapPin, Briefcase, Users, X } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 export const ProfileHeader = () => {
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [hasMatch, setHasMatch] = useState(false);
-  const { toast } = useToast();
-
-  const toggleFollow = () => {
-    setIsFollowing(!isFollowing);
-  };
-
-  const handleMatchRequest = () => {
-    setHasMatch(true);
-    toast({
-      title: "Solicitação de Match enviada!",
-      description: "Você receberá uma notificação quando houver uma resposta.",
-      duration: 5000,
-    });
-  };
-
-  const cancelMatch = () => {
-    setHasMatch(false);
-    toast({
-      title: "Solicitação de Match cancelada",
-      description: "Você pode enviar uma nova solicitação quando quiser.",
-      duration: 3000,
-    });
-  };
+  const { user } = useAuth();
 
   return (
-    <Card className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
-        <div className="flex gap-4">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src="/lovable-uploads/6e9560e5-d1ff-4d44-80ea-38a5efa39e6a.png" alt="Profile" />
-            <AvatarFallback>AA</AvatarFallback>
-          </Avatar>
-          <div className="space-y-2">
-            <Badge className="bg-primary/10 text-primary hover:bg-primary/20">Engenheiro Civil</Badge>
-            <h1 className="text-2xl font-bold">Allan Assad</h1>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span>São Paulo, SP</span>
-            </div>
-          </div>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center">
+          <span className="text-3xl font-bold text-blue-500">
+            {user?.user_metadata?.name?.[0]?.toUpperCase() || "U"}
+          </span>
         </div>
-
-        <div className="flex gap-2">
-          <Button 
-            variant={isFollowing ? "secondary" : "default"}
-            onClick={toggleFollow}
-            className="hover:scale-105 transition-transform"
-          >
-            {isFollowing ? "Seguindo" : "Seguir"}
-          </Button>
-          {hasMatch ? (
-            <Button 
-              variant="outline"
-              onClick={cancelMatch}
-              className="hover:bg-red-100 hover:text-red-600 transition-colors flex items-center gap-2"
-            >
-              <X className="h-4 w-4" />
-              Cancelar Match
-            </Button>
+        <div className="flex-1 text-center sm:text-left">
+          <h1 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h1>
+          <p className="text-gray-500">{user?.email}</p>
+          
+          {user ? (
+            <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <Link to="/profile">
+                <Button size="sm" variant="outline">Editar Perfil</Button>
+              </Link>
+            </div>
           ) : (
-            <Button 
-              variant="outline"
-              onClick={handleMatchRequest}
-              className="hover:bg-primary/10 hover:text-primary transition-colors"
-            >
-              Match
-            </Button>
+            <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
+              <Link to="/login">
+                <Button size="sm" variant="default">Entrar</Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" variant="outline">Cadastrar</Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
-
-      <p className="text-muted-foreground">
-        Especialista em projetos estruturais com mais de 5 anos de experiência. 
-        Foco em soluções sustentáveis e inovadoras.
-      </p>
-
-      <div className="flex flex-wrap gap-4">
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-5 w-5 text-primary" />
-          <span>Projetos Estruturais</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" />
-          <span>127 seguidores</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Medal className="h-5 w-5 text-accent" />
-          <span>3 conquistas</span>
-        </div>
-      </div>
-    </Card>
+    </div>
   );
 };

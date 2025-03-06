@@ -1,131 +1,79 @@
 
-import { useState } from "react";
-import { MessageSquare, Heart, Share2, Bookmark } from "lucide-react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-interface Post {
-  id: string;
-  authorName: string;
-  authorAvatar: string;
-  content: string;
-  type: "photo" | "video" | "text";
-  imageUrl?: string;
-  tags: string[];
-  likes: number;
-  comments: number;
-  timestamp: string;
-}
-
-const mockPosts: Post[] = [
-  {
-    id: "1",
-    authorName: "Allan Assad",
-    authorAvatar: "/lovable-uploads/6e9560e5-d1ff-4d44-80ea-38a5efa39e6a.png",
-    content: "Finalizando mais um projeto estrutural sustentável! #EngenhariaVerde",
-    type: "photo",
-    imageUrl: "/lovable-uploads/0b1e82e3-364b-4742-aa7a-113b169d3f60.png",
-    tags: ["EngenhariaVerde", "Sustentabilidade"],
-    likes: 45,
-    comments: 12,
-    timestamp: "2h atrás"
-  },
-  {
-    id: "2",
-    authorName: "Maria Santos",
-    authorAvatar: "/placeholder.svg",
-    content: "Nova ponte concluída em São Paulo. Um projeto desafiador que uniu inovação e segurança.",
-    type: "text",
-    tags: ["Infraestrutura", "Inovação"],
-    likes: 89,
-    comments: 23,
-    timestamp: "5h atrás"
-  }
-];
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
+import { Button } from "./ui/button";
 
 export const Feed = () => {
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
-  const [filter, setFilter] = useState("recentes");
+  const { user } = useAuth();
+  
+  const posts = [
+    {
+      id: 1,
+      title: "Engenheiro Civil busca parceria para projeto residencial",
+      author: "Carlos Silva",
+      date: "Há 2 dias",
+      excerpt: "Busco engenheiro eletricista para colaboração em projeto residencial de alto padrão na zona sul.",
+      tags: ["Civil", "Residencial", "Parceria"]
+    },
+    {
+      id: 2,
+      title: "Vaga para engenheiro mecânico em projeto industrial",
+      author: "Marina Oliveira",
+      date: "Há 5 dias",
+      excerpt: "Empresa de grande porte busca engenheiro mecânico com experiência em projetos industriais.",
+      tags: ["Mecânica", "Industrial", "Vaga"]
+    }
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Feed de Projetos / Serviços</h2>
-        <div className="flex gap-2">
-          <Button
-            variant={filter === "recentes" ? "default" : "outline"}
-            onClick={() => setFilter("recentes")}
-            size="sm"
-          >
-            Mais Recentes
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-xl">Feed de Projetos</CardTitle>
+        {user && (
+          <Button size="sm" variant="outline">
+            Novo Post
           </Button>
-          <Button
-            variant={filter === "populares" ? "default" : "outline"}
-            onClick={() => setFilter("populares")}
-            size="sm"
-          >
-            Mais Populares
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-4">
+        )}
+      </CardHeader>
+      <CardContent>
         {posts.map((post) => (
-          <Card key={post.id} className="hover-scale">
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar>
-                <AvatarImage src={post.authorAvatar} />
-                <AvatarFallback>{post.authorName.substring(0, 2)}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <h3 className="font-semibold">{post.authorName}</h3>
-                <span className="text-sm text-muted-foreground">{post.timestamp}</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">{post.content}</p>
-              {post.type === "photo" && post.imageUrl && (
-                <div className="relative w-full h-[400px] mb-4 rounded-lg overflow-hidden">
-                  <img
-                    src={post.imageUrl}
-                    alt="Post image"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              )}
-              <div className="flex gap-2">
-                {post.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    #{tag}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex gap-6">
-                <Button variant="ghost" size="sm" className="flex gap-2">
-                  <Heart className="h-4 w-4" />
-                  <span>{post.likes}</span>
-                </Button>
-                <Button variant="ghost" size="sm" className="flex gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>{post.comments}</span>
-                </Button>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <Bookmark className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
+          <div key={post.id} className="mb-6 pb-6 border-b last:border-0">
+            <h3 className="text-lg font-medium mb-2">{post.title}</h3>
+            <div className="flex gap-2 text-sm text-gray-500 mb-2">
+              <span>{post.author}</span>
+              <span>•</span>
+              <span>{post.date}</span>
+            </div>
+            <p className="text-gray-600 mb-3">{post.excerpt}</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {post.tags.map((tag) => (
+                <span key={tag} className="bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="ghost">Ver detalhes</Button>
+              {user && <Button size="sm" variant="ghost">Contatar</Button>}
+            </div>
+          </div>
         ))}
-      </div>
-    </div>
+        
+        {!user && (
+          <div className="text-center py-4 mt-4 border-t">
+            <p className="text-gray-500 mb-4">Faça login para ver mais projetos e interagir com outros engenheiros</p>
+            <div className="flex gap-2 justify-center">
+              <Link to="/login">
+                <Button size="sm">Entrar</Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" variant="outline">Cadastrar</Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
