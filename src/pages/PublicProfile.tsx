@@ -4,9 +4,11 @@ import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, ArrowLeft, User } from "lucide-react";
+import { Mail, Phone, ArrowLeft, User, UserPlus, UserCheck, Handshake } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { ConnectionRequestDialog } from "@/components/ConnectionRequestDialog";
 
 interface ProfileData {
   id: string;
@@ -24,6 +26,9 @@ const PublicProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+  const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -45,10 +50,73 @@ const PublicProfile = () => {
       }
     };
     
+    const checkFollowStatus = async () => {
+      if (user && id) {
+        try {
+          // This is a placeholder for checking follow status
+          // In a real app, you would query your followers table
+          // For now, we'll just use localStorage for demonstration
+          const followData = localStorage.getItem(`following_${user.id}`);
+          if (followData) {
+            const followingList = JSON.parse(followData);
+            setIsFollowing(followingList.includes(id));
+          }
+        } catch (err) {
+          console.error("Erro ao verificar status de seguidor:", err);
+        }
+      }
+    };
+    
     if (id) {
       fetchProfile();
+      checkFollowStatus();
     }
-  }, [id]);
+  }, [id, user]);
+
+  const handleFollowToggle = async () => {
+    if (!user || !profile) return;
+    
+    try {
+      setFollowLoading(true);
+      
+      // This is a placeholder for actual database operations
+      // In a real app, you would insert/delete from a followers table
+      // For now, we'll use localStorage for demonstration
+      
+      let followingList: string[] = [];
+      const followData = localStorage.getItem(`following_${user.id}`);
+      
+      if (followData) {
+        followingList = JSON.parse(followData);
+      }
+      
+      if (isFollowing) {
+        // Unfollow
+        followingList = followingList.filter(profileId => profileId !== profile.id);
+        toast.success(`Você deixou de seguir ${profile.name}`);
+      } else {
+        // Follow
+        if (!followingList.includes(profile.id)) {
+          followingList.push(profile.id);
+        }
+        toast.success(`Você está seguindo ${profile.name}`);
+      }
+      
+      localStorage.setItem(`following_${user.id}`, JSON.stringify(followingList));
+      setIsFollowing(!isFollowing);
+      
+    } catch (err: any) {
+      console.error("Erro ao seguir/deixar de seguir:", err);
+      toast.error("Ocorreu um erro ao processar sua solicitação.");
+    } finally {
+      setFollowLoading(false);
+    }
+  };
+
+  const handleConnectionRequest = () => {
+    if (!user || !profile) return;
+    setIsConnectionDialogOpen(true);
+  };
 
   if (loading) {
     return (
@@ -115,9 +183,30 @@ const PublicProfile = () => {
             </div>
 
             {user && user.id !== profile.id && (
-              <div className="flex gap-2">
-                <Button variant="outline">Enviar mensagem</Button>
-                <Button>Propor parceria</Button>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  variant={isFollowing ? "outline" : "default"} 
+                  onClick={handleFollowToggle}
+                  disabled={followLoading}
+                  className="gap-1"
+                >
+                  {isFollowing ? (
+                    <>
+                      <UserCheck className="h-4 w-4" /> Seguindo
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" /> Seguir
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  onClick={handleConnectionRequest}
+                  className="gap-1"
+                  variant="secondary"
+                >
+                  <Handshake className="h-4 w-4" /> Conexão Anticrise
+                </Button>
               </div>
             )}
           </div>
@@ -155,6 +244,17 @@ const PublicProfile = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Connection Request Dialog */}
+      {user && profile && (
+        <ConnectionRequestDialog
+          isOpen={isConnectionDialogOpen}
+          onClose={() => setIsConnectionDialogOpen(false)}
+          targetProfileName={profile.name}
+          targetProfileId={profile.id}
+          currentUserId={user.id}
+        />
+      )}
     </div>
   );
 };
