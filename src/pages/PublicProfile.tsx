@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,10 +22,10 @@ interface ProfileData {
 
 const DEMO_PROFILE: ProfileData = {
   id: "demo-profile-123",
-  name: "Ana Oliveira",
+  name: "João",
   engineering_type: "Engenharia Civil",
-  professional_description: "Engenheira civil especializada em projetos sustentáveis e estruturas resilientes. Tenho 10 anos de experiência em projetos residenciais e comerciais, com foco em eficiência energética e redução de impacto ambiental.",
-  areas_of_expertise: ["Projetos Estruturais", "Construções Sustentáveis", "Gestão de Obras", "Certificação LEED"],
+  professional_description: "Engenheiro civil com experiência em projetos estruturais e gerenciamento de obras residenciais e comerciais. Especialista em cálculos estruturais e soluções sustentáveis para construções.",
+  areas_of_expertise: ["Projetos Estruturais", "Gerenciamento de Obras", "Construção Sustentável", "Consultoria Técnica"],
   avatar_url: null,
   phone: "(11) 98765-4321"
 };
