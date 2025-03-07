@@ -31,8 +31,26 @@ export function ConnectionRequestDialog({
     try {
       setIsSubmitting(true);
       
-      // Store connection request in database - this is a placeholder for future implementation
-      // TODO: Implement in backend when needed
+      // For demonstration purposes, we'll store connection requests in localStorage
+      const storageKey = `connection_requests_${currentUserId}`;
+      let requests = [];
+      
+      const existingRequests = localStorage.getItem(storageKey);
+      if (existingRequests) {
+        requests = JSON.parse(existingRequests);
+      }
+      
+      // Add new request if it doesn't exist
+      if (!requests.find((req: any) => req.targetId === targetProfileId)) {
+        requests.push({
+          targetId: targetProfileId,
+          targetName: targetProfileName,
+          requestedAt: new Date().toISOString(),
+          status: 'pending'
+        });
+        
+        localStorage.setItem(storageKey, JSON.stringify(requests));
+      }
       
       // Show success message
       toast.success(`Solicitação de conexão enviada para ${targetProfileName}`);

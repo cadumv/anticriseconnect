@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,16 @@ interface ProfileData {
   phone: string;
 }
 
+const DEMO_PROFILE: ProfileData = {
+  id: "demo-profile-123",
+  name: "Ana Oliveira",
+  engineering_type: "Engenharia Civil",
+  professional_description: "Engenheira civil especializada em projetos sustentáveis e estruturas resilientes. Tenho 10 anos de experiência em projetos residenciais e comerciais, com foco em eficiência energética e redução de impacto ambiental.",
+  areas_of_expertise: ["Projetos Estruturais", "Construções Sustentáveis", "Gestão de Obras", "Certificação LEED"],
+  avatar_url: null,
+  phone: "(11) 98765-4321"
+};
+
 const PublicProfile = () => {
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -29,11 +38,18 @@ const PublicProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
+        
+        if (id === "demo") {
+          setProfile(DEMO_PROFILE);
+          return;
+        }
+        
         const { data, error } = await supabase
           .from('profiles')
           .select('id, name, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
@@ -53,9 +69,6 @@ const PublicProfile = () => {
     const checkFollowStatus = async () => {
       if (user && id) {
         try {
-          // This is a placeholder for checking follow status
-          // In a real app, you would query your followers table
-          // For now, we'll just use localStorage for demonstration
           const followData = localStorage.getItem(`following_${user.id}`);
           if (followData) {
             const followingList = JSON.parse(followData);
@@ -79,10 +92,6 @@ const PublicProfile = () => {
     try {
       setFollowLoading(true);
       
-      // This is a placeholder for actual database operations
-      // In a real app, you would insert/delete from a followers table
-      // For now, we'll use localStorage for demonstration
-      
       let followingList: string[] = [];
       const followData = localStorage.getItem(`following_${user.id}`);
       
@@ -91,11 +100,9 @@ const PublicProfile = () => {
       }
       
       if (isFollowing) {
-        // Unfollow
         followingList = followingList.filter(profileId => profileId !== profile.id);
         toast.success(`Você deixou de seguir ${profile.name}`);
       } else {
-        // Follow
         if (!followingList.includes(profile.id)) {
           followingList.push(profile.id);
         }
@@ -116,6 +123,10 @@ const PublicProfile = () => {
   const handleConnectionRequest = () => {
     if (!user || !profile) return;
     setIsConnectionDialogOpen(true);
+  };
+
+  const goToDemoProfile = () => {
+    navigate("/profile/demo");
   };
 
   if (loading) {
@@ -139,8 +150,11 @@ const PublicProfile = () => {
           <CardContent className="p-6">
             <div className="flex flex-col items-center gap-4">
               <p className="text-destructive">{error || "Perfil não encontrado"}</p>
+              <Button onClick={goToDemoProfile} variant="default" className="mb-2">
+                Ver Perfil de Demonstração
+              </Button>
               <Link to="/search">
-                <Button>Voltar para busca</Button>
+                <Button variant="outline">Voltar para busca</Button>
               </Link>
             </div>
           </CardContent>
@@ -245,7 +259,6 @@ const PublicProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Connection Request Dialog */}
       {user && profile && (
         <ConnectionRequestDialog
           isOpen={isConnectionDialogOpen}
