@@ -31,7 +31,7 @@ export function ConnectionRequestDialog({
     try {
       setIsSubmitting(true);
       
-      // For demonstration purposes, we'll store connection requests in localStorage
+      // Para fins de demonstração, armazenaremos solicitações de conexão no localStorage
       const storageKey = `connection_requests_${currentUserId}`;
       let requests = [];
       
@@ -40,7 +40,7 @@ export function ConnectionRequestDialog({
         requests = JSON.parse(existingRequests);
       }
       
-      // Add new request if it doesn't exist
+      // Adiciona nova solicitação se não existir
       if (!requests.find((req: any) => req.targetId === targetProfileId)) {
         requests.push({
           targetId: targetProfileId,
@@ -52,7 +52,7 @@ export function ConnectionRequestDialog({
         localStorage.setItem(storageKey, JSON.stringify(requests));
       }
       
-      // Show success message
+      // Mostra mensagem de sucesso
       toast.success(`Solicitação de conexão enviada para ${targetProfileName}`);
       onClose();
     } catch (error) {

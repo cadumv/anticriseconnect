@@ -41,15 +41,24 @@ const PublicProfile = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    console.log("Current ID param:", id);
+    
     const fetchProfile = async () => {
       try {
         setLoading(true);
         
         if (id === "demo") {
+          console.log("Loading demo profile");
           setProfile(DEMO_PROFILE);
+          setLoading(false);
           return;
         }
         
+        if (!id || id === ":id") {
+          throw new Error("ID de perfil inválido");
+        }
+        
+        console.log("Fetching profile with ID:", id);
         const { data, error } = await supabase
           .from('profiles')
           .select('id, name, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
@@ -67,7 +76,7 @@ const PublicProfile = () => {
     };
     
     const checkFollowStatus = async () => {
-      if (user && id) {
+      if (user && id && id !== ":id") {
         try {
           const followData = localStorage.getItem(`following_${user.id}`);
           if (followData) {
@@ -150,7 +159,7 @@ const PublicProfile = () => {
           <CardContent className="p-6">
             <div className="flex flex-col items-center gap-4">
               <p className="text-destructive">{error || "Perfil não encontrado"}</p>
-              <Button onClick={goToDemoProfile} variant="default" className="mb-2">
+              <Button onClick={() => navigate("/profile/demo")} variant="default" className="mb-2">
                 Ver Perfil de Demonstração
               </Button>
               <Link to="/search">
