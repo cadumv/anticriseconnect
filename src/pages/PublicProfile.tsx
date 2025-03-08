@@ -1,14 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, ArrowLeft, User, UserPlus, UserCheck, Handshake } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ConnectionRequestDialog } from "@/components/ConnectionRequestDialog";
+import { ProfileHeader } from "@/components/public-profile/ProfileHeader";
+import { ProfileDetails } from "@/components/public-profile/ProfileDetails";
+import { ProfileContact } from "@/components/public-profile/ProfileContact";
+import { ProfileLoadingState } from "@/components/public-profile/ProfileLoadingState";
+import { ProfileErrorState } from "@/components/public-profile/ProfileErrorState";
 
 interface ProfileData {
   id: string;
@@ -135,42 +138,12 @@ const PublicProfile = () => {
     setIsConnectionDialogOpen(true);
   };
 
-  const goToDemoProfile = () => {
-    navigate("/profile/demo");
-  };
-
   if (loading) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-center">
-              <p>Carregando perfil...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ProfileLoadingState />;
   }
 
   if (error || !profile) {
-    return (
-      <div className="container mx-auto py-10">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-destructive">{error || "Perfil não encontrado"}</p>
-              <Button onClick={() => navigate("/profile/demo")} variant="default" className="mb-2">
-                Ver Perfil de Demonstração
-              </Button>
-              <Link to="/search">
-                <Button variant="outline">Voltar para busca</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <ProfileErrorState error={error} />;
   }
 
   return (
@@ -185,86 +158,23 @@ const PublicProfile = () => {
 
       <Card>
         <CardHeader className="pb-0">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                {profile.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt={`Foto de ${profile.name}`} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="h-12 w-12 text-blue-500" />
-                )}
-              </div>
-              <div>
-                <CardTitle className="text-2xl">{profile.name}</CardTitle>
-                {profile.engineering_type && (
-                  <Badge className="mt-2">{profile.engineering_type}</Badge>
-                )}
-              </div>
-            </div>
-
-            {user && user.id !== profile.id && (
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  variant={isFollowing ? "outline" : "default"} 
-                  onClick={handleFollowToggle}
-                  disabled={followLoading}
-                  className="gap-1"
-                >
-                  {isFollowing ? (
-                    <>
-                      <UserCheck className="h-4 w-4" /> Seguindo
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4" /> Seguir
-                    </>
-                  )}
-                </Button>
-                <Button 
-                  onClick={handleConnectionRequest}
-                  className="gap-1"
-                  variant="secondary"
-                >
-                  <Handshake className="h-4 w-4" /> Conexão Anticrise
-                </Button>
-              </div>
-            )}
-          </div>
+          <ProfileHeader 
+            profile={profile}
+            currentUser={user}
+            isFollowing={isFollowing}
+            followLoading={followLoading}
+            onFollowToggle={handleFollowToggle}
+            onConnectionRequest={handleConnectionRequest}
+          />
         </CardHeader>
         <CardContent className="pt-6">
           <div className="space-y-6">
-            {profile.professional_description && (
-              <div>
-                <h3 className="text-sm font-medium mb-2">Descrição profissional</h3>
-                <p className="text-gray-700">{profile.professional_description}</p>
-              </div>
-            )}
+            <ProfileDetails 
+              description={profile.professional_description}
+              areasOfExpertise={profile.areas_of_expertise}
+            />
             
-            {profile.areas_of_expertise && profile.areas_of_expertise.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium mb-2">Áreas de atuação</h3>
-                <ul className="list-disc list-inside">
-                  {profile.areas_of_expertise.map((area, index) => (
-                    area && <li key={index} className="text-gray-700">{area}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            <div className="pt-4 border-t">
-              <h3 className="text-sm font-medium mb-2">Contato</h3>
-              <div className="space-y-2">
-                {profile.phone && (
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Phone className="h-4 w-4" /> {profile.phone}
-                  </div>
-                )}
-              </div>
-            </div>
+            <ProfileContact phone={profile.phone} />
           </div>
         </CardContent>
       </Card>
