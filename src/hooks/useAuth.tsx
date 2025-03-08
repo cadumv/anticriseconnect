@@ -8,6 +8,7 @@ type AuthContextType = {
   session: Session | null;
   signUp: (email: string, password: string, metadata?: { name?: string, phone?: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<boolean>;
+  signInWithGoogle: () => Promise<boolean>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -173,6 +174,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithGoogle = async (): Promise<boolean> => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/profile`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      
+      if (error) throw error;
+      
+      // Success will be determined by the redirect flow
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Erro no login com Google",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -245,6 +276,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     session,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
     resetPassword,
     deleteAccount,

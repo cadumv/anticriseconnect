@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { Separator } from "@/components/ui/separator";
+import { LogIn } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
-  const { signIn, resetPassword, loading, user } = useAuth();
+  const { signIn, signInWithGoogle, loading, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to profile page if user is already logged in
@@ -31,6 +33,11 @@ const Login = () => {
     e.preventDefault();
     await resetPassword(email);
     setIsRecovery(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    await signInWithGoogle();
+    // Redirection will happen automatically through the useEffect hook above
   };
 
   return (
@@ -92,6 +99,29 @@ const Login = () => {
               </Button>
             </div>
           </form>
+          
+          {!isRecovery && (
+            <>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Ou continue com</span>
+                </div>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Entrar com Google
+              </Button>
+            </>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col items-center">
           {isRecovery ? (
