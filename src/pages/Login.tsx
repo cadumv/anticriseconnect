@@ -13,7 +13,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
-  const { signIn, signInWithGoogle, loading, user } = useAuth();
+  const { signIn, signInWithGoogle, resetPassword, loading, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to profile page if user is already logged in
