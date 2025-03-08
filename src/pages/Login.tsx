@@ -19,9 +19,22 @@ const Login = () => {
   // Redirect to profile page if user is already logged in
   useEffect(() => {
     if (user) {
+      console.log("User detected, redirecting to profile", user);
       navigate('/profile');
     }
   }, [user, navigate]);
+
+  // Check for error parameters in URL (common with OAuth redirects)
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const error = queryParams.get('error');
+    const errorDescription = queryParams.get('error_description');
+    
+    if (error) {
+      console.error("OAuth Error:", error, errorDescription);
+      // Could add toast notification here
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +49,7 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    console.log("Initiating Google sign in");
     await signInWithGoogle();
     // Redirection will happen automatically through the useEffect hook above
   };

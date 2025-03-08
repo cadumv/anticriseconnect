@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", _event, session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -177,7 +179,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithGoogle = async (): Promise<boolean> => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log("Starting Google OAuth sign-in, redirect URL:", `${window.location.origin}/profile`);
+      
+      const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/profile`,
@@ -188,11 +192,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Google sign-in error:", error);
+        throw error;
+      }
       
-      // Success will be determined by the redirect flow
+      console.log("Google sign-in successful, data:", data);
       return true;
     } catch (error: any) {
+      console.error("Google sign-in exception:", error);
       toast({
         title: "Erro no login com Google",
         description: error.message,
