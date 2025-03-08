@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -8,7 +7,7 @@ type AuthContextType = {
   user: User | null;
   session: Session | null;
   signUp: (email: string, password: string, metadata?: { name?: string, phone?: string }) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -84,10 +83,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, metadata?: { name?: string, phone?: string }) => {
     setLoading(true);
     try {
-      // Create confirmation URL
       const redirectURL = `${window.location.origin}/auth/confirm`;
       
-      // Standard Supabase signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -99,12 +96,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (error) throw error;
       
-      // Send custom email if the user was created
       if (data?.user && !data.user.confirmed_at) {
         try {
-          // Generate a simple token for the confirmation URL
-          // Since confirmation_token is not available on the User type, we'll use a generic approach
-          const token = "token"; // Using a placeholder since we don't have access to the actual token
+          const token = "token";
           const confirmationURL = `${redirectURL}?token=${token}`;
           
           await sendCustomEmail("signup", email, confirmationURL);
@@ -137,25 +131,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta.",
-      });
+
+      if (data?.user) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
+        }
+        
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta.",
+        });
+        
+        return true;
+      }
+      
+      return false;
     } catch (error: any) {
       toast({
         title: "Erro no login",
         description: error.message,
         variant: "destructive",
       });
+      return false;
     } finally {
       setLoading(false);
     }
@@ -181,17 +193,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const redirectURL = `${window.location.origin}/reset-password`;
       
-      // Standard Supabase password reset
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectURL,
       });
       
       if (error) throw error;
       
-      // Send custom email
       try {
-        // Note: In a real implementation, you'd need to capture the reset token
-        // This is a simplified example
         const resetURL = `${redirectURL}?token=placeholder`;
         await sendCustomEmail("recovery", email, resetURL);
         
@@ -217,9 +225,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteAccount = async () => {
     try {
-      // This is a basic implementation. In a real app, you'd want to:
-      // 1. Delete user data from other tables first
-      // 2. Have proper confirmation
       const { error } = await supabase.rpc('delete_user');
       
       if (error) throw error;

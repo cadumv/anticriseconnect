@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,20 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
-  const { signIn, resetPassword, loading } = useAuth();
+  const { signIn, resetPassword, loading, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to profile page if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/profile');
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
-    // Navigation will happen automatically through the auth state change
+    const success = await signIn(email, password);
+    // Redirection will happen automatically through the useEffect hook above
   };
 
   const handleRecovery = async (e: React.FormEvent) => {
