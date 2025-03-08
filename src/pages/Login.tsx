@@ -27,7 +27,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-primary">Bem-vindo(a) ao Conecta Engenharia</h1>
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>{isRecovery ? "Recuperar senha" : "Login"}</CardTitle>
