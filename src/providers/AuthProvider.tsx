@@ -207,18 +207,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = async () => {
     try {
+      setLoading(true);
+      console.log("Signing out...");
+      
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      
+      if (error) {
+        console.error("Error during sign out:", error);
+        throw error;
+      }
+      
+      // Reset user and session state
+      setUser(null);
+      setSession(null);
+      
       toast({
         title: "Logout realizado com sucesso",
+        description: "Você foi desconectado do sistema."
       });
-      navigate('/login');
+      
+      // Always navigate to login page, even if there was an error
+      navigate('/login', { replace: true });
     } catch (error: any) {
+      console.error("Exception during sign out:", error);
       toast({
         title: "Erro ao fazer logout",
         description: error.message,
         variant: "destructive",
       });
+      
+      // Still navigate to login page even on error
+      navigate('/login', { replace: true });
+    } finally {
+      setLoading(false);
     }
   };
 

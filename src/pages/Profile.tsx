@@ -7,22 +7,34 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
+import { Navigate } from "react-router-dom";
 
 const Profile = () => {
-  const { user, signOut, deleteAccount } = useAuth();
+  const { user, signOut, deleteAccount, loading } = useAuth();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-  if (!user) {
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      // Navigation is handled in the signOut function itself
+    } catch (error) {
+      console.error("Error in handleSignOut:", error);
+      setIsSigningOut(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="container mx-auto py-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>Acesso negado</CardTitle>
-            <CardDescription>Você precisa estar logado para acessar esta página.</CardDescription>
-          </CardHeader>
-        </Card>
+      <div className="container mx-auto py-10 flex justify-center items-center">
+        <div className="animate-pulse text-lg">Carregando...</div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
   return (
@@ -36,7 +48,12 @@ const Profile = () => {
               <CardTitle>Minha Conta</CardTitle>
               <CardDescription>Gerencie suas informações de conta</CardDescription>
             </div>
-            <Button onClick={() => signOut()}>Sair</Button>
+            <Button 
+              onClick={handleSignOut} 
+              disabled={isSigningOut}
+            >
+              {isSigningOut ? "Saindo..." : "Sair"}
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
