@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRecovery, setIsRecovery] = useState(false);
-  const { signIn, signInWithGoogle, resetPassword, loading, user } = useAuth();
+  const { signIn, signInWithGoogle, resetPassword, loading, user, projectName } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to profile page if user is already logged in
@@ -56,7 +55,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-primary">Bem-vindo(a) ao Conecta Engenharia</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-primary">Bem-vindo(a) ao {projectName}</h1>
       <Card className="w-[350px]">
         <CardHeader>
           <CardTitle>{isRecovery ? "Recuperar senha" : "Login"}</CardTitle>

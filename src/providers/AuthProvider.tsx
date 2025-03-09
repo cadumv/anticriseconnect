@@ -11,7 +11,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const projectName = "Conecta Engenharia";
+  const projectName = "Anticrise connect";
 
   useEffect(() => {
     const fetchSession = async () => {
