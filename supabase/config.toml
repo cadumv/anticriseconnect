@@ -1,7 +1,24 @@
 
 project_id = "ndqaokjyeimjspxlnzjq"
-[functions.custom-auth-emails]
-verify_jwt = false
 
-[auth.redirect]
-site_url = "http://localhost:5173"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost:54321"
+
+[auth]
+enabled = true
+
+[auth.email]
+enabled = true
+
+[functions.generate-professional-description]
+verify_jwt = true

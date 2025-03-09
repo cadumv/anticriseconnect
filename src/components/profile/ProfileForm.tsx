@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { AreasOfExpertise } from "./AreasOfExpertise";
+import { Lightbulb, Loader2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Lista de tipos de engenharia
 const engineeringTypes = [
@@ -59,11 +61,50 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
     user?.user_metadata?.areas_of_expertise || ["", "", ""]
   );
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || "");
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
 
   const updateAreasOfExpertise = (index: number, value: string) => {
     const updatedAreas = [...areasOfExpertise];
     updatedAreas[index] = value;
     setAreasOfExpertise(updatedAreas);
+  };
+
+  const generateProfessionalDescription = async () => {
+    setIsGeneratingDescription(true);
+    try {
+      // Filter out empty areas of expertise
+      const filteredAreas = areasOfExpertise.filter(area => area.trim() !== "");
+      
+      const { data, error } = await supabase.functions.invoke('generate-professional-description', {
+        body: {
+          engineeringType,
+          keywords: filteredAreas
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setProfessionalDescription(data.description);
+      toast({
+        title: "Descrição gerada com sucesso",
+        description: "Uma descrição profissional foi criada com base no seu perfil."
+      });
+    } catch (error: any) {
+      console.error('Error generating description:', error);
+      toast({
+        title: "Erro ao gerar descrição",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingDescription(false);
+    }
   };
 
   const updateProfile = async (e: React.FormEvent) => {
@@ -150,7 +191,33 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="professional-description">Breve descrição sobre sua atuação profissional</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="professional-description">Breve descrição sobre sua atuação profissional</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={generateProfessionalDescription}
+                    disabled={isGeneratingDescription || !engineeringType}
+                    className="ml-auto"
+                  >
+                    {isGeneratingDescription ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Lightbulb className="h-4 w-4" />
+                    )}
+                    <span>IA</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Gerar descrição com IA baseada no seu tipo de engenharia e áreas de atuação</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <Textarea
             id="professional-description"
             value={professionalDescription}
@@ -158,6 +225,9 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
             placeholder="Descreva brevemente sua experiência e atuação profissional"
             rows={3}
           />
+          {!engineeringType && (
+            <p className="text-xs text-muted-foreground">Selecione um tipo de engenharia para usar a assistência de IA</p>
+          )}
         </div>
 
         <div className="grid gap-2">
