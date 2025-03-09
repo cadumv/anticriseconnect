@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -138,12 +137,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signInWithGoogle = async (): Promise<boolean> => {
     setLoading(true);
     try {
-      console.log("Starting Google OAuth sign-in, redirect URL:", `${window.location.origin}/profile`);
+      console.log("Starting Google OAuth sign-in, redirect URL:", `${window.location.origin}/`);
       
       const { error, data } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/profile`,
+          redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
