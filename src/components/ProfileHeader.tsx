@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ConnectionsDialog } from "./ConnectionsDialog";
-import { Achievements } from "./Achievements"; // Import the Achievements component
 
 export const ProfileHeader = () => {
   const { user } = useAuth();
@@ -160,16 +159,6 @@ export const ProfileHeader = () => {
             </div>
           )}
         </div>
-      </div>
-      
-      {/* Add Achievements component below the profile info */}
-      <div className="mt-6">
-        <Achievements 
-          showProfileSpecific={true}
-          profileId={user?.id}
-          isDemoProfile={false}
-          compact={true}
-        />
       </div>
     </div>
   );
