@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { AchievementsDialog } from "./AchievementsDialog";
 
 interface AchievementsProps {
   showProfileSpecific?: boolean;
@@ -49,6 +51,7 @@ export const Achievements = ({
 }: AchievementsProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // If showing for a specific profile and it's not the current user
   const showingForOtherProfile = showProfileSpecific && profileId !== user?.id;
@@ -56,31 +59,43 @@ export const Achievements = ({
   // For demo profile, show all achievements
   const demoMode = isDemoProfile && showProfileSpecific;
 
-  // Calculate total points - only for demo or authenticated users
+  // Get achievements data
   const achievements = demoMode ? DEMO_ACHIEVEMENTS : [];
   const completedAchievements = achievements.filter(a => a.completed);
+  
+  // Calculate total points - only for demo or authenticated users
   const totalPoints = completedAchievements.reduce((sum, ach) => sum + ach.points, 0);
+  
+  // Get top 3 most valuable completed achievements
+  const topAchievements = [...completedAchievements]
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 3);
 
   const handleViewAllAchievements = () => {
-    navigate('/achievements');
+    if (compact) {
+      navigate('/achievements');
+    } else {
+      setIsDialogOpen(true);
+    }
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl">Conquistas</CardTitle>
-        {!compact && totalPoints > 0 && (
-          <Badge variant="outline" className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200 px-3 py-1">
-            {totalPoints} pontos
-          </Badge>
-        )}
-      </CardHeader>
-      <CardContent>
-        {(user || showingForOtherProfile || demoMode) ? (
-          <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {compact 
-                ? completedAchievements.slice(0, 4).map(achievement => (
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-xl">Conquistas</CardTitle>
+          {!compact && totalPoints > 0 && (
+            <Badge variant="outline" className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200 px-3 py-1">
+              {totalPoints} pontos
+            </Badge>
+          )}
+        </CardHeader>
+        <CardContent>
+          {(user || showingForOtherProfile || demoMode) ? (
+            <>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {topAchievements.length > 0 ? (
+                  topAchievements.map(achievement => (
                     <div 
                       key={achievement.id} 
                       className="flex flex-col items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -92,23 +107,14 @@ export const Achievements = ({
                       <span className="text-xs text-gray-500 mt-1">{achievement.points} pts</span>
                     </div>
                   ))
-                : DEMO_ACHIEVEMENTS.map(achievement => (
-                    <div 
-                      key={achievement.id}
-                      className={`flex flex-col items-center p-3 bg-gray-50 rounded-lg ${demoMode && !achievement.completed ? 'opacity-50' : ''}`}
-                    >
-                      <div className={`w-12 h-12 ${demoMode || achievement.completed ? 'bg-blue-100' : 'bg-gray-100'} rounded-full flex items-center justify-center mb-2`}>
-                        {renderIcon(achievement.icon)}
-                      </div>
-                      <span className="text-sm text-center font-medium">{achievement.title}</span>
-                      <span className="text-xs text-gray-500 mt-1">{achievement.points} pts</span>
-                    </div>
-                  ))
-              }
-            </div>
-            
-            {compact && completedAchievements.length > 0 && (
-              <div className="mt-4 text-center">
+                ) : (
+                  <div className="col-span-3 text-center py-4">
+                    <p className="text-gray-500">Nenhuma conquista obtida ainda</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="text-center">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -118,14 +124,22 @@ export const Achievements = ({
                   Ver todas as conquistas <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-6">
-            <p className="text-gray-500">Faça login para ver suas conquistas</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-gray-500">Faça login para ver suas conquistas</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {!compact && (
+        <AchievementsDialog 
+          isOpen={isDialogOpen} 
+          onClose={() => setIsDialogOpen(false)} 
+          achievements={achievements}
+        />
+      )}
+    </>
   );
 };
