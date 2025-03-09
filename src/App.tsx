@@ -1,3 +1,4 @@
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -13,6 +14,7 @@ import PublicProfile from './pages/PublicProfile';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
 import AchievementsPage from './pages/AchievementsPage';
+import './App.css';
 
 function App() {
   return (

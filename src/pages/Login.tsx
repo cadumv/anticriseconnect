@@ -60,9 +60,9 @@ const Login = () => {
   console.log("Rendering Login component, isRecovery:", isRecovery);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-4">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-primary">Bem-vindo(a) ao {projectName}</h1>
-      <Card className="w-[350px]">
+      <Card className="w-full max-w-[350px]">
         <CardHeader>
           <CardTitle>{isRecovery ? "Recuperar senha" : "Login"}</CardTitle>
           <CardDescription>
