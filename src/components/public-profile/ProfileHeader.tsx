@@ -56,56 +56,54 @@ export const ProfileHeader = ({
           </div>
         </div>
 
-        {currentUser && currentUser.id !== profile.id && (
-          <div className="flex flex-wrap gap-2">
-            <Button 
-              variant={isFollowing ? "outline" : "default"} 
-              onClick={onFollowToggle}
-              disabled={followLoading}
-              className="gap-1"
-            >
-              {isFollowing ? (
-                <>
-                  <UserCheck className="h-4 w-4" /> Seguindo
-                </>
-              ) : (
-                <>
-                  <UserPlus className="h-4 w-4" /> Seguir
-                </>
-              )}
-            </Button>
-            <Button 
-              onClick={onConnectionRequest}
-              className="gap-1"
-              variant="secondary"
-            >
-              <Handshake className="h-4 w-4" /> Conexão Anticrise
-            </Button>
+        <div className="flex flex-col gap-4 sm:items-end">
+          {/* Stats moved to the middle area as per red rectangle in image */}
+          <div className="flex items-center gap-6 text-sm">
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{connections}</span>
+              <span className="text-gray-600">conexões</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{followers}</span>
+              <span className="text-gray-600">seguidores</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{following}</span>
+              <span className="text-gray-600">seguindo</span>
+            </div>
           </div>
-        )}
+
+          {currentUser && currentUser.id !== profile.id && (
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant={isFollowing ? "outline" : "default"} 
+                onClick={onFollowToggle}
+                disabled={followLoading}
+                className="gap-1"
+              >
+                {isFollowing ? (
+                  <>
+                    <UserCheck className="h-4 w-4" /> Seguindo
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4" /> Seguir
+                  </>
+                )}
+              </Button>
+              <Button 
+                onClick={onConnectionRequest}
+                className="gap-1"
+                variant="secondary"
+              >
+                <Handshake className="h-4 w-4" /> Conexão Anticrise
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
       
-      {/* Profile statistics row */}
-      <div className="flex items-center gap-8 text-left ml-1 mt-1">
-        <div className="flex items-center gap-1">
-          <Handshake className="h-4 w-4 text-blue-500" />
-          <p className="text-sm font-semibold">
-            <span className="font-bold">{connections}</span> conexões
-          </p>
-        </div>
-        <div className="flex items-center gap-1">
-          <Users className="h-4 w-4 text-blue-500" />
-          <p className="text-sm font-semibold">
-            <span className="font-bold">{followers}</span> seguidores
-          </p>
-        </div>
-        <div className="flex items-center gap-1">
-          <UserPlus className="h-4 w-4 text-blue-500" />
-          <p className="text-sm font-semibold">
-            <span className="font-bold">{following}</span> seguindo
-          </p>
-        </div>
-      </div>
+      {/* Removing the duplicate profile statistics row from here */}
     </div>
   );
 };
