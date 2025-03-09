@@ -54,12 +54,12 @@ export const useProfileDescription = ({
 
       if (error) {
         console.error("Supabase function error:", error);
-        throw new Error(error.message);
+        throw new Error(error.message || "Erro ao chamar serviço de IA");
       }
 
       if (data?.error) {
         console.error("Data contains error:", data.error);
-        throw new Error(data.error);
+        throw new Error(data.error || "Erro na resposta da IA");
       }
 
       if (!data?.description) {
@@ -70,7 +70,7 @@ export const useProfileDescription = ({
       setProfessionalDescription(data.description);
       toast({
         title: "Descrição gerada com sucesso",
-        description: "Uma descrição profissional foi criada com base no seu perfil."
+        description: "Uma descrição profissional otimizada foi criada com base no seu perfil."
       });
     } catch (error: any) {
       console.error('Error generating description:', error);
@@ -130,12 +130,12 @@ export const useProfileDescription = ({
 
       if (error) {
         console.error("Supabase function error:", error);
-        throw new Error(error.message);
+        throw new Error(error.message || "Erro ao chamar serviço de IA");
       }
 
       if (data?.error) {
         console.error("Data contains error:", data.error);
-        throw new Error(data.error);
+        throw new Error(data.error || "Erro na resposta da IA");
       }
 
       if (!data?.description) {
@@ -145,8 +145,8 @@ export const useProfileDescription = ({
       console.log("Setting improved description:", data.description);
       setProfessionalDescription(data.description);
       toast({
-        title: "Descrição melhorada com sucesso",
-        description: "A IA aprimorou sua descrição profissional."
+        title: "Descrição aprimorada com sucesso",
+        description: "A IA otimizou sua descrição profissional para maior impacto."
       });
     } catch (error: any) {
       console.error('Error improving description:', error);

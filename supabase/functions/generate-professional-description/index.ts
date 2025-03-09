@@ -29,27 +29,54 @@ serve(async (req) => {
       );
     }
 
-    let prompt;
+    let systemPrompt = `Você é um assistente especializado em criar perfis profissionais impactantes para engenheiros. 
+Suas descrições devem ser:
+- Concisas e diretas (máximo 2 parágrafos)
+- Profissionais e técnicas 
+- Em primeira pessoa
+- Focadas nas competências específicas da área de engenharia mencionada
+- Incluir termos técnicos relevantes para a especialidade
+- Evitar clichês e frases genéricas
+- Entre 220-250 caracteres para maior impacto
+- Em português brasileiro formal`;
+    
+    let userPrompt;
     
     if (action === 'improve') {
-      prompt = `Melhore a seguinte descrição profissional de um especialista em ${engineeringType || 'Engenharia'}${
+      userPrompt = `Melhore esta descrição profissional de um especialista em ${engineeringType || 'Engenharia'}${
         keywords && keywords.length > 0 
           ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
           : ''
-      }. A descrição deve continuar profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Mantenha o tom pessoal em primeira pessoa, mas melhore a fluência e impacto. Não ultrapasse 250 caracteres.
+      }. 
       
-      Descrição atual: "${currentDescription}"`;
+Descrição atual: "${currentDescription}"
+
+Analise criticamente a descrição atual e reescreva-a para:
+1. Torná-la mais impactante e técnica
+2. Usar vocabulário mais preciso da área
+3. Eliminar quaisquer clichês ou generalizações
+4. Manter tom profissional em primeira pessoa
+5. Demonstrar competência técnica específica`;
     } else {
-      prompt = `Crie uma breve descrição profissional em primeira pessoa para um profissional de ${engineeringType || 'Engenharia'}${
+      userPrompt = `Crie uma breve descrição profissional para um profissional de ${engineeringType || 'Engenharia'}${
         keywords && keywords.length > 0 
           ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
           : ''
-      }. A descrição deve ser profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Escreva em português do Brasil e evite clichês. Não use mais que 250 caracteres.`;
+      }.
+
+Dicas:
+1. Use termos técnicos específicos da área de ${engineeringType}
+2. Mencione habilidades e competências valorizadas no mercado
+3. Inclua referências aos conhecimentos específicos (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
+4. Destaque o valor que o profissional agrega aos projetos
+5. Mantenha entre 220-250 caracteres`;
     }
 
-    console.log('Sending prompt to OpenAI:', prompt);
+    console.log('Sending prompts to OpenAI:');
+    console.log('System prompt:', systemPrompt);
+    console.log('User prompt:', userPrompt);
 
-    // Adjust OpenAI API call to use a more reliable model
+    // Use uma versão mais avançada do modelo GPT-4o para melhor qualidade
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -57,12 +84,12 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o', // Usando o modelo mais avançado para melhor qualidade
         messages: [
-          { role: 'system', content: 'Você é um assistente especializado em criar perfis profissionais concisos e impactantes para engenheiros.' },
-          { role: 'user', content: prompt }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
+        temperature: 0.6, // Ligeiramente mais baixo para respostas mais consistentes
         max_tokens: 300,
       }),
     });
@@ -95,6 +122,7 @@ serve(async (req) => {
     }
     
     console.log('Generated description:', description);
+    console.log('Character count:', description.length);
 
     return new Response(
       JSON.stringify({ description }),
