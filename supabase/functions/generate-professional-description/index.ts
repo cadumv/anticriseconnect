@@ -29,16 +29,20 @@ serve(async (req) => {
       );
     }
 
-    let systemPrompt = `Você é um assistente especializado em criar perfis profissionais impactantes para engenheiros. 
-Suas descrições devem ser:
+    let systemPrompt = `Você é um especialista em escrita técnica e copywriting para perfis profissionais de engenheiros.
+Você domina a norma culta do português brasileiro e conhece a nomenclatura correta de todas as especialidades de engenharia (ex: 'Engenheiro Eletricista' e não 'Engenheiro Elétrico').
+
+Suas descrições profissionais devem ser:
 - Concisas e diretas (máximo 1 parágrafo)
-- Profissionais e técnicas 
+- Profissionais, técnicas e atrativas para o mercado
 - Em primeira pessoa
-- Focadas nas competências específicas da área de engenharia mencionada
-- Incluir termos técnicos relevantes para a especialidade
-- Evitar clichês e frases genéricas
-- EXATAMENTE 250 caracteres ou menos (isto é obrigatório)
-- Em português brasileiro formal`;
+- Específicas para cada especialidade de engenharia, evitando generalizações
+- Ricas em termos técnicos relevantes e precisos para a especialidade
+- Livres de erros gramaticais e de nomenclatura técnica
+- Sem clichês, lugares-comuns ou frases genéricas
+- Destacando diferenciação profissional e valor agregado
+- EXATAMENTE 250 caracteres ou menos (isto é OBRIGATÓRIO)
+- Em português brasileiro formal e técnico`;
     
     let userPrompt;
     
@@ -52,25 +56,29 @@ Suas descrições devem ser:
 Descrição atual: "${currentDescription}"
 
 Analise criticamente a descrição atual e reescreva-a para:
-1. Torná-la mais impactante e técnica
-2. Usar vocabulário mais preciso da área
-3. Eliminar quaisquer clichês ou generalizações
+1. Utilizar a nomenclatura técnica correta da engenharia mencionada
+2. Usar vocabulário preciso e técnico da área específica
+3. Eliminar quaisquer generalizações, clichês ou frases feitas
 4. Manter tom profissional em primeira pessoa
-5. Demonstrar competência técnica específica
-6. Garantir que tenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
+5. Demonstrar competência técnica específica e valor agregado
+6. Garantir correção gramatical e terminológica
+7. Garantir que tenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     } else {
-      userPrompt = `Crie uma breve descrição profissional para um profissional de ${engineeringType || 'Engenharia'}${
+      userPrompt = `Crie uma descrição profissional impactante para um profissional de ${engineeringType || 'Engenharia'}${
         keywords && keywords.length > 0 
           ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
           : ''
       }.
 
-Dicas:
-1. Use termos técnicos específicos da área de ${engineeringType}
-2. Mencione habilidades e competências valorizadas no mercado
-3. Inclua referências aos conhecimentos específicos (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
-4. Destaque o valor que o profissional agrega aos projetos
-5. Mantenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
+Requisitos:
+1. Use a nomenclatura técnica CORRETA para esta especialidade de engenharia
+2. Empregue termos técnicos específicos e precisos da área de ${engineeringType}
+3. Mencione habilidades e competências valorizadas no mercado atual
+4. Relacione explicitamente as competências com as áreas de atuação mencionadas (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
+5. Destaque o valor diferenciado que o profissional agrega aos projetos e organizações
+6. Evite completamente frases genéricas ou clichês que poderiam se aplicar a qualquer profissional
+7. Garanta correção gramatical e terminológica impecável
+8. Mantenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     }
 
     console.log('Sending prompts to OpenAI:');
@@ -89,7 +97,7 @@ Dicas:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.6, // Slightly lower for more consistent responses
+        temperature: 0.7, // Slightly increased for more creative yet precise responses
         max_tokens: 300,
       }),
     });
