@@ -42,7 +42,7 @@ export const ProfileHeader = ({
             <User className="h-12 w-12 text-blue-500" />
           )}
         </div>
-        <div>
+        <div className="text-left">
           <h2 className="text-2xl font-semibold">{profile.name}</h2>
           {profile.engineering_type && (
             <Badge className="mt-2">{profile.engineering_type}</Badge>
