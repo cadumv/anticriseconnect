@@ -30,6 +30,14 @@ export const ProfileDescriptionGenerator = ({
     setProfessionalDescription
   });
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    // Limit to 250 characters
+    if (value.length <= 250) {
+      setProfessionalDescription(value);
+    }
+  };
+
   return (
     <div className="grid gap-2">
       <div className="flex justify-between items-center">
@@ -53,8 +61,8 @@ export const ProfileDescriptionGenerator = ({
       <Textarea
         id="professional-description"
         value={professionalDescription}
-        onChange={(e) => setProfessionalDescription(e.target.value)}
-        placeholder="Descreva brevemente sua experiência e atuação profissional"
+        onChange={handleTextChange}
+        placeholder="Descreva brevemente sua experiência e atuação profissional (máximo 250 caracteres)"
         rows={3}
         maxLength={250}
       />

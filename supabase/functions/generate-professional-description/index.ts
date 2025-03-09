@@ -31,13 +31,13 @@ serve(async (req) => {
 
     let systemPrompt = `Você é um assistente especializado em criar perfis profissionais impactantes para engenheiros. 
 Suas descrições devem ser:
-- Concisas e diretas (máximo 2 parágrafos)
+- Concisas e diretas (máximo 1 parágrafo)
 - Profissionais e técnicas 
 - Em primeira pessoa
 - Focadas nas competências específicas da área de engenharia mencionada
 - Incluir termos técnicos relevantes para a especialidade
 - Evitar clichês e frases genéricas
-- Entre 220-250 caracteres para maior impacto
+- EXATAMENTE 250 caracteres ou menos (isto é obrigatório)
 - Em português brasileiro formal`;
     
     let userPrompt;
@@ -56,7 +56,8 @@ Analise criticamente a descrição atual e reescreva-a para:
 2. Usar vocabulário mais preciso da área
 3. Eliminar quaisquer clichês ou generalizações
 4. Manter tom profissional em primeira pessoa
-5. Demonstrar competência técnica específica`;
+5. Demonstrar competência técnica específica
+6. Garantir que tenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     } else {
       userPrompt = `Crie uma breve descrição profissional para um profissional de ${engineeringType || 'Engenharia'}${
         keywords && keywords.length > 0 
@@ -69,14 +70,13 @@ Dicas:
 2. Mencione habilidades e competências valorizadas no mercado
 3. Inclua referências aos conhecimentos específicos (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
 4. Destaque o valor que o profissional agrega aos projetos
-5. Mantenha entre 220-250 caracteres`;
+5. Mantenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     }
 
     console.log('Sending prompts to OpenAI:');
     console.log('System prompt:', systemPrompt);
     console.log('User prompt:', userPrompt);
 
-    // Use uma versão mais avançada do modelo GPT-4o para melhor qualidade
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -84,12 +84,12 @@ Dicas:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o', // Usando o modelo mais avançado para melhor qualidade
+        model: 'gpt-4o', // Using the more advanced model for better quality
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.6, // Ligeiramente mais baixo para respostas mais consistentes
+        temperature: 0.6, // Slightly lower for more consistent responses
         max_tokens: 300,
       }),
     });
@@ -118,10 +118,11 @@ Dicas:
     let description = data.choices[0].message.content.trim();
     
     if (description.length > 250) {
-      description = description.substring(0, 247) + '...';
+      description = description.substring(0, 250);
+      console.log('Description truncated to 250 characters');
     }
     
-    console.log('Generated description:', description);
+    console.log('Final generated description:', description);
     console.log('Character count:', description.length);
 
     return new Response(
