@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,12 +38,15 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Attempting login with:", email);
     const success = await signIn(email, password);
+    console.log("Login result:", success);
     // Redirection will happen automatically through the useEffect hook above
   };
 
   const handleRecovery = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Attempting password recovery for:", email);
     await resetPassword(email);
     setIsRecovery(false);
   };
@@ -52,6 +56,8 @@ const Login = () => {
     await signInWithGoogle();
     // Redirection will happen automatically through the useEffect hook above
   };
+
+  console.log("Rendering Login component, isRecovery:", isRecovery);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background">

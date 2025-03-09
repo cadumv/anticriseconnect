@@ -16,7 +16,7 @@ export const EngineeringTypeSelect = ({ engineeringType, setEngineeringType }: E
         value={engineeringType} 
         onValueChange={setEngineeringType}
       >
-        <SelectTrigger>
+        <SelectTrigger id="engineering-type">
           <SelectValue placeholder="Selecione o tipo de engenharia" />
         </SelectTrigger>
         <SelectContent>
