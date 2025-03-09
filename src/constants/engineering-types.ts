@@ -1,0 +1,30 @@
+
+// Lista de tipos de engenharia
+export const engineeringTypes = [
+  "Engenharia elétrica",
+  "Engenharia mecânica",
+  "Engenharia mecatrônica",
+  "Engenharia de produção",
+  "Engenharia química",
+  "Engenharia ambiental",
+  "Engenharia da computação",
+  "Engenharia de alimentos",
+  "Engenharia agronômica",
+  "Engenharia de petróleo",
+  "Engenharia aeronáutica",
+  "Engenharia agrícola",
+  "Engenharia biomédica",
+  "Engenharia de bioprocessos",
+  "Engenharia de controle e automação",
+  "Engenharia de energia",
+  "Engenharia florestal",
+  "Engenharia de minas",
+  "Engenharia metalúrgica",
+  "Engenharia naval",
+  "Engenharia de transportes",
+  "Engenharia hidráulica",
+  "Engenharia de meio ambiente",
+  "Engenharia de estruturas",
+  "Engenharia urbana",
+  "Engenharia geotecnia"
+];

@@ -3,45 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { AreasOfExpertise } from "./AreasOfExpertise";
-import { Lightbulb, Loader2, Wand2 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-
-// Lista de tipos de engenharia
-const engineeringTypes = [
-  "Engenharia elétrica",
-  "Engenharia mecânica",
-  "Engenharia mecatrônica",
-  "Engenharia de produção",
-  "Engenharia química",
-  "Engenharia ambiental",
-  "Engenharia da computação",
-  "Engenharia de alimentos",
-  "Engenharia agronômica",
-  "Engenharia de petróleo",
-  "Engenharia aeronáutica",
-  "Engenharia agrícola",
-  "Engenharia biomédica",
-  "Engenharia de bioprocessos",
-  "Engenharia de controle e automação",
-  "Engenharia de energia",
-  "Engenharia florestal",
-  "Engenharia de minas",
-  "Engenharia metalúrgica",
-  "Engenharia naval",
-  "Engenharia de transportes",
-  "Engenharia hidráulica",
-  "Engenharia de meio ambiente",
-  "Engenharia de estruturas",
-  "Engenharia urbana",
-  "Engenharia geotecnia"
-];
+import { ProfileDescriptionGenerator } from "./ProfileDescriptionGenerator";
+import { EngineeringTypeSelect } from "./EngineeringTypeSelect";
 
 interface ProfileFormProps {
   user: User;
@@ -61,127 +29,11 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
     user?.user_metadata?.areas_of_expertise || ["", "", ""]
   );
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || "");
-  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
-  const [isImprovingDescription, setIsImprovingDescription] = useState(false);
 
   const updateAreasOfExpertise = (index: number, value: string) => {
     const updatedAreas = [...areasOfExpertise];
     updatedAreas[index] = value;
     setAreasOfExpertise(updatedAreas);
-  };
-
-  const generateProfessionalDescription = async () => {
-    setIsGeneratingDescription(true);
-    console.log("Starting professional description generation");
-    
-    try {
-      // Filter out empty areas of expertise
-      const filteredAreas = areasOfExpertise.filter(area => area.trim() !== "");
-      
-      console.log("Calling Supabase function with:", { 
-        engineeringType, 
-        keywords: filteredAreas 
-      });
-      
-      const { data, error } = await supabase.functions.invoke('generate-professional-description', {
-        body: {
-          engineeringType,
-          keywords: filteredAreas,
-          action: 'generate'
-        }
-      });
-
-      console.log("Supabase function response:", { data, error });
-
-      if (error) {
-        console.error("Supabase function error:", error);
-        throw new Error(error.message);
-      }
-
-      if (data.error) {
-        console.error("Data contains error:", data.error);
-        throw new Error(data.error);
-      }
-
-      console.log("Setting description:", data.description);
-      setProfessionalDescription(data.description);
-      toast({
-        title: "Descrição gerada com sucesso",
-        description: "Uma descrição profissional foi criada com base no seu perfil."
-      });
-    } catch (error: any) {
-      console.error('Error generating description:', error);
-      toast({
-        title: "Erro ao gerar descrição",
-        description: error.message || "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingDescription(false);
-    }
-  };
-
-  const improveProfessionalDescription = async () => {
-    if (!professionalDescription.trim()) {
-      toast({
-        title: "Descrição vazia",
-        description: "É necessário ter uma descrição para melhorá-la.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsImprovingDescription(true);
-    console.log("Starting professional description improvement");
-    
-    try {
-      // Filter out empty areas of expertise
-      const filteredAreas = areasOfExpertise.filter(area => area.trim() !== "");
-      
-      console.log("Calling Supabase function with:", { 
-        engineeringType, 
-        keywords: filteredAreas,
-        currentDescription: professionalDescription,
-        action: 'improve' 
-      });
-      
-      const { data, error } = await supabase.functions.invoke('generate-professional-description', {
-        body: {
-          engineeringType,
-          keywords: filteredAreas,
-          currentDescription: professionalDescription,
-          action: 'improve'
-        }
-      });
-
-      console.log("Supabase function response:", { data, error });
-
-      if (error) {
-        console.error("Supabase function error:", error);
-        throw new Error(error.message);
-      }
-
-      if (data.error) {
-        console.error("Data contains error:", data.error);
-        throw new Error(data.error);
-      }
-
-      console.log("Setting improved description:", data.description);
-      setProfessionalDescription(data.description);
-      toast({
-        title: "Descrição melhorada com sucesso",
-        description: "A IA aprimorou sua descrição profissional."
-      });
-    } catch (error: any) {
-      console.error('Error improving description:', error);
-      toast({
-        title: "Erro ao melhorar descrição",
-        description: error.message || "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsImprovingDescription(false);
-    }
   };
 
   const updateProfile = async (e: React.FormEvent) => {
@@ -248,89 +100,17 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
           />
         </div>
         
-        <div className="grid gap-2">
-          <Label htmlFor="engineering-type">Tipo de Engenharia</Label>
-          <Select 
-            value={engineeringType} 
-            onValueChange={setEngineeringType}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o tipo de engenharia" />
-            </SelectTrigger>
-            <SelectContent>
-              {engineeringTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <EngineeringTypeSelect 
+          engineeringType={engineeringType}
+          setEngineeringType={setEngineeringType}
+        />
 
-        <div className="grid gap-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="professional-description">Breve descrição sobre sua atuação profissional</Label>
-            <div className="flex gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      onClick={improveProfessionalDescription}
-                      disabled={isImprovingDescription || !engineeringType || !professionalDescription.trim()}
-                    >
-                      {isImprovingDescription ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Wand2 className="h-4 w-4" />
-                      )}
-                      <span>Melhorar</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Melhorar a descrição atual com IA</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={generateProfessionalDescription}
-                      disabled={isGeneratingDescription || !engineeringType}
-                    >
-                      {isGeneratingDescription ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Lightbulb className="h-4 w-4" />
-                      )}
-                      <span>Gerar</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Gerar nova descrição com IA baseada no seu tipo de engenharia e áreas de atuação</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-          <Textarea
-            id="professional-description"
-            value={professionalDescription}
-            onChange={(e) => setProfessionalDescription(e.target.value)}
-            placeholder="Descreva brevemente sua experiência e atuação profissional"
-            rows={3}
-          />
-          {!engineeringType && (
-            <p className="text-xs text-muted-foreground">Selecione um tipo de engenharia para usar a assistência de IA</p>
-          )}
-        </div>
+        <ProfileDescriptionGenerator
+          engineeringType={engineeringType}
+          areasOfExpertise={areasOfExpertise}
+          professionalDescription={professionalDescription}
+          setProfessionalDescription={setProfessionalDescription}
+        />
 
         <div className="grid gap-2">
           <Label>Áreas de atuação em que atua ou gostaria de atuar</Label>
