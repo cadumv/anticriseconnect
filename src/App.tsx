@@ -2,6 +2,9 @@
 import {
   createBrowserRouter,
   RouterProvider,
+  BrowserRouter,
+  Routes,
+  Route,
 } from "react-router-dom";
 import Index from './pages/Index';
 import { AuthProvider } from "./hooks/useAuth";
@@ -18,47 +21,23 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <div className='min-h-screen w-full bg-slate-50'>
-        <RouterProvider
-          router={createBrowserRouter([
-            {
-              path: "/",
-              element: <Index />,
-            },
-            {
-              path: "/signup",
-              element: <Signup />,
-            },
-            {
-              path: "/login",
-              element: <Login />,
-            },
-            {
-              path: "/profile",
-              element: <Profile />,
-            },
-            {
-              path: "/search",
-              element: <Search />,
-            },
-            {
-              path: "/profile/:id",
-              element: <PublicProfile />,
-            },
-            {
-              path: "/achievements",
-              element: <AchievementsPage />,
-            },
-            {
-              path: "*",
-              element: <NotFound />,
-            },
-          ])}
-        />
-        <Toaster />
-      </div>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <div className='min-h-screen w-full bg-slate-50'>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/profile/:id" element={<PublicProfile />} />
+            <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </div>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
