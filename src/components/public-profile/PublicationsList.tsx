@@ -32,10 +32,10 @@ export const PublicationsList = ({ publications }: PublicationsListProps) => {
                 key={publication.id} 
                 className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
               >
-                <h3 className="font-medium text-lg text-blue-700">{publication.title}</h3>
-                <p className="mt-2 text-gray-600">{publication.snippet}</p>
+                <h3 className="font-medium text-lg text-blue-700 text-left">{publication.title}</h3>
+                <p className="mt-2 text-gray-600 text-left">{publication.snippet}</p>
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 text-sm text-gray-500 text-left">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" /> 
                       {publication.date}
