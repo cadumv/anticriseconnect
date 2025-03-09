@@ -6,7 +6,7 @@ interface ProfileDetailsProps {
 
 export const ProfileDetails = ({ description, areasOfExpertise }: ProfileDetailsProps) => {
   return (
-    <div className="space-y-6 text-left">
+    <div className="space-y-6">
       {description && (
         <div>
           <h3 className="text-sm font-medium mb-2">Descrição profissional</h3>
