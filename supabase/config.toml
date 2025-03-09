@@ -17,8 +17,8 @@ api_url = "http://localhost:54321"
 [auth]
 enabled = true
 
-[auth.email]
-enabled = true
+# Fix: Removing the invalid [auth.email] section
+# The correct configuration for email should be under [auth] if needed
 
 [functions.generate-professional-description]
 verify_jwt = false
