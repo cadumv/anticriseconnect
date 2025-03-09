@@ -56,9 +56,9 @@ export const ProfileHeader = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 sm:items-end">
-          {/* Stats moved to the middle area as per red rectangle in image */}
-          <div className="flex items-center gap-6 text-sm">
+        <div className="flex flex-row items-center gap-4">
+          {/* Stats moved to be on the left side of the Follow button */}
+          <div className="flex items-center gap-4 text-sm mr-2">
             <div className="flex flex-col items-center">
               <span className="font-bold">{connections}</span>
               <span className="text-gray-600">conexões</span>
@@ -102,8 +102,6 @@ export const ProfileHeader = ({
           )}
         </div>
       </div>
-      
-      {/* Removing the duplicate profile statistics row from here */}
     </div>
   );
 };
