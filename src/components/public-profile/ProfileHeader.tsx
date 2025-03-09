@@ -60,16 +60,16 @@ export const ProfileHeader = ({
           {/* Stats moved to be on the left side of the Follow button */}
           <div className="flex items-center gap-4 text-sm mr-2">
             <div className="flex flex-col items-center">
-              <span className="font-bold">{connections}</span>
-              <span className="text-gray-600">conexões</span>
+              <span className="font-bold text-base">{connections}</span>
+              <span className="text-gray-700 font-medium">conexões</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-bold">{followers}</span>
-              <span className="text-gray-600">seguidores</span>
+              <span className="font-bold text-base">{followers}</span>
+              <span className="text-gray-700 font-medium">seguidores</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-bold">{following}</span>
-              <span className="text-gray-600">seguindo</span>
+              <span className="font-bold text-base">{following}</span>
+              <span className="text-gray-700 font-medium">seguindo</span>
             </div>
           </div>
 
