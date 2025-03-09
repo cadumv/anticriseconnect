@@ -1,44 +1,63 @@
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import Index from './pages/Index';
+import { AuthProvider } from "./hooks/useAuth";
+import { Toaster } from "@/components/ui/toaster"
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Profile from "./pages/Profile";
-import Search from "./pages/Search";
-import PublicProfile from "./pages/PublicProfile";
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import PublicProfile from './pages/PublicProfile';
+import Profile from './pages/Profile';
+import Search from './pages/Search';
+import AchievementsPage from './pages/AchievementsPage';
 
-const queryClient = new QueryClient();
-
-const App = () => {
-  console.log("Rendering App component");
-  
+function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <TooltipProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:id" element={<PublicProfile />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </TooltipProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <AuthProvider>
+      <div className='min-h-screen bg-slate-50'>
+        <RouterProvider
+          router={createBrowserRouter([
+            {
+              path: "/",
+              element: <Index />,
+            },
+            {
+              path: "/signup",
+              element: <Signup />,
+            },
+            {
+              path: "/login",
+              element: <Login />,
+            },
+            {
+              path: "/profile",
+              element: <Profile />,
+            },
+            {
+              path: "/search",
+              element: <Search />,
+            },
+            {
+              path: "/profile/:id",
+              element: <PublicProfile />,
+            },
+            {
+              path: "/achievements",
+              element: <AchievementsPage />,
+            },
+            {
+              path: "*",
+              element: <NotFound />,
+            },
+          ])}
+        />
+        <Toaster />
+      </div>
+    </AuthProvider>
   );
-};
+}
 
 export default App;
