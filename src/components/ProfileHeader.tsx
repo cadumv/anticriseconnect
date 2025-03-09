@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Handshake, Users, UserPlus } from "lucide-react";
+import { ConnectionsDialog } from "./ConnectionsDialog";
 
 export const ProfileHeader = () => {
   const { user } = useAuth();
@@ -38,29 +39,11 @@ export const ProfileHeader = () => {
               <h1 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h1>
             </div>
             
-            {/* Stats display similar to the demo profile */}
+            {/* Stats display with clickable items */}
             <div className="flex items-center gap-4 text-sm mt-2 sm:mt-0 mx-auto sm:mx-0">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1">
-                  <Handshake className="h-4 w-4 text-blue-500" />
-                  <span className="font-bold text-base">{connections}</span>
-                </div>
-                <span className="text-gray-700 font-medium">conexões</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-blue-500" />
-                  <span className="font-bold text-base">{followers}</span>
-                </div>
-                <span className="text-gray-700 font-medium">seguidores</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1">
-                  <UserPlus className="h-4 w-4 text-blue-500" />
-                  <span className="font-bold text-base">{following}</span>
-                </div>
-                <span className="text-gray-700 font-medium">seguindo</span>
-              </div>
+              <ConnectionsDialog type="connections" count={connections} />
+              <ConnectionsDialog type="followers" count={followers} />
+              <ConnectionsDialog type="following" count={following} />
             </div>
           </div>
           
