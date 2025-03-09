@@ -2,3 +2,6 @@
 project_id = "ndqaokjyeimjspxlnzjq"
 [functions.custom-auth-emails]
 verify_jwt = false
+
+[auth.redirect]
+site_url = "http://localhost:5173"

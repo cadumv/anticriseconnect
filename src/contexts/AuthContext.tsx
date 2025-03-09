@@ -12,6 +12,7 @@ type AuthContextType = {
   resetPassword: (email: string) => Promise<void>;
   deleteAccount: () => Promise<void>;
   loading: boolean;
+  projectName: string;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

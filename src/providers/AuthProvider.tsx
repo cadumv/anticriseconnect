@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -6,11 +5,13 @@ import { useToast } from '@/hooks/use-toast';
 import { AuthContext, AuthProviderProps } from '@/contexts/AuthContext';
 import { sendCustomEmail } from '@/utils/authEmailUtils';
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const projectName = "Conecta Engenharia";
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -232,7 +233,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const value = {
+  const contextValue = {
     user,
     session,
     signUp,
@@ -242,7 +243,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     resetPassword,
     deleteAccount,
     loading,
+    projectName
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return (
+    <AuthContext.Provider value={contextValue}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
