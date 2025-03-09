@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { AuthContext, AuthProviderProps } from '@/contexts/AuthContext';
+import { AuthContext, AuthProviderProps } from '@/hooks/useAuth';
 import { sendCustomEmail } from '@/utils/authEmailUtils';
 import { useNavigate } from 'react-router-dom';
 

@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
-import { DEMO_ACHIEVEMENTS, Achievement } from "@/types/profile";
+import { DEMO_ACHIEVEMENTS } from "@/types/profile";
 import { 
   Trophy, Medal, Star, FileText, User, 
   MessageCircle, HandshakeIcon, Gem, ArrowRight 
