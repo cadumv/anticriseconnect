@@ -1,21 +1,47 @@
 
-import { Phone } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { ChatDialog } from "@/components/ChatDialog";
 
 interface ProfileContactProps {
-  phone: string;
+  profileId: string;
+  profileName: string;
+  isConnectionAccepted: boolean;
 }
 
-export const ProfileContact = ({ phone }: ProfileContactProps) => {
+export const ProfileContact = ({ profileId, profileName, isConnectionAccepted }: ProfileContactProps) => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return (
     <div className="pt-4 border-t">
       <h3 className="text-sm font-medium mb-2">Contato</h3>
-      <div className="space-y-2">
-        {phone && (
-          <div className="flex items-center gap-2 text-gray-700">
-            <Phone className="h-4 w-4" /> {phone}
-          </div>
+      <div className="flex items-center">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="gap-2"
+          disabled={!isConnectionAccepted}
+          onClick={() => setIsChatOpen(true)}
+        >
+          <MessageCircle className="h-4 w-4" /> 
+          Enviar mensagem
+        </Button>
+        {!isConnectionAccepted && (
+          <span className="text-xs text-gray-500 ml-2">
+            (Disponível após aceite da conexão)
+          </span>
         )}
       </div>
+
+      {isChatOpen && (
+        <ChatDialog 
+          isOpen={isChatOpen} 
+          onClose={() => setIsChatOpen(false)} 
+          recipientId={profileId}
+          recipientName={profileName}
+        />
+      )}
     </div>
   );
 };

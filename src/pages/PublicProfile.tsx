@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -67,6 +66,7 @@ const PublicProfile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
+  const [isConnectionAccepted, setIsConnectionAccepted] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -98,8 +98,6 @@ const PublicProfile = () => {
         if (error) throw error;
         setProfile(data);
         
-        // In the future, fetch real publications from the database
-        // For now we're using empty array for non-demo profiles
         setPublications([]);
       } catch (err: any) {
         console.error("Erro ao buscar perfil:", err);
@@ -123,9 +121,41 @@ const PublicProfile = () => {
       }
     };
     
+    const checkConnectionStatus = () => {
+      if (user && id && id !== ":id") {
+        const connectionKey = `connection_requests_${id}`;
+        const existingRequests = localStorage.getItem(connectionKey);
+        
+        if (existingRequests) {
+          const requests = JSON.parse(existingRequests);
+          const acceptedRequest = requests.find((req: any) => 
+            req.targetId === user.id && req.status === 'accepted'
+          );
+          
+          const userConnectionKey = `connection_requests_${user.id}`;
+          const userRequests = localStorage.getItem(userConnectionKey);
+          let userAcceptedRequest = false;
+          
+          if (userRequests) {
+            const parsedUserRequests = JSON.parse(userRequests);
+            userAcceptedRequest = parsedUserRequests.some((req: any) => 
+              req.targetId === id && req.status === 'accepted'
+            );
+          }
+          
+          setIsConnectionAccepted(!!acceptedRequest || userAcceptedRequest);
+        }
+        
+        if (id === "demo") {
+          setIsConnectionAccepted(true);
+        }
+      }
+    };
+    
     if (id) {
       fetchProfile();
       checkFollowStatus();
+      checkConnectionStatus();
     }
   }, [id, user]);
 
@@ -204,15 +234,17 @@ const PublicProfile = () => {
               areasOfExpertise={profile.areas_of_expertise}
             />
             
-            <ProfileContact phone={profile.phone} />
+            <ProfileContact 
+              profileId={profile.id}
+              profileName={profile.name}
+              isConnectionAccepted={isConnectionAccepted || id === "demo"}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Achievements Section */}
       <Achievements showProfileSpecific={true} profileId={profile.id} isDemoProfile={id === "demo"} />
       
-      {/* Publications Section */}
       <Card>
         <CardHeader>
           <h2 className="text-xl font-bold">Publicações</h2>
