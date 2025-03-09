@@ -1,15 +1,18 @@
+
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { AuthContext, AuthProviderProps } from '@/contexts/AuthContext';
 import { sendCustomEmail } from '@/utils/authEmailUtils';
+import { useNavigate } from 'react-router-dom';
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const projectName = "Anticrise connect";
 
@@ -71,11 +74,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
             description: "Um email de confirmação foi enviado para o seu endereço (usando sistema padrão).",
           });
         }
+        navigate('/login');
       } else {
         toast({
           title: "Cadastro realizado com sucesso!",
           description: "Um email de confirmação foi enviado para o seu endereço.",
         });
+        navigate('/login');
       }
     } catch (error: any) {
       toast({
