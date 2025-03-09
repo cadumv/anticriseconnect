@@ -74,6 +74,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1, h2, h3, h4, h5, h6, p, span, div {
+    @apply text-left;
+  }
 }
 
 html, body, #root {
