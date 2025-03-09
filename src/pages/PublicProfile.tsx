@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { ProfileDetails } from "@/components/public-profile/ProfileDetails";
 import { ProfileContact } from "@/components/public-profile/ProfileContact";
 import { ProfileLoadingState } from "@/components/public-profile/ProfileLoadingState";
 import { ProfileErrorState } from "@/components/public-profile/ProfileErrorState";
+import { Achievements } from "@/components/Achievements";
 
 interface ProfileData {
   id: string;
@@ -21,6 +23,13 @@ interface ProfileData {
   areas_of_expertise: string[];
   avatar_url: string | null;
   phone: string;
+}
+
+interface Publication {
+  id: string;
+  title: string;
+  snippet: string;
+  date: string;
 }
 
 const DEMO_PROFILE: ProfileData = {
@@ -33,9 +42,25 @@ const DEMO_PROFILE: ProfileData = {
   phone: "(11) 98765-4321"
 };
 
+const DEMO_PUBLICATIONS: Publication[] = [
+  {
+    id: "pub-1",
+    title: "Análise comparativa de métodos estruturais em edificações residenciais",
+    snippet: "Estudo sobre diferentes abordagens de design estrutural e seu impacto na eficiência e custo de construções residenciais de médio porte.",
+    date: "15/03/2023"
+  },
+  {
+    id: "pub-2",
+    title: "Sustentabilidade aplicada em projetos de infraestrutura urbana",
+    snippet: "Técnicas e materiais eco-amigáveis para melhorar a sustentabilidade em projetos de infraestrutura urbana sem comprometer a durabilidade.",
+    date: "22/11/2022"
+  }
+];
+
 const PublicProfile = () => {
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { user } = useAuth();
@@ -54,6 +79,7 @@ const PublicProfile = () => {
         if (id === "demo") {
           console.log("Loading demo profile");
           setProfile(DEMO_PROFILE);
+          setPublications(DEMO_PUBLICATIONS);
           setLoading(false);
           return;
         }
@@ -71,6 +97,10 @@ const PublicProfile = () => {
         
         if (error) throw error;
         setProfile(data);
+        
+        // In the future, fetch real publications from the database
+        // For now we're using empty array for non-demo profiles
+        setPublications([]);
       } catch (err: any) {
         console.error("Erro ao buscar perfil:", err);
         setError("Não foi possível carregar o perfil do profissional.");
@@ -176,6 +206,36 @@ const PublicProfile = () => {
             
             <ProfileContact phone={profile.phone} />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Achievements Section */}
+      <Achievements showProfileSpecific={true} profileId={profile.id} isDemoProfile={id === "demo"} />
+      
+      {/* Publications Section */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-xl font-bold">Publicações</h2>
+        </CardHeader>
+        <CardContent>
+          {publications.length > 0 ? (
+            <div className="space-y-6">
+              {publications.map((publication) => (
+                <div key={publication.id} className="border-b pb-4 last:border-0 last:pb-0">
+                  <h3 className="font-medium text-lg">{publication.title}</h3>
+                  <p className="mt-1 text-sm text-gray-600">{publication.snippet}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Publicado em {publication.date}</span>
+                    <Button variant="link" size="sm" className="p-0">Ler mais</Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Nenhuma publicação encontrada</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
