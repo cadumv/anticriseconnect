@@ -3,16 +3,97 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Handshake, Users, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { ConnectionsDialog } from "./ConnectionsDialog";
 
 export const ProfileHeader = () => {
   const { user } = useAuth();
+  const [connections, setConnections] = useState(0);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(0);
   
-  // Mock data for profile stats - in a real app, these would come from the database
-  const connections = 12;
-  const followers = 42;
-  const following = 38;
+  useEffect(() => {
+    if (!user) return;
+    
+    const countConnections = async () => {
+      try {
+        // Count connections from user's outgoing requests
+        let connectionCount = 0;
+        const userConnectionKey = `connection_requests_${user.id}`;
+        const userRequests = localStorage.getItem(userConnectionKey);
+        
+        if (userRequests) {
+          const parsedUserRequests = JSON.parse(userRequests);
+          // Count accepted connections
+          connectionCount += parsedUserRequests.filter((req: any) => req.status === 'accepted').length;
+        }
+        
+        // Also count incoming accepted requests
+        const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', user.id);
+        if (allUsers.data) {
+          for (const otherUser of allUsers.data) {
+            const connectionKey = `connection_requests_${otherUser.id}`;
+            const existingRequests = localStorage.getItem(connectionKey);
+            
+            if (existingRequests) {
+              const requests = JSON.parse(existingRequests);
+              const acceptedRequest = requests.find((req: any) => 
+                req.targetId === user.id && req.status === 'accepted'
+              );
+              
+              if (acceptedRequest) {
+                connectionCount++;
+              }
+            }
+          }
+        }
+        
+        setConnections(connectionCount);
+      } catch (error) {
+        console.error('Error counting connections:', error);
+      }
+    };
+    
+    const countFollowers = async () => {
+      try {
+        let followerCount = 0;
+        // Check each user's following list to see if they follow the current user
+        const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', user.id);
+        if (allUsers.data) {
+          for (const potentialFollower of allUsers.data) {
+            const followingData = localStorage.getItem(`following_${potentialFollower.id}`);
+            if (followingData && JSON.parse(followingData).includes(user.id)) {
+              followerCount++;
+            }
+          }
+        }
+        
+        setFollowers(followerCount);
+      } catch (error) {
+        console.error('Error counting followers:', error);
+      }
+    };
+    
+    const countFollowing = () => {
+      try {
+        // Get users the current user is following
+        const followingData = localStorage.getItem(`following_${user.id}`);
+        if (followingData) {
+          const followingList = JSON.parse(followingData);
+          setFollowing(followingList.length);
+        } else {
+          setFollowing(0);
+        }
+      } catch (error) {
+        console.error('Error counting following:', error);
+      }
+    };
+    
+    countConnections();
+    countFollowers();
+    countFollowing();
+  }, [user]);
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -39,7 +120,6 @@ export const ProfileHeader = () => {
               <h1 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h1>
             </div>
             
-            {/* Stats display with clickable items */}
             <div className="flex items-center gap-4 text-sm mt-2 sm:mt-0 mx-auto sm:mx-0">
               <ConnectionsDialog type="connections" count={connections} />
               <ConnectionsDialog type="followers" count={followers} />
