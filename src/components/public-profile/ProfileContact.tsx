@@ -14,8 +14,8 @@ export const ProfileContact = ({ profileId, profileName, isConnectionAccepted }:
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <div className="pt-4 border-t">
-      <h3 className="text-sm font-medium mb-2">Contato</h3>
+    <div className="pt-4 border-t text-left">
+      <h3 className="text-base font-semibold mb-2">Contato</h3>
       <div className="flex items-center">
         <Button 
           variant="secondary" 
