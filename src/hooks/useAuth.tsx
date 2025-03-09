@@ -1,24 +1,9 @@
 
 import { createContext, ReactNode, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { AuthProvider as AuthProviderComponent } from '../providers/AuthProvider';
+import { AuthProvider as AuthProviderComponent } from '../features/auth/AuthProvider';
+import { AuthContextType, AuthProviderProps } from '../features/auth/types';
 
-export interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  signUp: (email: string, password: string, metadata?: { name?: string, phone?: string }) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<boolean>;
-  signInWithGoogle: () => Promise<boolean>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  deleteAccount: () => Promise<void>;
-  loading: boolean;
-  projectName: string;
-}
-
-export interface AuthProviderProps {
-  children: ReactNode;
-}
+export { type AuthContextType, type AuthProviderProps };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
