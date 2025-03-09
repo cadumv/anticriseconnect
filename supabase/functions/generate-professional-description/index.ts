@@ -14,8 +14,9 @@ serve(async (req) => {
   }
 
   try {
-    const { engineeringType, keywords } = await req.json();
-    console.log('Request received:', { engineeringType, keywords });
+    const requestData = await req.json();
+    const { engineeringType, keywords, currentDescription, action } = requestData;
+    console.log('Request received:', { engineeringType, keywords, action, descriptionLength: currentDescription?.length });
     
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -27,12 +28,27 @@ serve(async (req) => {
       );
     }
 
-    // Create a prompt based on the engineering type and keywords
-    const prompt = `Crie uma breve descrição profissional em primeira pessoa para um profissional de ${engineeringType || 'Engenharia'}${
-      keywords && keywords.length > 0 
-        ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
-        : ''
-    }. A descrição deve ser profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Escreva em português do Brasil e evite clichês. Não use mais que 200 caracteres.`;
+    let prompt;
+    
+    if (action === 'improve') {
+      // Create a prompt to improve the existing description
+      prompt = `Melhore a seguinte descrição profissional de um especialista em ${engineeringType || 'Engenharia'}${
+        keywords && keywords.length > 0 
+          ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
+          : ''
+      }. A descrição deve continuar profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Mantenha o tom pessoal em primeira pessoa, mas melhore a fluência e impacto. Não ultrapasse 200 caracteres.
+      
+      Descrição atual: "${currentDescription}"`;
+      console.log('Using improve prompt');
+    } else {
+      // Create a standard prompt for a new description
+      prompt = `Crie uma breve descrição profissional em primeira pessoa para um profissional de ${engineeringType || 'Engenharia'}${
+        keywords && keywords.length > 0 
+          ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
+          : ''
+      }. A descrição deve ser profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Escreva em português do Brasil e evite clichês. Não use mais que 200 caracteres.`;
+      console.log('Using generate prompt');
+    }
 
     console.log('Sending prompt to OpenAI:', prompt);
 
