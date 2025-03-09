@@ -71,9 +71,16 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
 
   const generateProfessionalDescription = async () => {
     setIsGeneratingDescription(true);
+    console.log("Starting professional description generation");
+    
     try {
       // Filter out empty areas of expertise
       const filteredAreas = areasOfExpertise.filter(area => area.trim() !== "");
+      
+      console.log("Calling Supabase function with:", { 
+        engineeringType, 
+        keywords: filteredAreas 
+      });
       
       const { data, error } = await supabase.functions.invoke('generate-professional-description', {
         body: {
@@ -82,14 +89,19 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
         }
       });
 
+      console.log("Supabase function response:", { data, error });
+
       if (error) {
+        console.error("Supabase function error:", error);
         throw new Error(error.message);
       }
 
       if (data.error) {
+        console.error("Data contains error:", data.error);
         throw new Error(data.error);
       }
 
+      console.log("Setting description:", data.description);
       setProfessionalDescription(data.description);
       toast({
         title: "Descrição gerada com sucesso",

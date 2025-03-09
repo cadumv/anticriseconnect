@@ -15,9 +15,12 @@ serve(async (req) => {
 
   try {
     const { engineeringType, keywords } = await req.json();
+    console.log('Request received:', { engineeringType, keywords });
+    
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
       return new Response(
         JSON.stringify({ error: 'OpenAI API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -45,10 +48,22 @@ serve(async (req) => {
           { role: 'system', content: 'Você é um assistente especializado em criar perfis profissionais concisos e impactantes para engenheiros.' },
           { role: 'user', content: prompt }
         ],
+        temperature: 0.7,
+        max_tokens: 250,
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenAI API error response:', errorData);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API error: ${response.status} ${response.statusText}` }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const data = await response.json();
+    console.log('OpenAI API response:', JSON.stringify(data));
     
     if (data.error) {
       console.error('OpenAI API error:', data.error);
