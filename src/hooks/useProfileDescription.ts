@@ -21,6 +21,15 @@ export const useProfileDescription = ({
   const [isImprovingDescription, setIsImprovingDescription] = useState(false);
 
   const generateProfessionalDescription = async () => {
+    if (!engineeringType) {
+      toast({
+        title: "Tipo de engenharia não selecionado",
+        description: "Selecione um tipo de engenharia antes de gerar uma descrição.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsGeneratingDescription(true);
     console.log("Starting professional description generation");
     
@@ -48,9 +57,13 @@ export const useProfileDescription = ({
         throw new Error(error.message);
       }
 
-      if (data.error) {
+      if (data?.error) {
         console.error("Data contains error:", data.error);
         throw new Error(data.error);
+      }
+
+      if (!data?.description) {
+        throw new Error("Resposta vazia ou inválida da IA");
       }
 
       console.log("Setting description:", data.description);
@@ -76,6 +89,15 @@ export const useProfileDescription = ({
       toast({
         title: "Descrição vazia",
         description: "É necessário ter uma descrição para melhorá-la.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!engineeringType) {
+      toast({
+        title: "Tipo de engenharia não selecionado",
+        description: "Selecione um tipo de engenharia antes de melhorar a descrição.",
         variant: "destructive",
       });
       return;
@@ -111,9 +133,13 @@ export const useProfileDescription = ({
         throw new Error(error.message);
       }
 
-      if (data.error) {
+      if (data?.error) {
         console.error("Data contains error:", data.error);
         throw new Error(data.error);
+      }
+
+      if (!data?.description) {
+        throw new Error("Resposta vazia ou inválida da IA");
       }
 
       console.log("Setting improved description:", data.description);

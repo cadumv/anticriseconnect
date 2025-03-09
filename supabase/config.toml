@@ -21,4 +21,4 @@ enabled = true
 enabled = true
 
 [functions.generate-professional-description]
-verify_jwt = true
+verify_jwt = false
