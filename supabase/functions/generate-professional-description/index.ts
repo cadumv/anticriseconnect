@@ -32,6 +32,9 @@ serve(async (req) => {
     let systemPrompt = `Você é um especialista em escrita técnica e copywriting para perfis profissionais de engenheiros.
 Você domina a norma culta do português brasileiro e conhece a nomenclatura correta de todas as especialidades de engenharia (ex: 'Engenheiro Eletricista' e não 'Engenheiro Elétrico').
 
+Você deve produzir descrições profissionais semelhantes ao seguinte exemplo de alta qualidade:
+"Engenheiro Eletricista especializado em NR10, focado em segurança elétrica industrial. Experiência em projetos de energia solar fotovoltaica, garantindo eficiência energética e sustentabilidade."
+
 Suas descrições profissionais devem ser:
 - Concisas e diretas (máximo 1 parágrafo)
 - Profissionais, técnicas e atrativas para o mercado
@@ -42,7 +45,8 @@ Suas descrições profissionais devem ser:
 - Sem clichês, lugares-comuns ou frases genéricas
 - Destacando diferenciação profissional e valor agregado
 - EXATAMENTE 250 caracteres ou menos (isto é OBRIGATÓRIO)
-- Em português brasileiro formal e técnico`;
+- Em português brasileiro formal e técnico
+- Combinando certificações relevantes, áreas de especialização e proposta de valor`;
     
     let userPrompt;
     
@@ -57,12 +61,15 @@ Descrição atual: "${currentDescription}"
 
 Analise criticamente a descrição atual e reescreva-a para:
 1. Utilizar a nomenclatura técnica correta da engenharia mencionada
-2. Usar vocabulário preciso e técnico da área específica
-3. Eliminar quaisquer generalizações, clichês ou frases feitas
-4. Manter tom profissional em primeira pessoa
-5. Demonstrar competência técnica específica e valor agregado
-6. Garantir correção gramatical e terminológica
-7. Garantir que tenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
+2. Incluir certificações ou normativas relevantes para a área (como NR10 para segurança elétrica)
+3. Especificar áreas de especialização técnica com terminologia precisa
+4. Usar vocabulário técnico da área específica
+5. Eliminar quaisquer generalizações, clichês ou frases feitas
+6. Manter tom profissional em primeira pessoa
+7. Demonstrar competência técnica específica e valor agregado
+8. Garantir correção gramatical e terminológica
+9. Apresentar uma proposta de valor clara (como "garantindo eficiência energética")
+10. Garantir que tenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     } else {
       userPrompt = `Crie uma descrição profissional impactante para um profissional de ${engineeringType || 'Engenharia'}${
         keywords && keywords.length > 0 
@@ -72,13 +79,14 @@ Analise criticamente a descrição atual e reescreva-a para:
 
 Requisitos:
 1. Use a nomenclatura técnica CORRETA para esta especialidade de engenharia
-2. Empregue termos técnicos específicos e precisos da área de ${engineeringType}
-3. Mencione habilidades e competências valorizadas no mercado atual
-4. Relacione explicitamente as competências com as áreas de atuação mencionadas (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
-5. Destaque o valor diferenciado que o profissional agrega aos projetos e organizações
-6. Evite completamente frases genéricas ou clichês que poderiam se aplicar a qualquer profissional
-7. Garanta correção gramatical e terminológica impecável
-8. Mantenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
+2. Inclua certificações ou normativas relevantes para a área (ex: NR10 para segurança elétrica)
+3. Empregue termos técnicos específicos e precisos da área de ${engineeringType}
+4. Mencione habilidades e competências valorizadas no mercado atual
+5. Relacione explicitamente as competências com as áreas de atuação mencionadas (${keywords && keywords.length > 0 ? keywords.filter(k => k).join(', ') : 'da área'})
+6. Destaque o valor diferenciado que o profissional agrega aos projetos e organizações (ex: "garantindo eficiência energética e sustentabilidade")
+7. Evite completamente frases genéricas ou clichês que poderiam se aplicar a qualquer profissional
+8. Garanta correção gramatical e terminológica impecável
+9. Mantenha EXATAMENTE 250 caracteres ou menos (obrigatório)`;
     }
 
     console.log('Sending prompts to OpenAI:');
