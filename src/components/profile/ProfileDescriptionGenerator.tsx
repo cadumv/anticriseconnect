@@ -152,14 +152,14 @@ export const ProfileDescriptionGenerator = ({
                   variant="outline" 
                   size="sm"
                   onClick={improveProfessionalDescription}
-                  disabled={isImprovingDescription || !engineeringType || !professionalDescription.trim()}
+                  disabled={!engineeringType || !professionalDescription.trim() || isImprovingDescription}
                 >
                   {isImprovingDescription ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Wand2 className="h-4 w-4" />
                   )}
-                  <span>Melhorar</span>
+                  <span className="ml-1">Melhorar</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -176,14 +176,14 @@ export const ProfileDescriptionGenerator = ({
                   variant="outline" 
                   size="sm" 
                   onClick={generateProfessionalDescription}
-                  disabled={isGeneratingDescription || !engineeringType}
+                  disabled={!engineeringType || isGeneratingDescription}
                 >
                   {isGeneratingDescription ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Lightbulb className="h-4 w-4" />
                   )}
-                  <span>Gerar</span>
+                  <span className="ml-1">Gerar</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -199,10 +199,16 @@ export const ProfileDescriptionGenerator = ({
         onChange={(e) => setProfessionalDescription(e.target.value)}
         placeholder="Descreva brevemente sua experiência e atuação profissional"
         rows={3}
+        maxLength={250}
       />
-      {!engineeringType && (
-        <p className="text-xs text-muted-foreground">Selecione um tipo de engenharia para usar a assistência de IA</p>
-      )}
+      <div className="flex justify-between items-center">
+        <p className="text-xs text-muted-foreground">
+          {!engineeringType && "Selecione um tipo de engenharia para usar a assistência de IA"}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {professionalDescription.length}/250 caracteres
+        </p>
+      </div>
     </div>
   );
 };

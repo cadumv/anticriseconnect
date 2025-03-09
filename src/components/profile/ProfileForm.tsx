@@ -104,14 +104,7 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
           engineeringType={engineeringType}
           setEngineeringType={setEngineeringType}
         />
-
-        <ProfileDescriptionGenerator
-          engineeringType={engineeringType}
-          areasOfExpertise={areasOfExpertise}
-          professionalDescription={professionalDescription}
-          setProfessionalDescription={setProfessionalDescription}
-        />
-
+        
         <div className="grid gap-2">
           <Label>Áreas de atuação em que atua ou gostaria de atuar</Label>
           <AreasOfExpertise 
@@ -119,6 +112,13 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
             updateAreasOfExpertise={updateAreasOfExpertise}
           />
         </div>
+
+        <ProfileDescriptionGenerator
+          engineeringType={engineeringType}
+          areasOfExpertise={areasOfExpertise}
+          professionalDescription={professionalDescription}
+          setProfessionalDescription={setProfessionalDescription}
+        />
         
         <div className="grid gap-2">
           <Label htmlFor="phone">Telefone</Label>

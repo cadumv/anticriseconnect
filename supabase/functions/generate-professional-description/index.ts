@@ -36,7 +36,7 @@ serve(async (req) => {
         keywords && keywords.length > 0 
           ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
           : ''
-      }. A descrição deve continuar profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Mantenha o tom pessoal em primeira pessoa, mas melhore a fluência e impacto. Não ultrapasse 200 caracteres.
+      }. A descrição deve continuar profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Mantenha o tom pessoal em primeira pessoa, mas melhore a fluência e impacto. Não ultrapasse 250 caracteres.
       
       Descrição atual: "${currentDescription}"`;
       console.log('Using improve prompt');
@@ -46,7 +46,7 @@ serve(async (req) => {
         keywords && keywords.length > 0 
           ? ` com expertise em ${keywords.filter(k => k).join(', ')}`
           : ''
-      }. A descrição deve ser profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Escreva em português do Brasil e evite clichês. Não use mais que 200 caracteres.`;
+      }. A descrição deve ser profissional, concisa (máximo 2 parágrafos) e destacar as competências da área. Escreva em português do Brasil e evite clichês. Não use mais que 250 caracteres.`;
       console.log('Using generate prompt');
     }
 
@@ -65,7 +65,7 @@ serve(async (req) => {
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 250,
+        max_tokens: 300,
       }),
     });
 
@@ -89,7 +89,13 @@ serve(async (req) => {
       );
     }
 
-    const description = data.choices[0].message.content.trim();
+    let description = data.choices[0].message.content.trim();
+    
+    // Ensure the description doesn't exceed 250 characters
+    if (description.length > 250) {
+      description = description.substring(0, 247) + '...';
+    }
+    
     console.log('Generated description:', description);
 
     return new Response(
