@@ -212,6 +212,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       toast({
         title: "Logout realizado com sucesso",
       });
+      navigate('/login');
     } catch (error: any) {
       toast({
         title: "Erro ao fazer logout",
