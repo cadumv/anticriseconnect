@@ -106,6 +106,17 @@ const Login = () => {
                 <CardTitle className="text-xl font-semibold text-gray-700">
                   {isRecovery ? "Recuperar senha" : "Iniciar Sessão no Anticrise Connect"}
                 </CardTitle>
+                {isRecovery && (
+                  <div className="mt-4">
+                    <p className="font-bold text-gray-700">Recupere seu acesso ao Anticrise Connect!</p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Digite seu email e clique em "Enviar Link" para receber as instruções de definição de senha diretamente no seu email de cadastro.
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Simples, rápido e seguro!
+                    </p>
+                  </div>
+                )}
               </CardHeader>
               
               <CardContent className="px-0">
