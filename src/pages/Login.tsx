@@ -75,19 +75,19 @@ const Login = () => {
               <h1 className="text-4xl font-bold text-blue-600 mb-6">Anticrise Connect</h1>
               
               {!isRecovery && (
-                <p className="text-gray-700 mt-8 text-sm">
-                  Chegou o Anticrise Connect! 🌎
+                <div className="text-gray-700 mt-8 text-sm space-y-4">
+                  <p className="font-bold">Chegou o Anticrise Connect!</p>
+                  
+                  <p>A rede social exclusiva para engenheiros(as) que querem se conectar, criar oportunidades e fechar parcerias com profissionais de todo o Brasil!</p>
 
-                  A rede social exclusiva para engenheiros(as) que querem se conectar, criar oportunidades e fechar parcerias com profissionais de todo o Brasil!
-
-                  <div className="mt-4">
+                  <div className="space-y-1.5">
                     <p>🔹 Networking estratégico</p>
                     <p>🔹 Novas oportunidades de negócios</p>
                     <p>🔹 Conexão com engenheiros de todas as áreas</p>
                   </div>
 
-                  <p className="mt-4">Junte-se agora e faça parte dessa revolução na engenharia!</p>
-                </p>
+                  <p>Junte-se agora e faça parte dessa revolução na engenharia!</p>
+                </div>
               )}
               
               {isRecovery && (
