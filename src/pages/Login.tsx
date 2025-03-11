@@ -67,16 +67,12 @@ const Login = () => {
         <div className="flex flex-col md:flex-row">
           {/* Left side with logo and description */}
           <div className="bg-white md:w-1/2 p-8 flex flex-col justify-between relative">
-            <div className="absolute top-0 left-0 w-16 h-16 bg-red-600 transform rotate-0">
+            <div className="absolute top-0 left-0 w-16 h-16 bg-blue-600 transform rotate-0">
               <div className="w-full h-full transform rotate-45 origin-bottom-left"></div>
             </div>
             
             <div className="mt-16">
-              <img
-                src="/public/lovable-uploads/60f9f29d-cb87-4919-9ab7-082b33c3560c.png"
-                alt="Anticrise Connect Logo"
-                className="h-16 w-auto mb-10"
-              />
+              <h1 className="text-4xl font-bold text-blue-600 mb-6">Anticrise Connect</h1>
               
               <p className="text-gray-700 mt-8 text-sm">
                 O Anticrise Connect é uma plataforma de networking para engenheiros. 
@@ -87,9 +83,9 @@ const Login = () => {
             <div className="text-xs text-gray-500 mt-auto">
               <p>Copyright 2023 Anticrise. Todos os direitos reservados.</p>
               <div className="flex gap-2 mt-1">
-                <Link to="#" className="text-xs text-red-600 hover:underline">Termos de Utilização</Link>
+                <Link to="#" className="text-xs text-blue-600 hover:underline">Termos de Utilização</Link>
                 <span>|</span>
-                <Link to="#" className="text-xs text-red-600 hover:underline">Política de Privacidade</Link>
+                <Link to="#" className="text-xs text-blue-600 hover:underline">Política de Privacidade</Link>
               </div>
             </div>
           </div>
@@ -109,15 +105,20 @@ const Login = () => {
                     <Label htmlFor="email" className="text-sm text-gray-600">
                       {isRecovery ? "Email" : "Nome de Utilizador"}
                     </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu@email.com"
-                      required
-                      className="border border-gray-300 rounded"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <User size={18} />
+                      </span>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="seu@email.com"
+                        required
+                        className="border border-gray-300 rounded pl-10"
+                      />
+                    </div>
                   </div>
                   
                   {!isRecovery && (
@@ -125,21 +126,26 @@ const Login = () => {
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password" className="text-sm text-gray-600">Palavra-passe</Label>
                       </div>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="border border-gray-300 rounded"
-                      />
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          <Key size={18} />
+                        </span>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="border border-gray-300 rounded pl-10"
+                        />
+                      </div>
                     </div>
                   )}
                   
                   <Button 
                     type="submit" 
                     disabled={loading} 
-                    className="w-full bg-red-600 hover:bg-red-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
                   >
                     {loading 
                       ? "Processando..." 
@@ -155,7 +161,7 @@ const Login = () => {
                         <Button 
                           type="button" 
                           variant="link" 
-                          className="p-0 h-auto text-red-600 font-normal"
+                          className="p-0 h-auto text-blue-600 font-normal"
                           onClick={() => setIsRecovery(true)}
                         >
                           clique aqui
@@ -169,7 +175,7 @@ const Login = () => {
                     <Button 
                       variant="link" 
                       onClick={() => setIsRecovery(false)}
-                      className="w-full p-0 mt-2 text-red-600"
+                      className="w-full p-0 mt-2 text-blue-600"
                     >
                       Voltar para o login
                     </Button>
@@ -205,7 +211,7 @@ const Login = () => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button onClick={handleCloseRecoveryDialog} className="bg-red-600 hover:bg-red-700 w-full sm:w-auto">
+            <Button onClick={handleCloseRecoveryDialog} className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
               OK
             </Button>
           </DialogFooter>
