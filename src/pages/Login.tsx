@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
-import { LogIn, Users, Check, Mail } from "lucide-react";
+import { LogIn, Mail, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Login = () => {
@@ -67,97 +67,79 @@ const Login = () => {
   console.log("Rendering Login component, isRecovery:", isRecovery);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* Left side with image and branding */}
-      <div className="hidden md:flex md:w-1/2 bg-primary/5 flex-col items-center justify-center p-10">
-        <div className="flex flex-col items-center max-w-md">
-          <img 
-            src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" 
-            alt="Engenheiros conectados" 
-            className="w-full max-w-md mb-8 rounded-lg shadow-lg"
-          />
-          <h1 className="text-3xl font-bold text-primary mb-4 text-center">
-            Anticrise Connect
-          </h1>
-          <p className="text-center text-slate-600 mb-6">
-            A plataforma de networking que conecta engenheiros com as melhores oportunidades.
-            Compartilhe conhecimento, encontre parceiros e impulsione sua carreira.
-          </p>
-          <div className="flex items-center space-x-2 text-primary">
-            <Users className="h-5 w-5" />
-            <span className="font-medium">Conecte-se com outros profissionais da engenharia</span>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-pink-800">
+      <Card className="w-full max-w-md bg-white shadow-xl">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <img
+              src="/public/lovable-uploads/60f9f29d-cb87-4919-9ab7-082b33c3560c.png"
+              alt="Anticrise Connect Logo"
+              width={60}
+              height={60}
+              className="h-12 w-auto"
+            />
           </div>
-        </div>
-      </div>
-
-      {/* Right side with login form */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center p-4">
-        <div className="md:hidden text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-primary">
-            Anticrise Connect
-          </h1>
-          <p className="text-sm text-slate-600 mt-2 mb-6">
-            Conectando engenheiros, construindo oportunidades
-          </p>
-        </div>
-
-        <Card className="w-full max-w-[400px] shadow-md">
-          <CardHeader>
-            <CardTitle>{isRecovery ? "Recuperar senha" : "Login"}</CardTitle>
-            <CardDescription>
-              {isRecovery 
-                ? "Enviaremos um link para redefinir sua senha" 
-                : "Entre com suas credenciais abaixo"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={isRecovery ? handleRecovery : handleLogin}>
-              <div className="grid gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
-                    required
-                  />
+          <CardTitle className="text-2xl font-bold">
+            {isRecovery ? "Recuperar senha" : "Anticrise Connect"}
+          </CardTitle>
+          <CardDescription>
+            {isRecovery 
+              ? "Enviaremos um link para redefinir sua senha" 
+              : "A plataforma de networking para engenheiros"}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={isRecovery ? handleRecovery : handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                required
+                className="w-full"
+              />
+            </div>
+            
+            {!isRecovery && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    className="px-0 text-sm font-medium text-primary"
+                    onClick={() => setIsRecovery(true)}
+                  >
+                    Esqueceu a senha?
+                  </Button>
                 </div>
-                
-                {!isRecovery && (
-                  <div className="grid gap-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Senha</Label>
-                      <Button 
-                        type="button" 
-                        variant="link" 
-                        className="px-0" 
-                        onClick={() => setIsRecovery(true)}
-                      >
-                        Esqueceu a senha?
-                      </Button>
-                    </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                )}
-                
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading 
-                    ? "Processando..." 
-                    : isRecovery 
-                      ? "Enviar link de recuperação" 
-                      : "Entrar"}
-                  {isRecovery && !loading && <Mail className="ml-2 h-4 w-4" />}
-                </Button>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full"
+                />
               </div>
-            </form>
+            )}
+            
+            <Button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full bg-primary hover:bg-primary/90"
+            >
+              {loading 
+                ? "Processando..." 
+                : isRecovery 
+                  ? "Enviar link" 
+                  : "Entrar"}
+              {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
             
             {!isRecovery && (
               <>
@@ -177,36 +159,37 @@ const Login = () => {
                   disabled={loading}
                 >
                   <LogIn className="mr-2 h-4 w-4" />
-                  Entrar com Google
+                  Google
                 </Button>
               </>
             )}
-          </CardContent>
-          <CardFooter className="flex flex-col items-center">
-            {isRecovery ? (
-              <Button 
-                variant="link" 
-                onClick={() => setIsRecovery(false)}
-                className="mt-2"
-              >
-                Voltar para o login
-              </Button>
-            ) : (
-              <div className="text-center mt-2">
-                <p className="text-sm text-muted-foreground">
-                  Não tem uma conta?{" "}
-                  <Link 
-                    to="/signup" 
-                    className="text-primary hover:underline"
-                  >
-                    Cadastre-se
-                  </Link>
-                </p>
-              </div>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
+          </form>
+        </CardContent>
+        
+        <CardFooter className="flex flex-col items-center pb-6">
+          {isRecovery ? (
+            <Button 
+              variant="link" 
+              onClick={() => setIsRecovery(false)}
+              className="mt-2"
+            >
+              Voltar para o login
+            </Button>
+          ) : (
+            <div className="text-center mt-2">
+              <p className="text-sm text-muted-foreground">
+                Não tem uma conta?{" "}
+                <Link 
+                  to="/signup" 
+                  className="text-primary hover:underline font-medium"
+                >
+                  Cadastre-se
+                </Link>
+              </p>
+            </div>
+          )}
+        </CardFooter>
+      </Card>
 
       {/* Recovery email confirmation dialog */}
       <Dialog open={recoveryComplete} onOpenChange={setRecoveryComplete}>
@@ -220,7 +203,7 @@ const Login = () => {
           </DialogHeader>
           <DialogFooter>
             <Button onClick={handleCloseRecoveryDialog} className="w-full sm:w-auto">
-              <Check className="mr-2 h-4 w-4" /> OK
+              OK
             </Button>
           </DialogFooter>
         </DialogContent>
