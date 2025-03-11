@@ -35,6 +35,7 @@ export function useSignIn() {
           description: "Bem-vindo de volta.",
         });
         
+        // No need to navigate here, the useEffect in Login.tsx will handle redirection
         return true;
       }
       

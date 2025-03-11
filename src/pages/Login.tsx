@@ -18,11 +18,11 @@ const Login = () => {
   const { signIn, signInWithGoogle, resetPassword, loading, user, projectName } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect to home page if user is already logged in
+  // Redirect to profile page if user is already logged in
   useEffect(() => {
     if (user) {
-      console.log("User detected, redirecting to home", user);
-      navigate('/');
+      console.log("User detected, redirecting to profile", user);
+      navigate('/profile');
     }
   }, [user, navigate]);
 
