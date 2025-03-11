@@ -35,7 +35,8 @@ export function useSignIn() {
           description: "Bem-vindo de volta.",
         });
         
-        // No need to navigate here, the useEffect in Login.tsx will handle redirection
+        // Redirect to the index page instead of profile
+        navigate('/');
         return true;
       }
       

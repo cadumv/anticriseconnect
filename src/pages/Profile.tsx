@@ -7,7 +7,8 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
@@ -39,6 +40,15 @@ const Profile = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      <div className="flex items-center gap-2">
+        <Link to="/">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold">Meu Perfil</h1>
+      </div>
+      
       <ProfileHeader />
       
       <Card>
