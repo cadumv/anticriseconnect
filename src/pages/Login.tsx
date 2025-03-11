@@ -74,19 +74,33 @@ const Login = () => {
             <div className="mt-16">
               <h1 className="text-4xl font-bold text-blue-600 mb-6">Anticrise Connect</h1>
               
-              <p className="text-gray-700 mt-8 text-sm">
-                Chegou o Anticrise Connect! 🌎
+              {!isRecovery && (
+                <p className="text-gray-700 mt-8 text-sm">
+                  Chegou o Anticrise Connect! 🌎
 
-                A rede social exclusiva para engenheiros(as) que querem se conectar, criar oportunidades e fechar parcerias com profissionais de todo o Brasil!
+                  A rede social exclusiva para engenheiros(as) que querem se conectar, criar oportunidades e fechar parcerias com profissionais de todo o Brasil!
 
-                <div className="mt-4">
-                  <p>🔹 Networking estratégico</p>
-                  <p>🔹 Novas oportunidades de negócios</p>
-                  <p>🔹 Conexão com engenheiros de todas as áreas</p>
+                  <div className="mt-4">
+                    <p>🔹 Networking estratégico</p>
+                    <p>🔹 Novas oportunidades de negócios</p>
+                    <p>🔹 Conexão com engenheiros de todas as áreas</p>
+                  </div>
+
+                  <p className="mt-4">Junte-se agora e faça parte dessa revolução na engenharia!</p>
+                </p>
+              )}
+              
+              {isRecovery && (
+                <div className="text-gray-700 mt-8 text-sm">
+                  <p className="font-bold">Recupere seu acesso ao Anticrise Connect!</p>
+                  <p className="mt-2">
+                    Digite seu email e clique em "Enviar Link" para receber as instruções de definição de senha diretamente no seu email de cadastro.
+                  </p>
+                  <p className="mt-2">
+                    Simples, rápido e seguro!
+                  </p>
                 </div>
-
-                <p className="mt-4">Junte-se agora e faça parte dessa revolução na engenharia!</p>
-              </p>
+              )}
             </div>
             
             <div className="text-xs text-gray-500 mt-auto">
@@ -106,17 +120,6 @@ const Login = () => {
                 <CardTitle className="text-xl font-semibold text-gray-700">
                   {isRecovery ? "Recuperar senha" : "Iniciar Sessão no Anticrise Connect"}
                 </CardTitle>
-                {isRecovery && (
-                  <div className="mt-4">
-                    <p className="font-bold text-gray-700">Recupere seu acesso ao Anticrise Connect!</p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Digite seu email e clique em "Enviar Link" para receber as instruções de definição de senha diretamente no seu email de cadastro.
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Simples, rápido e seguro!
-                    </p>
-                  </div>
-                )}
               </CardHeader>
               
               <CardContent className="px-0">
