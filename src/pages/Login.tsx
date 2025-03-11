@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Separator } from "@/components/ui/separator";
-import { LogIn, Users, Check } from "lucide-react";
+import { LogIn, Users, Check, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const Login = () => {
@@ -72,7 +72,7 @@ const Login = () => {
       <div className="hidden md:flex md:w-1/2 bg-primary/5 flex-col items-center justify-center p-10">
         <div className="flex flex-col items-center max-w-md">
           <img 
-            src="/lovable-uploads/engineering-network.png" 
+            src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1600&q=80" 
             alt="Engenheiros conectados" 
             className="w-full max-w-md mb-8 rounded-lg shadow-lg"
           />
@@ -148,12 +148,13 @@ const Login = () => {
                   </div>
                 )}
                 
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} className="w-full">
                   {loading 
                     ? "Processando..." 
                     : isRecovery 
                       ? "Enviar link de recuperação" 
                       : "Entrar"}
+                  {isRecovery && !loading && <Mail className="ml-2 h-4 w-4" />}
                 </Button>
               </div>
             </form>
