@@ -21,31 +21,37 @@ const AchievementsPage = () => {
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   
   useEffect(() => {
-    if (user) {
-      const userAchievements = AchievementsManager.getUserAchievements(user.id);
-      setAchievements(userAchievements);
+    try {
+      if (user) {
+        const userAchievements = AchievementsManager.getUserAchievements(user.id);
+        setAchievements(userAchievements);
 
-      // Check for connections achievement
-      const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
-      if (connectionsAchievement) {
-        setAchievementUnlocked(connectionsAchievement);
-        setShowAchievementPopup(true);
-        // Update achievements list immediately
-        setAchievements(AchievementsManager.getUserAchievements(user.id));
-      }
-      
-      // Check for first publication achievement
-      if (!connectionsAchievement) {
-        const publicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
-        if (publicationAchievement) {
-          setAchievementUnlocked(publicationAchievement);
+        // Check for connections achievement
+        const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
+        if (connectionsAchievement) {
+          setAchievementUnlocked(connectionsAchievement);
           setShowAchievementPopup(true);
           // Update achievements list immediately
           setAchievements(AchievementsManager.getUserAchievements(user.id));
         }
+        
+        // Check for first publication achievement
+        if (!connectionsAchievement) {
+          const publicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
+          if (publicationAchievement) {
+            setAchievementUnlocked(publicationAchievement);
+            setShowAchievementPopup(true);
+            // Update achievements list immediately
+            setAchievements(AchievementsManager.getUserAchievements(user.id));
+          }
+        }
+      } else {
+        // For demo purposes when not logged in
+        setAchievements(DEMO_ACHIEVEMENTS);
       }
-    } else {
-      // For demo purposes when not logged in
+    } catch (error) {
+      console.error("Error loading achievements:", error);
+      // Fallback to demo achievements
       setAchievements(DEMO_ACHIEVEMENTS);
     }
   }, [user]);
