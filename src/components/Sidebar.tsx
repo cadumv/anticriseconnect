@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { NavLink } from "react-router-dom";
-import { Home, Search, MessageSquare, Bell, User, LogOut } from "lucide-react";
+import { Home, Search, MessageSquare, Bell, User, Trophy, LogOut } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,10 +19,11 @@ export function Sidebar() {
 
   const menuItems = [
     { path: "/", label: "Página inicial", icon: Home },
+    { path: "/profile", label: "Perfil", icon: User },
     { path: "/search", label: "Pesquisar", icon: Search },
     { path: "/messages", label: "Mensagens", icon: MessageSquare },
     { path: "/notifications", label: "Notificações", icon: Bell },
-    { path: "/profile", label: "Perfil", icon: User },
+    { path: "/achievements", label: "Conquistas", icon: Trophy },
   ];
 
   const toggleSidebar = () => {
