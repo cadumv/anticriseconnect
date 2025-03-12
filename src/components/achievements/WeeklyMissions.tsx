@@ -108,36 +108,47 @@ export const WeeklyMissions = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Missões Semanais</CardTitle>
+        <CardTitle>Missões de Progressão</CardTitle>
         <CardDescription>
-          Complete missões para ganhar pontos e recompensas extras
+          Complete missões para evoluir na plataforma e ganhar pontos
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {missions.map((mission) => (
-            <div key={mission.id} className="border rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    {mission.icon}
+          {missions.map((mission) => {
+            const isCompleted = mission.currentProgress >= mission.requiredProgress;
+            return (
+              <div 
+                key={mission.id} 
+                className={`border rounded-lg p-4 ${isCompleted ? 'bg-green-50 border-green-200' : 'bg-white'}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} rounded-full flex items-center justify-center`}>
+                      {mission.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">{mission.title}</h3>
+                      <p className="text-sm text-gray-600">{mission.description}</p>
+                      <p className="text-sm text-gray-600">Recompensa: {mission.reward} pontos</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-medium">{mission.title}</h3>
-                    <p className="text-sm text-gray-600">{mission.description}</p>
-                    <p className="text-sm text-gray-600">Recompensa: {mission.reward} pontos</p>
+                  <div className="text-right">
+                    <span className={`font-semibold ${isCompleted ? 'text-green-600' : ''}`}>
+                      {mission.currentProgress}/{mission.requiredProgress}
+                    </span>
+                    <Progress 
+                      value={(mission.currentProgress / mission.requiredProgress) * 100} 
+                      className={`h-1 w-24 ${isCompleted ? 'bg-green-100' : ''}`}
+                    />
+                    {isCompleted && (
+                      <span className="text-xs font-medium text-green-600 mt-1 block">Missão completa</span>
+                    )}
                   </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-semibold">{mission.currentProgress}/{mission.requiredProgress}</span>
-                  <Progress 
-                    value={(mission.currentProgress / mission.requiredProgress) * 100} 
-                    className="h-1 w-24" 
-                  />
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
