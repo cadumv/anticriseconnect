@@ -128,7 +128,45 @@ export class AchievementsManager {
         }
       }
       
-      // Bronze achievement requires 10 connections
+      console.log(`User ${userId} has ${connectionCount} connections`);
+      
+      // Silver achievement check - 50 connections
+      if (connectionCount >= 50) {
+        const silverConnectionAchievement: Achievement = {
+          id: "ach-3",
+          title: "Conexões Anticrise - Prata",
+          description: "Realizou 50 conexões com avaliação positiva",
+          icon: "medal",
+          completed: true,
+          points: 250,
+          category: 'connection',
+          level: 'silver'
+        };
+        
+        // Check if already unlocked
+        const unlockedAchievements = this.getUnlockedAchievements(userId);
+        if (!unlockedAchievements.includes(silverConnectionAchievement.id)) {
+          // Mark as unlocked
+          unlockedAchievements.push(silverConnectionAchievement.id);
+          this.saveUnlockedAchievements(userId, unlockedAchievements);
+          
+          // Update achievements
+          const achievements = this.getUserAchievements(userId);
+          const existingIndex = achievements.findIndex(a => a.id === silverConnectionAchievement.id);
+          
+          if (existingIndex >= 0) {
+            achievements[existingIndex] = {...silverConnectionAchievement, completed: true};
+          } else {
+            achievements.push(silverConnectionAchievement);
+          }
+          
+          this.saveUserAchievements(userId, achievements);
+          return silverConnectionAchievement;
+        }
+        return null;
+      }
+      
+      // Bronze achievement check - 10 connections
       if (connectionCount >= 10) {
         const bronzeConnectionAchievement: Achievement = {
           id: "ach-2",

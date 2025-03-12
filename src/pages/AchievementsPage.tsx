@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DEMO_ACHIEVEMENTS } from "@/types/profile";
 import { AchievementsSummary } from "@/components/achievements/AchievementsSummary";
 import { AchievementsList } from "@/components/achievements/AchievementsList";
@@ -8,12 +8,45 @@ import { MonthlyRanking } from "@/components/achievements/MonthlyRanking";
 import { AchievementsDialog } from "@/components/AchievementsDialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { AchievementsManager } from "@/services/AchievementsManager";
+import { Achievement } from "@/types/profile";
+import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 
 const AchievementsPage = () => {
+  const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   
-  // For demo purposes, we'll use DEMO_ACHIEVEMENTS
-  const achievements = DEMO_ACHIEVEMENTS;
+  useEffect(() => {
+    if (user) {
+      const userAchievements = AchievementsManager.getUserAchievements(user.id);
+      setAchievements(userAchievements);
+
+      // Check for connections achievement
+      const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
+      if (connectionsAchievement) {
+        setAchievementUnlocked(connectionsAchievement);
+        setShowAchievementPopup(true);
+        // Update achievements list immediately
+        setAchievements(AchievementsManager.getUserAchievements(user.id));
+      }
+    } else {
+      // For demo purposes when not logged in
+      setAchievements(DEMO_ACHIEVEMENTS);
+    }
+  }, [user]);
+  
+  const handleShareAchievement = () => {
+    if (achievementUnlocked && user) {
+      AchievementsManager.shareAchievement(user.id, achievementUnlocked);
+      setShowAchievementPopup(false);
+    }
+  };
+  
+  // Calculate points from actual achievements
   const completedAchievements = achievements.filter(a => a.completed);
   const totalPoints = completedAchievements.reduce((sum, ach) => sum + ach.points, 0);
   
@@ -50,6 +83,17 @@ const AchievementsPage = () => {
         onClose={() => setIsDialogOpen(false)} 
         achievements={achievements}
       />
+      
+      {/* Achievement Popup */}
+      {achievementUnlocked && showAchievementPopup && user && (
+        <AchievementPopup
+          isOpen={showAchievementPopup}
+          onClose={() => setShowAchievementPopup(false)}
+          userName={user.user_metadata?.name || ""}
+          achievementTitle={achievementUnlocked.title}
+          onShare={handleShareAchievement}
+        />
+      )}
     </div>
   );
 };
