@@ -11,12 +11,14 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AchievementsDialog } from "./AchievementsDialog";
+import { Achievement } from "@/types/profile";
 
 interface AchievementsProps {
   showProfileSpecific?: boolean;
   profileId?: string;
   isDemoProfile?: boolean;
   compact?: boolean;
+  achievements?: Achievement[]; // Add the achievements prop
 }
 
 // Helper function to render the appropriate icon
@@ -47,7 +49,8 @@ export const Achievements = ({
   showProfileSpecific = false, 
   profileId, 
   isDemoProfile = false,
-  compact = false
+  compact = false,
+  achievements = [] // Add default empty array for achievements
 }: AchievementsProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -59,9 +62,9 @@ export const Achievements = ({
   // For demo profile, show all achievements
   const demoMode = isDemoProfile && showProfileSpecific;
 
-  // Get achievements data
-  const achievements = demoMode ? DEMO_ACHIEVEMENTS : [];
-  const completedAchievements = achievements.filter(a => a.completed);
+  // Get achievements data - use passed achievements or demo achievements if in demo mode
+  const achievementsToShow = demoMode ? DEMO_ACHIEVEMENTS : achievements;
+  const completedAchievements = achievementsToShow.filter(a => a.completed);
   
   // Calculate total points - only for demo or authenticated users
   const totalPoints = completedAchievements.reduce((sum, ach) => sum + ach.points, 0);
@@ -137,7 +140,7 @@ export const Achievements = ({
         <AchievementsDialog 
           isOpen={isDialogOpen} 
           onClose={() => setIsDialogOpen(false)} 
-          achievements={achievements}
+          achievements={achievementsToShow}
         />
       )}
     </>
