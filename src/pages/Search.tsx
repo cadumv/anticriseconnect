@@ -31,15 +31,25 @@ const Search = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, name, engineering_type, professional_description, avatar_url')
-        .or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%,professional_description.ilike.%${searchTerm}%`);
+        .or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%`)
+        .not('name', 'is', null);
       
       if (error) throw error;
-      setSearchResults(data || []);
+      
+      // Filter out profiles without names and log the results for debugging
+      const validProfiles = data?.filter(profile => profile.name) || [];
+      console.log('Search results:', validProfiles);
+      
+      setSearchResults(validProfiles);
     } catch (error) {
       console.error("Erro na busca:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleProfileClick = (id: string) => {
+    navigate(`/profile/${id}`);
   };
 
   return (
@@ -61,7 +71,7 @@ const Search = () => {
         <CardContent>
           <div className="flex gap-2 mb-6">
             <Input
-              placeholder="Nome, tipo de engenharia ou palavra-chave..."
+              placeholder="Digite o nome do profissional ou tipo de engenharia..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -75,10 +85,16 @@ const Search = () => {
 
           <div className="space-y-4">
             {searchResults.length === 0 && searchTerm && !isLoading ? (
-              <p className="text-center py-4 text-muted-foreground">Nenhum profissional encontrado com esse termo de busca.</p>
+              <p className="text-center py-4 text-muted-foreground">
+                Nenhum profissional encontrado com esse termo de busca.
+              </p>
             ) : (
               searchResults.map((engineer) => (
-                <Card key={engineer.id} className="cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => navigate(`/profile/${engineer.id}`)}>
+                <Card 
+                  key={engineer.id} 
+                  className="cursor-pointer hover:bg-gray-50 transition-colors" 
+                  onClick={() => handleProfileClick(engineer.id)}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden shrink-0">
@@ -103,7 +119,9 @@ const Search = () => {
                           )}
                         </div>
                         {engineer.professional_description && (
-                          <p className="text-sm text-gray-600 line-clamp-2">{engineer.professional_description}</p>
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            {engineer.professional_description}
+                          </p>
                         )}
                       </div>
                     </div>
