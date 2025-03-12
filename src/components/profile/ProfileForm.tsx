@@ -56,8 +56,22 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
     }
 
     // Username format validation
-    if (!/^[a-z0-9._]{3,20}$/.test(username)) {
-      setUsernameError("Nome de usuário deve conter entre 3 e 20 caracteres, usando apenas letras minúsculas, números, pontos e underscores.");
+    // Updated regex to match the required format:
+    // - Must start with a letter
+    // - Can contain lowercase letters, numbers, underscores and dots
+    // - No special characters, spaces, uppercase letters, or accents
+    // - Length between 3 and 20 characters
+    if (!/^[a-z][a-z0-9._]{2,19}$/.test(username)) {
+      setUsernameError("Nome de usuário deve conter entre 3 e 20 caracteres, iniciando com uma letra minúscula, seguido por letras minúsculas, números, pontos ou underscores. Sem espaços, acentos ou caracteres especiais.");
+      setUsernameAvailable(false);
+      return;
+    }
+
+    // Prevent usernames that look like phones, CPFs, etc.
+    if (/^\d{3,}$/.test(username) || // Sequence of 3+ digits
+        /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(username) || // CPF pattern
+        /^\(\d{2}\)\s*\d{4,5}-\d{4}$/.test(username)) { // Phone pattern
+      setUsernameError("Nome de usuário não pode ser um número de telefone, CPF ou sequência de números.");
       setUsernameAvailable(false);
       return;
     }
@@ -207,7 +221,7 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
             </Alert>
           )}
           <p className="text-xs text-muted-foreground">
-            Use letras minúsculas, números, pontos e underscores. Entre 3 e 20 caracteres.
+            Use letras minúsculas, números, pontos e underscores. Entre 3 e 20 caracteres. Deve começar com uma letra.
           </p>
         </div>
         
