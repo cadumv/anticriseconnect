@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Trophy } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 // Define a type for our ranking user
 interface RankingUser {
@@ -14,6 +15,7 @@ interface RankingUser {
 }
 
 export const MonthlyRanking = () => {
+  const { user } = useAuth();
   const [topUsers, setTopUsers] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,28 +40,47 @@ export const MonthlyRanking = () => {
               const completedAchievements = achievements.filter((a: any) => a.completed);
               const totalPoints = completedAchievements.reduce((sum: number, ach: any) => sum + ach.points, 0);
               
+              // Also add mission points if available
+              let missionPoints = 0;
+              const missionsKey = `user_missions_${userId}`;
+              const missionsJson = localStorage.getItem(missionsKey);
+              
+              if (missionsJson) {
+                try {
+                  const missions = JSON.parse(missionsJson);
+                  missions.forEach((mission: any) => {
+                    if (mission.currentProgress >= mission.requiredProgress) {
+                      missionPoints += mission.reward;
+                    }
+                  });
+                } catch (e) {
+                  // Ignore parsing errors for missions
+                }
+              }
+              
               // Try to get user metadata
               let userName = "Usuário";
               try {
                 const { data } = await supabase
                   .from('profiles')
-                  .select('full_name, avatar_url')
+                  .select('full_name, avatar_url, name')
                   .eq('id', userId)
                   .single();
                 
                 if (data) {
-                  userName = data.full_name || "Engenheiro";
+                  userName = data.full_name || data.name || "Engenheiro";
                 }
               } catch (error) {
                 // If we can't get the user from Supabase, use a default name
                 // In practice this would be properly handled
               }
               
-              if (totalPoints > 0) {
+              const totalUserPoints = totalPoints + missionPoints;
+              if (totalUserPoints > 0) {
                 allUsers.push({
                   id: userId,
                   name: userName,
-                  points: totalPoints,
+                  points: totalUserPoints,
                   avatar_url: null
                 });
               }
@@ -86,9 +107,10 @@ export const MonthlyRanking = () => {
     const intervalId = setInterval(fetchTopUsers, 60000); // Refresh every minute
     
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user]); // Add user dependency to refresh when user changes
 
   const hasEngineers = topUsers.length > 0;
+  const userRanking = user ? topUsers.findIndex(u => u.id === user.id) : -1;
 
   return (
     <Card>
@@ -144,6 +166,12 @@ export const MonthlyRanking = () => {
                 </div>
               </div>
             ))}
+            
+            {user && userRanking === -1 && (
+              <div className="mt-4 p-3 border-t pt-4 text-center">
+                <p className="text-sm text-gray-600">Complete missões para aparecer no ranking!</p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center">
