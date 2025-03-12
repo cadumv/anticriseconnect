@@ -45,11 +45,26 @@ const Profile = () => {
       const userAchievements = AchievementsManager.getUserAchievements(user.id);
       setAchievements(userAchievements);
 
-      const achievement = AchievementsManager.checkProfileCompleted(user);
-      if (achievement) {
-        setAchievementUnlocked(achievement);
+      // Store user name for achievement popups
+      if (user.user_metadata?.name) {
+        localStorage.setItem(`user_name_${user.id}`, user.user_metadata.name);
+      }
+
+      // Check for profile achievement
+      const profileAchievement = AchievementsManager.checkProfileCompleted(user);
+      if (profileAchievement) {
+        setAchievementUnlocked(profileAchievement);
         setShowAchievementPopup(true);
-        // Update achievements list immediately when a new one is unlocked
+        // Update achievements list immediately
+        setAchievements(AchievementsManager.getUserAchievements(user.id));
+      }
+
+      // Check for connections achievement
+      const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
+      if (connectionsAchievement) {
+        setAchievementUnlocked(connectionsAchievement);
+        setShowAchievementPopup(true);
+        // Update achievements list immediately
         setAchievements(AchievementsManager.getUserAchievements(user.id));
       }
     }

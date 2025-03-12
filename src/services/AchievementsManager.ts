@@ -92,6 +92,83 @@ export class AchievementsManager {
     return null;
   }
 
+  static checkConnectionsAchievement(userId: string): Achievement | null {
+    // Check user connections count
+    let connectionCount = 0;
+    
+    try {
+      // Check connections made by the user
+      const userConnectionKey = `connection_requests_${userId}`;
+      const userRequests = localStorage.getItem(userConnectionKey);
+      
+      if (userRequests) {
+        const parsedUserRequests = JSON.parse(userRequests);
+        // Count accepted connection requests
+        connectionCount += parsedUserRequests.filter((request: any) => 
+          request.status === 'accepted'
+        ).length;
+      }
+      
+      // Check connections received by the user
+      const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
+      
+      for (const otherUserId of allUsers) {
+        if (otherUserId === userId) continue;
+        
+        const connectionKey = `connection_requests_${otherUserId}`;
+        const existingRequests = localStorage.getItem(connectionKey);
+        
+        if (existingRequests) {
+          const requests = JSON.parse(existingRequests);
+          const acceptedRequests = requests.filter((req: any) => 
+            req.targetId === userId && req.status === 'accepted'
+          );
+          
+          connectionCount += acceptedRequests.length;
+        }
+      }
+      
+      // Bronze achievement requires 10 connections
+      if (connectionCount >= 10) {
+        const bronzeConnectionAchievement: Achievement = {
+          id: "ach-2",
+          title: "Conexões Anticrise - Bronze",
+          description: "Realizou 10 conexões com avaliação positiva",
+          icon: "medal",
+          completed: true,
+          points: 100,
+          category: 'connection',
+          level: 'bronze'
+        };
+        
+        // Check if already unlocked
+        const unlockedAchievements = this.getUnlockedAchievements(userId);
+        if (!unlockedAchievements.includes(bronzeConnectionAchievement.id)) {
+          // Mark as unlocked
+          unlockedAchievements.push(bronzeConnectionAchievement.id);
+          this.saveUnlockedAchievements(userId, unlockedAchievements);
+          
+          // Update achievements
+          const achievements = this.getUserAchievements(userId);
+          const existingIndex = achievements.findIndex(a => a.id === bronzeConnectionAchievement.id);
+          
+          if (existingIndex >= 0) {
+            achievements[existingIndex] = {...bronzeConnectionAchievement, completed: true};
+          } else {
+            achievements.push(bronzeConnectionAchievement);
+          }
+          
+          this.saveUserAchievements(userId, achievements);
+          return bronzeConnectionAchievement;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking connections achievement:', error);
+    }
+    
+    return null;
+  }
+
   static shareAchievement(userId: string, achievement: Achievement): void {
     // This would normally post to a database
     // For now we'll just store in localStorage for demo
