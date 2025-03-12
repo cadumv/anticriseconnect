@@ -201,7 +201,7 @@ const Notifications = () => {
             </span>
           )}
         </h1>
-        <TimeFilterSelector />
+        {/* Removed the top-level TimeFilterSelector here */}
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
