@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,15 +27,24 @@ const Search = () => {
     
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      const cleanedSearchTerm = searchTerm.startsWith('@') 
+        ? searchTerm.substring(1) 
+        : searchTerm;
+      
+      let query = supabase
         .from('profiles')
-        .select('id, name, username, engineering_type, professional_description, avatar_url')
-        .or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
-        .not('name', 'is', null);
+        .select('id, name, username, engineering_type, professional_description, avatar_url');
+      
+      if (searchTerm.startsWith('@')) {
+        query = query.ilike('username', `%${cleanedSearchTerm}%`);
+      } else {
+        query = query.or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`);
+      }
+      
+      const { data, error } = await query.not('name', 'is', null);
       
       if (error) throw error;
       
-      // Filter out profiles without names and log the results for debugging
       const validProfiles = data?.filter(profile => profile.name) || [];
       console.log('Search results:', validProfiles);
       
@@ -46,6 +54,11 @@ const Search = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
   };
 
   const handleProfileClick = (id: string) => {
@@ -67,7 +80,7 @@ const Search = () => {
             <Input
               placeholder="Digite o nome, username (@) ou tipo de engenharia..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="flex-1"
             />
