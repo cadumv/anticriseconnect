@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { DEMO_ACHIEVEMENTS } from "@/types/profile";
-import { ProfileHeader } from "@/components/ProfileHeader";
 import { AchievementsSummary } from "@/components/achievements/AchievementsSummary";
 import { AchievementsList } from "@/components/achievements/AchievementsList";
 import { WeeklyMissions } from "@/components/achievements/WeeklyMissions";
@@ -20,9 +19,13 @@ const AchievementsPage = () => {
   
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <ProfileHeader />
+      {/* Summary Card */}
+      <AchievementsSummary 
+        totalPoints={totalPoints} 
+        completedCount={completedAchievements.length} 
+      />
       
-      {/* Achievements Button with Dialog */}
+      {/* Achievements Button with Dialog - Moved below the summary card */}
       <div className="flex justify-center mb-4">
         <Button 
           onClick={() => setIsDialogOpen(true)} 
@@ -31,12 +34,6 @@ const AchievementsPage = () => {
           Ver Todas as Conquistas <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
-      
-      {/* Summary Card */}
-      <AchievementsSummary 
-        totalPoints={totalPoints} 
-        completedCount={completedAchievements.length} 
-      />
       
       {/* Achievements List */}
       <AchievementsList achievements={achievements} />
