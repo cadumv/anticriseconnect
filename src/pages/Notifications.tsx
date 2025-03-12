@@ -2,10 +2,29 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { Bell, AtSign, Handshake, MessageSquare, User, Trash2 } from "lucide-react";
+import { 
+  Bell, 
+  AtSign, 
+  Handshake, 
+  User, 
+  Trash2, 
+  Calendar, 
+  CalendarClock, 
+  CalendarDays, 
+  Check, 
+  X, 
+  ExternalLink
+} from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Notification {
   id: string;
@@ -14,7 +33,11 @@ interface Notification {
   read: boolean;
   date: string;
   link: string;
+  // For partnership notifications
+  senderId?: string;
 }
+
+type TimeFilter = "all" | "day" | "week" | "month";
 
 const Notifications = () => {
   const { user, loading } = useAuth();
@@ -23,10 +46,35 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([
     // Deixaremos o array vazio para mostrar a interface quando não há notificações
   ]);
+
+  // Estado para filtro de tempo
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   
-  // Filtra notificações por tipo
-  const mentions = notifications.filter(n => n.type === "mention");
-  const partnerships = notifications.filter(n => n.type === "partnership");
+  // Filtra notificações por tempo e tipo
+  const filterNotificationsByTime = (notifications: Notification[]) => {
+    if (timeFilter === "all") return notifications;
+    
+    const now = new Date();
+    const filterDate = new Date();
+    
+    switch (timeFilter) {
+      case "day":
+        filterDate.setDate(now.getDate() - 1);
+        break;
+      case "week":
+        filterDate.setDate(now.getDate() - 7);
+        break;
+      case "month":
+        filterDate.setMonth(now.getMonth() - 1);
+        break;
+    }
+    
+    return notifications.filter(n => new Date(n.date) >= filterDate);
+  };
+  
+  // Filtra notificações por tipo e tempo
+  const mentions = filterNotificationsByTime(notifications.filter(n => n.type === "mention"));
+  const partnerships = filterNotificationsByTime(notifications.filter(n => n.type === "partnership"));
   
   // Conta notificações não lidas
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -60,6 +108,26 @@ const Notifications = () => {
       description: `Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`,
     });
   };
+
+  // Função para aceitar uma solicitação de parceria
+  const acceptPartnership = (id: string, senderId?: string) => {
+    // Lógica para aceitar parceria será implementada aqui
+    // Por enquanto, apenas marca como lida e mostra toast
+    markAsRead(id);
+    toast({
+      description: "Solicitação de parceria aceita com sucesso!",
+    });
+  };
+
+  // Função para recusar uma solicitação de parceria
+  const declinePartnership = (id: string) => {
+    // Lógica para recusar parceria será implementada aqui
+    // Por enquanto, apenas remove a notificação
+    deleteNotification(id);
+    toast({
+      description: "Solicitação de parceria recusada.",
+    });
+  };
   
   if (loading) {
     return (
@@ -83,6 +151,44 @@ const Notifications = () => {
         return <Bell className="h-5 w-5 text-gray-500" />;
     }
   };
+
+  // Componente que mostra o seletor de filtro de tempo
+  const TimeFilterSelector = () => (
+    <Select 
+      value={timeFilter} 
+      onValueChange={(value) => setTimeFilter(value as TimeFilter)}
+    >
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Filtrar por período" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>Todos</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="day">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="h-4 w-4" />
+            <span>Último dia</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="week">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" />
+            <span>Última semana</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="month">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span>Último mês</span>
+          </div>
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  );
   
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -95,6 +201,7 @@ const Notifications = () => {
             </span>
           )}
         </h1>
+        <TimeFilterSelector />
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
@@ -104,16 +211,19 @@ const Notifications = () => {
             <CardTitle className="flex items-center gap-2">
               <AtSign className="h-5 w-5" /> Menções
             </CardTitle>
-            {mentions.length > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => deleteAllNotifications("mention")}
-                className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              <TimeFilterSelector />
+              {mentions.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => deleteAllNotifications("mention")}
+                  className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {mentions.length > 0 ? (
@@ -132,7 +242,7 @@ const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{notification.date}</p>
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex flex-wrap gap-2 mt-2">
                           {!notification.read && (
                             <Button 
                               variant="outline" 
@@ -143,6 +253,16 @@ const Notifications = () => {
                               Marcar como lida
                             </Button>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs text-blue-600"
+                            asChild
+                          >
+                            <Link to={notification.link}>
+                              <ExternalLink className="h-3 w-3 mr-1" /> Visualizar menção
+                            </Link>
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -175,16 +295,19 @@ const Notifications = () => {
             <CardTitle className="flex items-center gap-2">
               <Handshake className="h-5 w-5" /> Solicitações de Parceria
             </CardTitle>
-            {partnerships.length > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => deleteAllNotifications("partnership")}
-                className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
-              >
-                <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              <TimeFilterSelector />
+              {partnerships.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => deleteAllNotifications("partnership")}
+                  className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {partnerships.length > 0 ? (
@@ -203,17 +326,37 @@ const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{notification.date}</p>
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex flex-wrap gap-2 mt-2">
                           {!notification.read && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="h-7 text-xs" 
-                              onClick={() => markAsRead(notification.id)}
-                            >
-                              Marcar como lida
-                            </Button>
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-7 text-xs text-green-600" 
+                                onClick={() => acceptPartnership(notification.id, notification.senderId)}
+                              >
+                                <Check className="h-3 w-3 mr-1" /> Aceitar
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="h-7 text-xs text-red-600" 
+                                onClick={() => declinePartnership(notification.id)}
+                              >
+                                <X className="h-3 w-3 mr-1" /> Recusar
+                              </Button>
+                            </>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs"
+                            asChild
+                          >
+                            <Link to={notification.senderId ? `/profile/${notification.senderId}` : "#"}>
+                              <User className="h-3 w-3 mr-1" /> Visitar perfil
+                            </Link>
+                          </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
