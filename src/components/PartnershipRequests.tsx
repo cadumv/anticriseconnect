@@ -3,26 +3,67 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PartnershipRequest {
+  id: string;
+  name: string;
+  specialty: string;
+  project: string;
+  date: string;
+  status: 'pending' | 'accepted' | 'rejected';
+}
 
 export const PartnershipRequests = () => {
   const { user } = useAuth();
+  const [requests, setRequests] = useState<PartnershipRequest[]>([]);
   
-  const requests = [
-    {
-      id: 1,
-      name: "João Paulo",
-      specialty: "Engenheiro Estrutural",
-      project: "Edifício Comercial",
-      date: "Há 3 dias"
-    },
-    {
-      id: 2,
-      name: "Maria Silva",
-      specialty: "Engenheira Elétrica",
-      project: "Instalação Industrial",
-      date: "Há 1 semana"
+  useEffect(() => {
+    if (user) {
+      loadPartnershipRequests();
     }
-  ];
+  }, [user]);
+
+  const loadPartnershipRequests = () => {
+    // In a real app, this would fetch from the database
+    // For now, we'll start with an empty array for new users
+    setRequests([]);
+  };
+
+  const handleAcceptRequest = async (requestId: string) => {
+    try {
+      // Update request status
+      const updatedRequests = requests.map(req => 
+        req.id === requestId ? { ...req, status: 'accepted' as const } : req
+      );
+      setRequests(updatedRequests);
+      
+      // Create a notification for the accepted partnership
+      const request = requests.find(r => r.id === requestId);
+      if (request) {
+        await supabase.from('notifications').insert({
+          user_id: user?.id,
+          type: 'partnership_accepted',
+          title: 'Parceria aceita',
+          message: `Você aceitou a solicitação de parceria de ${request.name}`,
+          read: false
+        });
+      }
+      
+      toast.success("Solicitação aceita com sucesso!");
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      toast.error("Erro ao aceitar solicitação");
+    }
+  };
+
+  const handleRejectRequest = (requestId: string) => {
+    const updatedRequests = requests.filter(req => req.id !== requestId);
+    setRequests(updatedRequests);
+    toast.success("Solicitação recusada");
+  };
 
   if (!user) {
     return null;
@@ -50,8 +91,8 @@ export const PartnershipRequests = () => {
                 <p className="text-sm mb-1">Projeto: <span className="font-medium">{request.project}</span></p>
                 <p className="text-xs text-gray-500 mb-3">{request.date}</p>
                 <div className="flex gap-2">
-                  <Button size="sm">Aceitar</Button>
-                  <Button size="sm" variant="outline">Recusar</Button>
+                  <Button size="sm" onClick={() => handleAcceptRequest(request.id)}>Aceitar</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleRejectRequest(request.id)}>Recusar</Button>
                 </div>
               </div>
             ))}

@@ -22,7 +22,7 @@ export const WeeklyMissions = () => {
   useEffect(() => {
     if (user) {
       // In a real implementation, we would fetch the user's mission progress from the backend
-      // For now, we'll simulate some progress with fixed data
+      // For now, we'll set all mission progress to 0 for new user experience
       loadUserMissions(user.id);
     } else {
       // Default missions with no progress for non-authenticated users
@@ -39,7 +39,7 @@ export const WeeklyMissions = () => {
       if (savedMissions) {
         setMissions(JSON.parse(savedMissions));
       } else {
-        // First time - set up default missions
+        // First time - set up default missions with 0 progress
         const defaultMissions = getDefaultMissions();
         localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
         setMissions(defaultMissions);
@@ -63,7 +63,7 @@ export const WeeklyMissions = () => {
         description: "Faça 3 novas conexões com engenheiros na plataforma",
         icon: <Users className="h-5 w-5 text-blue-500" />,
         requiredProgress: 3,
-        currentProgress: user ? 2 : 0, // Simulate some progress for logged-in users
+        currentProgress: 0, // Set to 0 for new user experience
         reward: 50
       },
       {
@@ -72,16 +72,16 @@ export const WeeklyMissions = () => {
         description: "Envie uma mensagem para 3 novas conexões",
         icon: <Mail className="h-5 w-5 text-green-500" />,
         requiredProgress: 3,
-        currentProgress: user ? 1 : 0,
+        currentProgress: 0, // Set to 0 for new user experience
         reward: 50
       },
       {
         id: "mission-3",
-        title: "Apresente seu Trabalho",
+        title: "Apresente seu Trabal ho",
         description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
         icon: <FileText className="h-5 w-5 text-purple-500" />,
         requiredProgress: 1,
-        currentProgress: user ? 0 : 0,
+        currentProgress: 0, // Set to 0 for new user experience
         reward: 100
       },
       {
@@ -90,7 +90,7 @@ export const WeeklyMissions = () => {
         description: "Publique um artigo técnico para colaborar com outros engenheiros",
         icon: <FileText className="h-5 w-5 text-indigo-500" />,
         requiredProgress: 1,
-        currentProgress: user ? 0 : 0,
+        currentProgress: 0, // Set to 0 for new user experience
         reward: 100
       },
       {
@@ -99,7 +99,7 @@ export const WeeklyMissions = () => {
         description: "Indique 10 novos usuários para se cadastrarem na plataforma",
         icon: <Share className="h-5 w-5 text-orange-500" />,
         requiredProgress: 10,
-        currentProgress: user ? 3 : 0,
+        currentProgress: 0, // Set to 0 for new user experience
         reward: 200
       }
     ];
