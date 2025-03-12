@@ -20,6 +20,7 @@ export type Database = {
           phone: string | null
           professional_description: string | null
           updated_at: string | null
+          username: string | null
         }
         Insert: {
           areas_of_expertise?: string[] | null
@@ -31,6 +32,7 @@ export type Database = {
           phone?: string | null
           professional_description?: string | null
           updated_at?: string | null
+          username?: string | null
         }
         Update: {
           areas_of_expertise?: string[] | null
@@ -42,6 +44,7 @@ export type Database = {
           phone?: string | null
           professional_description?: string | null
           updated_at?: string | null
+          username?: string | null
         }
         Relationships: []
       }
