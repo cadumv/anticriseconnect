@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search as SearchIcon, User, Tag } from "lucide-react";
+import { Search as SearchIcon, User, Tag, AtSign } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface Engineer {
   id: string;
   name: string;
+  username?: string;
   engineering_type: string;
   professional_description: string;
   avatar_url: string | null;
@@ -29,8 +30,8 @@ const Search = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, engineering_type, professional_description, avatar_url')
-        .or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%`)
+        .select('id, name, username, engineering_type, professional_description, avatar_url')
+        .or(`name.ilike.%${searchTerm}%,engineering_type.ilike.%${searchTerm}%,username.ilike.%${searchTerm}%`)
         .not('name', 'is', null);
       
       if (error) throw error;
@@ -64,7 +65,7 @@ const Search = () => {
         <CardContent>
           <div className="flex gap-2 mb-6">
             <Input
-              placeholder="Digite o nome do profissional ou tipo de engenharia..."
+              placeholder="Digite o nome, username (@) ou tipo de engenharia..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -104,6 +105,12 @@ const Search = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-medium">{engineer.name}</h3>
+                          {engineer.username && (
+                            <span className="text-gray-500 text-sm flex items-center">
+                              <AtSign className="h-3 w-3 mr-0.5" />
+                              {engineer.username}
+                            </span>
+                          )}
                           {engineer.engineering_type && (
                             <Badge variant="outline" className="ml-2">
                               <Tag className="mr-1 h-3 w-3" />

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,8 @@ import { ProfileAvatar } from "./ProfileAvatar";
 import { AreasOfExpertise } from "./AreasOfExpertise";
 import { ProfileDescriptionGenerator } from "./ProfileDescriptionGenerator";
 import { EngineeringTypeSelect } from "./EngineeringTypeSelect";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ProfileFormProps {
   user: User;
@@ -20,6 +22,9 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(user?.user_metadata?.name || "");
+  const [username, setUsername] = useState(user?.user_metadata?.username || "");
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState(true);
   const [phone, setPhone] = useState(user?.user_metadata?.phone || "");
   const [engineeringType, setEngineeringType] = useState(user?.user_metadata?.engineering_type || "");
   const [professionalDescription, setProfessionalDescription] = useState(
@@ -36,8 +41,72 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
     setAreasOfExpertise(updatedAreas);
   };
 
+  const checkUsernameAvailability = async (username: string) => {
+    if (!username) {
+      setUsernameError("");
+      setUsernameAvailable(true);
+      return;
+    }
+
+    if (username === user?.user_metadata?.username) {
+      // User is not changing their username
+      setUsernameError("");
+      setUsernameAvailable(true);
+      return;
+    }
+
+    // Username format validation
+    if (!/^[a-z0-9._]{3,20}$/.test(username)) {
+      setUsernameError("Nome de usuário deve conter entre 3 e 20 caracteres, usando apenas letras minúsculas, números, pontos e underscores.");
+      setUsernameAvailable(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setUsernameError("Este nome de usuário já está em uso.");
+        setUsernameAvailable(false);
+      } else {
+        setUsernameError("");
+        setUsernameAvailable(true);
+      }
+    } catch (error: any) {
+      console.error("Erro ao verificar disponibilidade do nome de usuário:", error);
+      setUsernameError("Erro ao verificar disponibilidade.");
+      setUsernameAvailable(false);
+    }
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (username) {
+        checkUsernameAvailability(username);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [username]);
+
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!usernameAvailable) {
+      toast({
+        title: "Nome de usuário indisponível",
+        description: usernameError,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -47,6 +116,7 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
       const { error } = await supabase.auth.updateUser({
         data: { 
           name, 
+          username,
           phone, 
           engineering_type: engineeringType,
           professional_description: professionalDescription,
@@ -56,6 +126,22 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
       });
       
       if (error) throw error;
+      
+      // Also update the profiles table with the username
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          name,
+          username,
+          engineering_type: engineeringType,
+          professional_description: professionalDescription,
+          areas_of_expertise: filteredAreas,
+          avatar_url: avatarUrl,
+          phone
+        })
+        .eq('id', user.id);
+        
+      if (profileError) throw profileError;
       
       toast({
         title: "Perfil atualizado com sucesso",
@@ -100,6 +186,31 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
           />
         </div>
         
+        <div className="grid gap-2">
+          <Label htmlFor="username">Nome de usuário</Label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <span className="text-gray-500">@</span>
+            </div>
+            <Input
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase())}
+              placeholder="seu_nome_de_usuario"
+              className="pl-8"
+            />
+          </div>
+          {usernameError && (
+            <Alert variant="destructive" className="py-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">{usernameError}</AlertDescription>
+            </Alert>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Use letras minúsculas, números, pontos e underscores. Entre 3 e 20 caracteres.
+          </p>
+        </div>
+        
         <EngineeringTypeSelect 
           engineeringType={engineeringType}
           setEngineeringType={setEngineeringType}
@@ -131,7 +242,7 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
         </div>
         
         <div className="flex gap-2">
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" disabled={loading || !usernameAvailable}>
             {loading ? "Salvando..." : "Salvar alterações"}
           </Button>
           <Button type="button" variant="outline" onClick={() => setIsEditingProfile(false)}>

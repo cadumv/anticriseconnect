@@ -2,6 +2,7 @@
 export interface ProfileData {
   id: string;
   name: string;
+  username?: string;
   engineering_type: string;
   professional_description: string;
   areas_of_expertise: string[];
@@ -30,6 +31,7 @@ export interface Achievement {
 export const DEMO_PROFILE: ProfileData = {
   id: "demo-profile-123",
   name: "João",
+  username: "joao.eng",
   engineering_type: "Engenharia Civil",
   professional_description: "Engenheiro civil com experiência em projetos estruturais e gerenciamento de obras residenciais e comerciais. Especialista em cálculos estruturais e soluções sustentáveis para construções.",
   areas_of_expertise: ["Projetos Estruturais", "Gerenciamento de Obras", "Construção Sustentável", "Consultoria Técnica"],

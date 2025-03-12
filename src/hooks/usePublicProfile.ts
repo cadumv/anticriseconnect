@@ -46,7 +46,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
         console.log("Fetching profile with ID:", id);
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, name, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
           .eq('id', id)
           .single();
         

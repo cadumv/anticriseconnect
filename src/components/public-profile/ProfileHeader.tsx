@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { User, UserPlus, UserCheck, Handshake, Users } from "lucide-react";
+import { User, UserPlus, UserCheck, Handshake, Users, AtSign } from "lucide-react";
 import { User as AuthUser } from "@supabase/supabase-js";
 
 interface ProfileData {
   id: string;
   name: string;
+  username?: string;
   engineering_type: string;
   avatar_url: string | null;
 }
@@ -50,6 +51,12 @@ export const ProfileHeader = ({
           </div>
           <div className="text-left">
             <h2 className="text-2xl font-semibold">{profile.name}</h2>
+            {profile.username && (
+              <div className="flex items-center text-gray-600 mt-1">
+                <AtSign className="h-4 w-4 mr-1" />
+                <span>{profile.username}</span>
+              </div>
+            )}
             {profile.engineering_type && (
               <Badge className="mt-2">{profile.engineering_type}</Badge>
             )}

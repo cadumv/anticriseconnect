@@ -16,6 +16,7 @@ import PublicProfile from './pages/PublicProfile';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
 import Messages from './pages/Messages';
+import Notifications from './pages/Notifications';
 import AchievementsPage from './pages/AchievementsPage';
 import './App.css';
 
@@ -33,6 +34,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/search" element={<Search />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/profile/:id" element={<PublicProfile />} />
               <Route path="/achievements" element={<AchievementsPage />} />
               <Route path="*" element={<NotFound />} />

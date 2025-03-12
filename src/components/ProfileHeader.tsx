@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { ConnectionsDialog } from "./ConnectionsDialog";
+import { AtSign } from "lucide-react";
 
 export const ProfileHeader = () => {
   const { user } = useAuth();
@@ -118,6 +119,12 @@ export const ProfileHeader = () => {
                 <Badge className="mb-2">{user.user_metadata.engineering_type}</Badge>
               )}
               <h1 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h1>
+              {user?.user_metadata?.username && (
+                <div className="flex items-center text-gray-600 mt-1">
+                  <AtSign className="h-4 w-4 mr-1" />
+                  <span>{user.user_metadata.username}</span>
+                </div>
+              )}
             </div>
             
             <div className="flex items-center gap-4 text-sm mt-2 sm:mt-0 mx-auto sm:mx-0">
