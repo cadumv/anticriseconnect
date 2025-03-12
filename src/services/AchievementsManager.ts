@@ -49,11 +49,11 @@ export class AchievementsManager {
     // Check if profile is complete
     const metadata = user.user_metadata || {};
     const isComplete = metadata.name && 
-                       metadata.username && 
-                       metadata.engineering_type && 
-                       metadata.professional_description && 
-                       metadata.areas_of_expertise && 
-                       metadata.areas_of_expertise.length > 0;
+                      metadata.username && 
+                      metadata.engineering_type && 
+                      metadata.professional_description && 
+                      metadata.areas_of_expertise && 
+                      metadata.areas_of_expertise.length > 0;
     
     if (isComplete) {
       // Find the profile completion achievement

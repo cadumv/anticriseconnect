@@ -11,30 +11,38 @@ import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
+import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
       await signOut();
-      // Navigation is handled in the signOut function itself
     } catch (error) {
       console.error("Error in handleSignOut:", error);
       setIsSigningOut(false);
     }
   };
 
+  const handleShareAchievement = () => {
+    if (achievementUnlocked && user) {
+      AchievementsManager.shareAchievement(user.id, achievementUnlocked);
+      setShowAchievementPopup(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
-      // Check for profile completion achievement on first load
       const achievement = AchievementsManager.checkProfileCompleted(user);
       if (achievement) {
         setAchievementUnlocked(achievement);
+        setShowAchievementPopup(true);
       }
     }
   }, [user]);
@@ -81,7 +89,14 @@ const Profile = () => {
         </CardHeader>
         <CardContent>
           {isEditingProfile ? (
-            <ProfileForm user={user} setIsEditingProfile={setIsEditingProfile} />
+            <ProfileForm 
+              user={user} 
+              setIsEditingProfile={setIsEditingProfile}
+              onAchievementUnlocked={(achievement) => {
+                setAchievementUnlocked(achievement);
+                setShowAchievementPopup(true);
+              }}
+            />
           ) : (
             <ProfileInfo user={user} setIsEditingProfile={setIsEditingProfile} />
           )}
@@ -90,6 +105,17 @@ const Profile = () => {
           <DeleteAccountDialog deleteAccount={deleteAccount} />
         </CardFooter>
       </Card>
+
+      {/* Achievement Popup */}
+      {achievementUnlocked && showAchievementPopup && (
+        <AchievementPopup
+          isOpen={showAchievementPopup}
+          onClose={() => setShowAchievementPopup(false)}
+          userName={user.user_metadata?.name || ""}
+          achievementTitle={achievementUnlocked.title}
+          onShare={handleShareAchievement}
+        />
+      )}
     </div>
   );
 };

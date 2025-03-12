@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -16,9 +15,10 @@ import { AchievementPopup } from "../achievements/AchievementPopup";
 interface ProfileFormProps {
   user: User;
   setIsEditingProfile: (isEditing: boolean) => void;
+  onAchievementUnlocked?: (achievement: Achievement) => void;
 }
 
-export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => {
+export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }: ProfileFormProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
@@ -113,8 +113,7 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
       if (updatedUser) {
         const achievement = AchievementsManager.checkProfileCompleted(updatedUser);
         if (achievement) {
-          setAchievementUnlocked(achievement);
-          setShowAchievementPopup(true);
+          onAchievementUnlocked?.(achievement);
         }
       }
       
