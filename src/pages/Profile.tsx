@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,11 +9,14 @@ import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
 import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { AchievementsManager } from "@/services/AchievementsManager";
+import { Achievement } from "@/types/profile";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -25,6 +28,16 @@ const Profile = () => {
       setIsSigningOut(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      // Check for profile completion achievement on first load
+      const achievement = AchievementsManager.checkProfileCompleted(user);
+      if (achievement) {
+        setAchievementUnlocked(achievement);
+      }
+    }
+  }, [user]);
 
   if (loading) {
     return (

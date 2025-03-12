@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +9,9 @@ import { ProfessionalInfoFields } from "./ProfessionalInfoFields";
 import { ProfileFormActions } from "./ProfileFormActions";
 import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
 import { Label } from "@/components/ui/label";
+import { Achievement } from "@/types/profile";
+import { AchievementsManager } from "@/services/AchievementsManager";
+import { AchievementPopup } from "../achievements/AchievementPopup";
 
 interface ProfileFormProps {
   user: User;
@@ -34,6 +38,10 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
   
   // Avatar
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || "");
+
+  // Achievement popup
+  const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
 
   // Username validation
   const { usernameError, usernameAvailable } = useUsernameAvailability({ 
@@ -98,6 +106,18 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
       toast({
         title: "Perfil atualizado com sucesso",
       });
+      
+      // Check for profile completion achievement
+      // Get updated user
+      const { data: { user: updatedUser } } = await supabase.auth.getUser();
+      if (updatedUser) {
+        const achievement = AchievementsManager.checkProfileCompleted(updatedUser);
+        if (achievement) {
+          setAchievementUnlocked(achievement);
+          setShowAchievementPopup(true);
+        }
+      }
+      
       setIsEditingProfile(false);
     } catch (error: any) {
       toast({
@@ -110,44 +130,64 @@ export const ProfileForm = ({ user, setIsEditingProfile }: ProfileFormProps) => 
     }
   };
 
+  const handleShareAchievement = () => {
+    if (achievementUnlocked && user) {
+      AchievementsManager.shareAchievement(user.id, achievementUnlocked);
+      setShowAchievementPopup(false);
+    }
+  };
+
   return (
-    <form onSubmit={updateProfile}>
-      <div className="grid gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="avatar">Foto de perfil</Label>
-          <ProfileAvatar 
-            userId={user.id} 
-            avatarUrl={avatarUrl} 
-            setAvatarUrl={setAvatarUrl} 
+    <>
+      <form onSubmit={updateProfile}>
+        <div className="grid gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="avatar">Foto de perfil</Label>
+            <ProfileAvatar 
+              userId={user.id} 
+              avatarUrl={avatarUrl} 
+              setAvatarUrl={setAvatarUrl} 
+            />
+          </div>
+
+          <PersonalInfoFields
+            user={user}
+            name={name}
+            setName={setName}
+            username={username}
+            setUsername={setUsername}
+            usernameError={usernameError}
+            phone={phone}
+            setPhone={setPhone}
+          />
+          
+          <ProfessionalInfoFields
+            engineeringType={engineeringType}
+            setEngineeringType={setEngineeringType}
+            areasOfExpertise={areasOfExpertise}
+            updateAreasOfExpertise={updateAreasOfExpertise}
+            professionalDescription={professionalDescription}
+            setProfessionalDescription={setProfessionalDescription}
+          />
+          
+          <ProfileFormActions
+            loading={loading}
+            isFormValid={usernameAvailable}
+            onCancel={() => setIsEditingProfile(false)}
           />
         </div>
-
-        <PersonalInfoFields
-          user={user}
-          name={name}
-          setName={setName}
-          username={username}
-          setUsername={setUsername}
-          usernameError={usernameError}
-          phone={phone}
-          setPhone={setPhone}
+      </form>
+      
+      {/* Achievement Popup */}
+      {achievementUnlocked && (
+        <AchievementPopup
+          isOpen={showAchievementPopup}
+          onClose={() => setShowAchievementPopup(false)}
+          userName={name || user.user_metadata?.name || ""}
+          achievementTitle={achievementUnlocked.title}
+          onShare={handleShareAchievement}
         />
-        
-        <ProfessionalInfoFields
-          engineeringType={engineeringType}
-          setEngineeringType={setEngineeringType}
-          areasOfExpertise={areasOfExpertise}
-          updateAreasOfExpertise={updateAreasOfExpertise}
-          professionalDescription={professionalDescription}
-          setProfessionalDescription={setProfessionalDescription}
-        />
-        
-        <ProfileFormActions
-          loading={loading}
-          isFormValid={usernameAvailable}
-          onCancel={() => setIsEditingProfile(false)}
-        />
-      </div>
-    </form>
+      )}
+    </>
   );
 };
