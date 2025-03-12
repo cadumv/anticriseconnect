@@ -36,13 +36,25 @@ const Index = () => {
         localStorage.setItem(`user_name_${user.id}`, user.user_metadata.name);
       }
 
-      // Check for connections achievement
-      const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
-      if (connectionsAchievement) {
-        setAchievementUnlocked(connectionsAchievement);
-        setShowAchievementPopup(true);
-        // Update achievements list immediately
-        setAchievements(AchievementsManager.getUserAchievements(user.id));
+      // Check for connections achievement if profile achievement wasn't unlocked
+      if (!profileAchievement) {
+        const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
+        if (connectionsAchievement) {
+          setAchievementUnlocked(connectionsAchievement);
+          setShowAchievementPopup(true);
+          // Update achievements list immediately
+          setAchievements(AchievementsManager.getUserAchievements(user.id));
+        }
+        // Check for first publication achievement if no other achievements were unlocked
+        else {
+          const publicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
+          if (publicationAchievement) {
+            setAchievementUnlocked(publicationAchievement);
+            setShowAchievementPopup(true);
+            // Update achievements list immediately
+            setAchievements(AchievementsManager.getUserAchievements(user.id));
+          }
+        }
       }
     }
   }, [user]);

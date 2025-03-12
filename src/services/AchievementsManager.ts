@@ -1,4 +1,3 @@
-
 import { Achievement } from "@/types/profile";
 import { User } from "@supabase/supabase-js";
 import { toast } from "@/hooks/use-toast";
@@ -202,6 +201,56 @@ export class AchievementsManager {
       }
     } catch (error) {
       console.error('Error checking connections achievement:', error);
+    }
+    
+    return null;
+  }
+
+  static checkFirstPublicationAchievement(userId: string): Achievement | null {
+    try {
+      // Check user publications
+      const publicationsKey = `user_publications_${userId}`;
+      const userPublications = localStorage.getItem(publicationsKey);
+      
+      if (userPublications) {
+        const parsedPublications = JSON.parse(userPublications);
+        
+        // If user has at least one publication
+        if (parsedPublications && parsedPublications.length > 0) {
+          const firstPublicationAchievement: Achievement = {
+            id: "ach-4",
+            title: "Primeiro Artigo",
+            description: "Publicou seu primeiro artigo técnico",
+            icon: "file-text",
+            completed: true,
+            points: 100,
+            category: 'publication'
+          };
+          
+          // Check if already unlocked
+          const unlockedAchievements = this.getUnlockedAchievements(userId);
+          if (!unlockedAchievements.includes(firstPublicationAchievement.id)) {
+            // Mark as unlocked
+            unlockedAchievements.push(firstPublicationAchievement.id);
+            this.saveUnlockedAchievements(userId, unlockedAchievements);
+            
+            // Update achievements
+            const achievements = this.getUserAchievements(userId);
+            const existingIndex = achievements.findIndex(a => a.id === firstPublicationAchievement.id);
+            
+            if (existingIndex >= 0) {
+              achievements[existingIndex] = {...firstPublicationAchievement, completed: true};
+            } else {
+              achievements.push(firstPublicationAchievement);
+            }
+            
+            this.saveUserAchievements(userId, achievements);
+            return firstPublicationAchievement;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking first publication achievement:', error);
     }
     
     return null;

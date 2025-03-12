@@ -33,6 +33,17 @@ const AchievementsPage = () => {
         // Update achievements list immediately
         setAchievements(AchievementsManager.getUserAchievements(user.id));
       }
+      
+      // Check for first publication achievement
+      if (!connectionsAchievement) {
+        const publicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
+        if (publicationAchievement) {
+          setAchievementUnlocked(publicationAchievement);
+          setShowAchievementPopup(true);
+          // Update achievements list immediately
+          setAchievements(AchievementsManager.getUserAchievements(user.id));
+        }
+      }
     } else {
       // For demo purposes when not logged in
       setAchievements(DEMO_ACHIEVEMENTS);
