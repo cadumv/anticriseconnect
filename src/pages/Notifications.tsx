@@ -165,44 +165,6 @@ const Notifications = () => {
           </CardContent>
         </Card>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Todas as Notificações</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {notifications.length > 0 ? (
-            <div className="space-y-4">
-              {notifications.map(notification => (
-                <div 
-                  key={notification.id} 
-                  className={`p-3 rounded-md border ${notification.read ? 'bg-white' : 'bg-blue-50 border-blue-100'}`}
-                >
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    <div className="flex-1">
-                      <p className={`text-sm ${notification.read ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">{notification.date}</p>
-                    </div>
-                    <Button size="sm" variant="ghost" asChild>
-                      <Link to={notification.link}>Ver</Link>
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <Bell className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-              <p>Nenhuma notificação recente</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
