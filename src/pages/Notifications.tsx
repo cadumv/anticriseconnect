@@ -2,55 +2,64 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { Bell, AtSign, Handshake, MessageSquare, User } from "lucide-react";
+import { Bell, AtSign, Handshake, MessageSquare, User, Trash2 } from "lucide-react";
 import { Navigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+
+interface Notification {
+  id: string;
+  type: "mention" | "partnership";
+  message: string;
+  read: boolean;
+  date: string;
+  link: string;
+}
 
 const Notifications = () => {
   const { user, loading } = useAuth();
   
-  // Mock notification data - in a real app, would fetch from API
-  const notifications = [
-    {
-      id: "1",
-      type: "mention",
-      message: "Você foi mencionado em um post por @maria.silva",
-      read: false,
-      date: "2 horas atrás",
-      link: "#"
-    },
-    {
-      id: "2",
-      type: "partnership",
-      message: "Nova solicitação de parceria de Ricardo Mendes",
-      read: false,
-      date: "Ontem",
-      link: "#"
-    },
-    {
-      id: "3",
-      type: "mention",
-      message: "Você foi mencionado em um comentário por @carlos.eng",
-      read: true,
-      date: "3 dias atrás",
-      link: "#"
-    },
-    {
-      id: "4",
-      type: "partnership",
-      message: "Sua solicitação de parceria foi aceita por Ana Santos",
-      read: true,
-      date: "1 semana atrás",
-      link: "#"
-    }
-  ];
+  // Estado local para gerenciar notificações
+  const [notifications, setNotifications] = useState<Notification[]>([
+    // Deixaremos o array vazio para mostrar a interface quando não há notificações
+  ]);
   
-  // Filter notifications by type
+  // Filtra notificações por tipo
   const mentions = notifications.filter(n => n.type === "mention");
   const partnerships = notifications.filter(n => n.type === "partnership");
   
-  // Count unread notifications
+  // Conta notificações não lidas
   const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Função para marcar notificação como lida
+  const markAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true } 
+          : notification
+      )
+    );
+    toast({
+      description: "Notificação marcada como lida",
+    });
+  };
+  
+  // Função para apagar uma notificação
+  const deleteNotification = (id: string) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    toast({
+      description: "Notificação removida com sucesso",
+    });
+  };
+  
+  // Função para apagar todas as notificações de um tipo
+  const deleteAllNotifications = (type: "mention" | "partnership") => {
+    setNotifications(prev => prev.filter(notification => notification.type !== type));
+    toast({
+      description: `Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`,
+    });
+  };
   
   if (loading) {
     return (
@@ -91,10 +100,20 @@ const Notifications = () => {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Menções */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <AtSign className="h-5 w-5" /> Menções
             </CardTitle>
+            {mentions.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => deleteAllNotifications("mention")}
+                className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             {mentions.length > 0 ? (
@@ -113,6 +132,26 @@ const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{notification.date}</p>
+                        <div className="flex gap-2 mt-2">
+                          {!notification.read && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-7 text-xs" 
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              Marcar como lida
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-100" 
+                            onClick={() => deleteNotification(notification.id)}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" /> Remover
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -122,6 +161,9 @@ const Notifications = () => {
               <div className="text-center py-8 text-gray-500">
                 <AtSign className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p>Nenhuma menção recente</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Quando alguém mencionar você, as notificações aparecerão aqui.
+                </p>
               </div>
             )}
           </CardContent>
@@ -129,10 +171,20 @@ const Notifications = () => {
         
         {/* Solicitações de Parceria */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Handshake className="h-5 w-5" /> Solicitações de Parceria
             </CardTitle>
+            {partnerships.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => deleteAllNotifications("partnership")}
+                className="h-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+              >
+                <Trash2 className="h-4 w-4 mr-1" /> Limpar todas
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             {partnerships.length > 0 ? (
@@ -151,6 +203,26 @@ const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">{notification.date}</p>
+                        <div className="flex gap-2 mt-2">
+                          {!notification.read && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="h-7 text-xs" 
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              Marcar como lida
+                            </Button>
+                          )}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-xs text-red-500 hover:text-red-700 hover:bg-red-100" 
+                            onClick={() => deleteNotification(notification.id)}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" /> Remover
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -160,6 +232,9 @@ const Notifications = () => {
               <div className="text-center py-8 text-gray-500">
                 <Handshake className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p>Nenhuma solicitação de parceria</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Quando alguém solicitar uma parceria, as notificações aparecerão aqui.
+                </p>
               </div>
             )}
           </CardContent>
