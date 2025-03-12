@@ -12,6 +12,7 @@ import { ArrowLeft } from "lucide-react";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
+import { Achievements } from "@/components/Achievements";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
@@ -19,6 +20,7 @@ const Profile = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -37,16 +39,23 @@ const Profile = () => {
     }
   };
 
+  // Load achievements on mount and when user changes
   useEffect(() => {
     if (user) {
+      const userAchievements = AchievementsManager.getUserAchievements(user.id);
+      setAchievements(userAchievements);
+
       const achievement = AchievementsManager.checkProfileCompleted(user);
       if (achievement) {
         setAchievementUnlocked(achievement);
         setShowAchievementPopup(true);
+        // Update achievements list immediately when a new one is unlocked
+        setAchievements(AchievementsManager.getUserAchievements(user.id));
       }
     }
   }, [user]);
 
+  // Loading and auth states
   if (loading) {
     return (
       <div className="container mx-auto py-10 flex justify-center items-center">
@@ -95,6 +104,8 @@ const Profile = () => {
               onAchievementUnlocked={(achievement) => {
                 setAchievementUnlocked(achievement);
                 setShowAchievementPopup(true);
+                // Update achievements list when a new one is unlocked
+                setAchievements(AchievementsManager.getUserAchievements(user.id));
               }}
             />
           ) : (
@@ -105,6 +116,9 @@ const Profile = () => {
           <DeleteAccountDialog deleteAccount={deleteAccount} />
         </CardFooter>
       </Card>
+
+      {/* Achievements component */}
+      <Achievements achievements={achievements} />
 
       {/* Achievement Popup */}
       {achievementUnlocked && showAchievementPopup && (
