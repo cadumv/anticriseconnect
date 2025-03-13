@@ -1,4 +1,5 @@
 
+
 import { Mission } from "../types/mission";
 
 // Function to check if a previous mission in sequence was completed
