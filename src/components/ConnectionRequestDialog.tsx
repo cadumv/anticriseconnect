@@ -1,4 +1,3 @@
-
 import { 
   Dialog, 
   DialogContent, 
@@ -14,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
-import { updateConnectionMissionProgress } from "@/components/achievements/utils/missionUtils";
+import { updateConnectionMissionProgress } from "@/components/achievements/utils/missions";
 
 interface ConnectionRequestDialogProps {
   isOpen: boolean;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 import { checkFirstPublicationAchievement } from "@/services/achievements/publication-achievements";
-import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missionUtils";
+import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missions";
 
 interface PostData {
   id: string;

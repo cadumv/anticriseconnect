@@ -5,7 +5,7 @@
 
 import { Achievement } from "@/types/profile";
 import { unlockAchievement, shareAchievement } from "./utils";
-import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missionUtils";
+import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missions";
 import { toast } from "@/hooks/use-toast";
 
 /**
