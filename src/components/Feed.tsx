@@ -123,29 +123,12 @@ export const Feed = () => {
     });
   };
   
-  const defaultPosts = [
-    {
-      id: "1",
-      title: "Engenheiro Civil busca parceria para projeto residencial",
-      author: "Carlos Silva",
-      date: "Há 2 dias",
-      excerpt: "Busco engenheiro eletricista para colaboração em projeto residencial de alto padrão na zona sul.",
-      tags: ["Civil", "Residencial", "Parceria"]
-    },
-    {
-      id: "2",
-      title: "Vaga para engenheiro mecânico em projeto industrial",
-      author: "Marina Oliveira",
-      date: "Há 5 dias",
-      excerpt: "Empresa de grande porte busca engenheiro mecânico com experiência em projetos industriais.",
-      tags: ["Mecânica", "Industrial", "Vaga"]
-    }
-  ];
+  // Removed defaultPosts array to clear all pre-defined publications
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl">Feed de Projetos</CardTitle>
+        <CardTitle className="text-xl">Feed de publicações</CardTitle>
         {user && <NewPostDialog />}
       </CardHeader>
       <CardContent>
@@ -160,7 +143,7 @@ export const Feed = () => {
         />
         
         <DefaultPostsList 
-          posts={defaultPosts}
+          posts={[]} 
           isLoggedIn={!!user}
         />
       </CardContent>

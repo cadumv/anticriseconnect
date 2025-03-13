@@ -24,6 +24,33 @@ interface Post {
   shares?: number;
 }
 
+interface AchievementPost {
+  id: string;
+  content?: string;
+  timestamp: string;
+  type: 'achievement';
+}
+
+interface StandardPost {
+  id: string;
+  title?: string;
+  author?: string;
+  date?: string;
+  excerpt?: string;
+  content?: string;
+  tags?: string[];
+  type?: 'service' | 'technical_article';
+  timestamp: string;
+  imageUrl?: string;
+  summary?: string;
+  mainContent?: string;
+  conclusions?: string;
+  company?: string;
+  likes?: number;
+  saves?: number;
+  shares?: number;
+}
+
 interface UserPostsListProps {
   posts: Post[];
   userName: string;
@@ -48,10 +75,13 @@ export function UserPostsList({
       {posts.length > 0 && posts.map((post) => (
         <div key={post.id} className="mb-6 pb-6 border-b last:border-0">
           {post.type === 'achievement' ? (
-            <AchievementCard post={post} userName={userName} />
+            <AchievementCard 
+              post={post as AchievementPost} 
+              userName={userName} 
+            />
           ) : (
             <PostCard 
-              post={post} 
+              post={post as StandardPost} 
               liked={liked} 
               saved={saved} 
               onLike={onLike} 
