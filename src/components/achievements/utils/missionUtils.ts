@@ -60,7 +60,7 @@ export const getDefaultMissions = (): Mission[] => {
     },
     {
       id: "mission-connections",
-      title: "Faça 20 novas conexões",
+      title: "Faça 20 novas conexões com engenheiros dentro da plataforma",
       description: "A parceria começa na conexão anticrise. Faça a sua primeira publicação para mais profissionais que você conheça",
       requiredProgress: 20,
       currentProgress: 0,
@@ -70,7 +70,7 @@ export const getDefaultMissions = (): Mission[] => {
     },
     {
       id: "mission-publication",
-      title: "Faça sua primeira publicação",
+      title: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
       description: "Faça a sua primeira publicação para os engenheiros(as) conheçam seus serviços ou áreas de atuação",
       requiredProgress: 1,
       currentProgress: 0,
