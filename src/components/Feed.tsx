@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
+import { ShareDialog } from "./ShareDialog";
 
 interface Post {
   id: string;
@@ -41,6 +42,8 @@ export const Feed = () => {
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSavedDrawer, setShowSavedDrawer] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState<string>("");
   
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -226,10 +229,15 @@ export const Feed = () => {
   };
   
   const handleShare = async (postId: string) => {
+    setCurrentPostId(postId);
+    setShareDialogOpen(true);
+  };
+  
+  const completeShareAction = async (userIds: string[]) => {
     if (!user) return;
     
     // Update post shares in Supabase
-    const post = userPosts.find(p => p.id === postId);
+    const post = userPosts.find(p => p.id === currentPostId);
     if (!post) return;
     
     const newSharesCount = (post.shares || 0) + 1;
@@ -238,33 +246,19 @@ export const Feed = () => {
       const { error } = await supabase
         .from('posts')
         .update({ shares: newSharesCount })
-        .match({ id: postId });
+        .match({ id: currentPostId });
       
       if (error) throw error;
       
       // Update local state
       const updatedPosts = userPosts.map(post => {
-        if (post.id === postId) {
+        if (post.id === currentPostId) {
           return { ...post, shares: newSharesCount };
         }
         return post;
       });
       
       setUserPosts(updatedPosts);
-      
-      // Get list of followed connections
-      const followingData = localStorage.getItem(`following_${user.id}`);
-      let engineersList = "engenheiros da sua rede";
-      
-      if (followingData) {
-        const followingCount = JSON.parse(followingData).length;
-        engineersList = `${followingCount} engenheiro${followingCount !== 1 ? 's' : ''} da sua rede`;
-      }
-      
-      toast({
-        title: "Publicação compartilhada",
-        description: `Compartilhado com ${engineersList}`,
-      });
     } catch (error) {
       console.error("Error updating shares:", error);
       toast({
@@ -345,6 +339,16 @@ export const Feed = () => {
           </div>
         </DrawerContent>
       </Drawer>
+      
+      {/* Share Dialog */}
+      {shareDialogOpen && (
+        <ShareDialog 
+          isOpen={shareDialogOpen}
+          onClose={() => setShareDialogOpen(false)}
+          onShare={completeShareAction}
+          postId={currentPostId}
+        />
+      )}
     </>
   );
 };
