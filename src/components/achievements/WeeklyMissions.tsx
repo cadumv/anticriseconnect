@@ -15,11 +15,58 @@ type Mission = {
   points: number;
   type: 'daily' | 'weekly';
   claimed?: boolean;
+  completed?: boolean;
+  completedDate?: string;
+  sequence?: number;
 };
 
 export function WeeklyMissions() {
   const { user } = useAuth();
   const [missions, setMissions] = useState<Mission[]>([]);
+  
+  // Function to check if a previous mission in sequence was completed
+  const isPreviousMissionCompleted = (missions: Mission[], sequenceNumber: number) => {
+    // If it's the first mission, no previous to check
+    if (sequenceNumber <= 1) return true;
+    
+    // Find the previous mission in sequence
+    const previousMission = missions.find(m => m.sequence === sequenceNumber - 1);
+    return previousMission?.completed || false;
+  };
+
+  // Function to check if a knowledge sharing mission can be added
+  const canAddKnowledgeMission = (missions: Mission[]) => {
+    // Get the knowledge sharing missions
+    const knowledgeMissions = missions.filter(m => m.id.startsWith("mission-knowledge"));
+    
+    // If there are no knowledge missions, we can add the first one
+    if (knowledgeMissions.length === 0) return true;
+    
+    // If the latest knowledge mission is completed, we can add a new one
+    const latestKnowledgeMission = knowledgeMissions.sort((a, b) => 
+      (b.sequence || 0) - (a.sequence || 0)
+    )[0];
+    
+    return latestKnowledgeMission.completed || false;
+  };
+  
+  // Generate a new knowledge sharing mission
+  const createNewKnowledgeMission = (existingMissions: Mission[]) => {
+    // Get the highest sequence number
+    const maxSequence = Math.max(0, ...existingMissions.map(m => m.sequence || 0));
+    
+    // Create a new mission with incremented sequence
+    return {
+      id: `mission-knowledge-${Date.now()}`,
+      title: "Compartilhe conhecimento",
+      description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 30,
+      type: 'weekly',
+      sequence: maxSequence + 1
+    };
+  };
   
   useEffect(() => {
     if (user) {
@@ -29,7 +76,35 @@ export function WeeklyMissions() {
       
       if (savedMissions) {
         try {
-          setMissions(JSON.parse(savedMissions));
+          let parsedMissions = JSON.parse(savedMissions) as Mission[];
+          
+          // Check if we should add a new knowledge sharing mission
+          if (canAddKnowledgeMission(parsedMissions)) {
+            // Only add if it's been a week since the last one was completed
+            const latestKnowledgeMission = parsedMissions
+              .filter(m => m.id.startsWith("mission-knowledge") && m.completed)
+              .sort((a, b) => {
+                const dateA = a.completedDate ? new Date(a.completedDate).getTime() : 0;
+                const dateB = b.completedDate ? new Date(b.completedDate).getTime() : 0;
+                return dateB - dateA;
+              })[0];
+            
+            const shouldAddNewMission = !latestKnowledgeMission || 
+              (latestKnowledgeMission.completedDate &&
+              Date.now() - new Date(latestKnowledgeMission.completedDate).getTime() >= 7 * 24 * 60 * 60 * 1000);
+            
+            if (shouldAddNewMission) {
+              parsedMissions.push(createNewKnowledgeMission(parsedMissions));
+              localStorage.setItem(missionsKey, JSON.stringify(parsedMissions));
+            }
+          }
+          
+          // Filter missions based on their sequence and completion status
+          parsedMissions = parsedMissions.filter(mission => 
+            !mission.sequence || isPreviousMissionCompleted(parsedMissions, mission.sequence)
+          );
+          
+          setMissions(parsedMissions);
         } catch (error) {
           console.error("Error parsing missions:", error);
           // Initialize with empty missions if there's an error
@@ -45,7 +120,8 @@ export function WeeklyMissions() {
             requiredProgress: 1,
             currentProgress: 0,
             points: 50,
-            type: 'weekly'
+            type: 'weekly',
+            sequence: 1
           },
           {
             id: "mission-connect",
@@ -54,7 +130,8 @@ export function WeeklyMissions() {
             requiredProgress: 20,
             currentProgress: 0,
             points: 30,
-            type: 'weekly'
+            type: 'weekly',
+            sequence: 2
           },
           {
             id: "mission-post",
@@ -63,7 +140,8 @@ export function WeeklyMissions() {
             requiredProgress: 1,
             currentProgress: 0,
             points: 20,
-            type: 'weekly'
+            type: 'weekly',
+            sequence: 3
           },
           {
             id: "mission-knowledge",
@@ -72,7 +150,8 @@ export function WeeklyMissions() {
             requiredProgress: 1,
             currentProgress: 0,
             points: 30,
-            type: 'weekly'
+            type: 'weekly',
+            sequence: 4
           }
         ];
         
@@ -88,8 +167,13 @@ export function WeeklyMissions() {
     
     const updatedMissions = missions.map(mission => {
       if (mission.id === missionId && mission.currentProgress >= mission.requiredProgress) {
-        // Mark as claimed (in a real app, you'd update this in the database)
-        return { ...mission, claimed: true };
+        // Mark as claimed and completed
+        return { 
+          ...mission, 
+          claimed: true, 
+          completed: true,
+          completedDate: new Date().toISOString()
+        };
       }
       return mission;
     });
@@ -101,7 +185,7 @@ export function WeeklyMissions() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl">Missões da Semana</CardTitle>
+        <CardTitle className="text-xl">Missões Anticrise</CardTitle>
         <Badge variant="outline" className="ml-2 px-3 py-1">
           Recompensas disponíveis
         </Badge>
