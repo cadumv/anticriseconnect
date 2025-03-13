@@ -36,11 +36,8 @@ export const Feed = () => {
   
   useEffect(() => {
     if (user) {
-      const postsKey = `user_posts_${user.id}`;
-      const storedPosts = localStorage.getItem(postsKey);
-      if (storedPosts) {
-        setUserPosts(JSON.parse(storedPosts));
-      }
+      // Set initial posts to empty array to clear all posts
+      setUserPosts([]);
       
       const likedKey = `user_liked_posts_${user.id}`;
       const savedKey = `user_saved_posts_${user.id}`;
@@ -49,6 +46,9 @@ export const Feed = () => {
       
       if (storedLiked) setLiked(JSON.parse(storedLiked));
       if (storedSaved) setSaved(JSON.parse(storedSaved));
+      
+      // Clear any stored posts in localStorage
+      localStorage.removeItem(`user_posts_${user.id}`);
     }
   }, [user]);
   
