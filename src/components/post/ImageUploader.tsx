@@ -1,11 +1,12 @@
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImagePlus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { resizeImageToStandard } from "./imageUtils";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ImageUploaderProps {
   imageFile: File | null;
@@ -21,16 +22,34 @@ export function ImageUploader({
   setImagePreview 
 }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setIsProcessing(true);
+      
+      try {
+        // Redimensiona a imagem para o tamanho padrão
+        const resizedFile = await resizeImageToStandard(file);
+        setImageFile(resizedFile);
+        
+        // Gera preview da imagem redimensionada
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+          setIsProcessing(false);
+        };
+        reader.readAsDataURL(resizedFile);
+      } catch (error) {
+        console.error("Erro ao processar imagem:", error);
+        toast({
+          title: "Erro no processamento",
+          description: "Não foi possível processar a imagem. Tente outra imagem.",
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -43,9 +62,10 @@ export function ImageUploader({
           variant="outline" 
           onClick={() => fileInputRef.current?.click()}
           className="flex items-center gap-1"
+          disabled={isProcessing}
         >
           <ImagePlus size={16} />
-          Selecionar Imagem
+          {isProcessing ? "Processando..." : "Selecionar Imagem"}
         </Button>
         <Input
           type="file"
@@ -53,16 +73,19 @@ export function ImageUploader({
           className="hidden"
           accept="image/*"
           onChange={handleImageChange}
+          disabled={isProcessing}
         />
       </div>
       
       {imagePreview && (
-        <div className="mt-2 relative">
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="max-h-64 rounded-md object-contain border"
-          />
+        <div className="mt-2 relative w-full max-w-sm">
+          <AspectRatio ratio={1}>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="rounded-md object-cover w-full h-full border"
+            />
+          </AspectRatio>
           <Button
             type="button"
             variant="destructive"

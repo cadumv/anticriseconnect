@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, Bookmark, Share2, MessageSquare } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "@/hooks/use-toast";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface PostCardProps {
   post: {
@@ -65,12 +66,14 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
       )}
       
       {post.imageUrl && (
-        <div className="mb-3">
-          <img 
-            src={post.imageUrl} 
-            alt={post.title || "Imagem da publicação"} 
-            className="rounded-md max-h-96 object-contain"
-          />
+        <div className="mb-3 max-w-md mx-auto">
+          <AspectRatio ratio={1}>
+            <img 
+              src={post.imageUrl} 
+              alt={post.title || "Imagem da publicação"} 
+              className="rounded-md object-cover w-full h-full"
+            />
+          </AspectRatio>
         </div>
       )}
       
@@ -160,12 +163,14 @@ function ArticleDetailSheet({ post, liked, saved, onLike, onSave, onShare }: Art
           </div>
           
           {post.imageUrl && (
-            <div className="py-2">
-              <img 
-                src={post.imageUrl} 
-                alt={post.title || "Imagem do artigo"} 
-                className="rounded-md max-h-96 object-contain mx-auto"
-              />
+            <div className="py-2 max-w-md mx-auto">
+              <AspectRatio ratio={1}>
+                <img 
+                  src={post.imageUrl} 
+                  alt={post.title || "Imagem do artigo"} 
+                  className="rounded-md object-cover w-full h-full"
+                />
+              </AspectRatio>
             </div>
           )}
           
