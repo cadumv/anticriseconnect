@@ -14,7 +14,10 @@ import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 
 const AchievementsPage = () => {
-  const { user } = useAuth();
+  // Prevent direct access to useAuth to handle potential error if not wrapped in provider
+  const auth = useAuth ? useAuth() : { user: null };
+  const { user } = auth;
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);

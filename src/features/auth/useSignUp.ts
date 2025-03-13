@@ -5,16 +5,18 @@ import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { sendCustomEmail } from '@/utils/authEmailUtils';
 
+type UserMetadata = {
+  name?: string;
+  phone?: string;
+  referrerId?: string;
+};
+
 export function useSignUp() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const signUp = async (email: string, password: string, metadata?: { 
-    name?: string, 
-    phone?: string, 
-    referrerId?: string 
-  }) => {
+  const signUp = async (email: string, password: string, metadata?: UserMetadata) => {
     setLoading(true);
     try {
       const redirectURL = `${window.location.origin}/auth/confirm`;
