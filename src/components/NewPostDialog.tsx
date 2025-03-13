@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,7 +41,6 @@ export function NewPostDialog() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Technical article specific fields
   const [author, setAuthor] = useState("");
   const [company, setCompany] = useState("");
   const [summary, setSummary] = useState("");
@@ -71,7 +69,6 @@ export function NewPostDialog() {
       const fileName = `${uuidv4()}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
       
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('post_images')
         .upload(filePath, imageFile);
@@ -80,7 +77,6 @@ export function NewPostDialog() {
         throw uploadError;
       }
       
-      // Get public URL
       const { data } = supabase.storage
         .from('post_images')
         .getPublicUrl(filePath);
@@ -124,7 +120,6 @@ export function NewPostDialog() {
       return;
     }
     
-    // For technical articles, validate required fields
     if (postType === 'technical_article' && !summary.trim()) {
       toast({
         title: "Resumo obrigatório",
@@ -135,7 +130,6 @@ export function NewPostDialog() {
       return;
     }
     
-    // Upload image if selected
     let imageUrl = null;
     if (imageFile) {
       imageUrl = await handleImageUpload();
@@ -153,7 +147,6 @@ export function NewPostDialog() {
       shares: 0
     };
     
-    // Add technical article specific fields if applicable
     if (postType === 'technical_article') {
       newPost.author = author.trim() || user.user_metadata?.name || "Usuário";
       newPost.company = company.trim() || undefined;
@@ -162,28 +155,27 @@ export function NewPostDialog() {
       newPost.conclusions = conclusions.trim() || undefined;
     }
     
-    // Save publication to user's data
     const publicationsKey = `user_publications_${user.id}`;
     const existingPublications = localStorage.getItem(publicationsKey);
     const publications = existingPublications ? JSON.parse(existingPublications) : [];
     publications.unshift(newPost);
     localStorage.setItem(publicationsKey, JSON.stringify(publications));
     
-    // Save to user's feed
     const postsKey = `user_posts_${user.id}`;
     const existingPosts = localStorage.getItem(postsKey);
     const posts = existingPosts ? JSON.parse(existingPosts) : [];
-    posts.unshift({
+    
+    const feedPost = {
       ...newPost,
       author: newPost.author || user.user_metadata?.name || "Usuário",
       date: "Agora"
-    });
+    };
+    
+    posts.unshift(feedPost);
     localStorage.setItem(postsKey, JSON.stringify(posts));
     
-    // Check for first publication achievement
     checkFirstPublicationAchievement(user.id);
     
-    // Update mission progress based on publication type
     if (postType === 'service') {
       const missionResult = updatePublicationMissionProgress(user.id);
       if (missionResult.missionCompleted) {
@@ -204,14 +196,13 @@ export function NewPostDialog() {
       }
     }
 
-    // Reset form and close dialog
     resetForm();
     setOpen(false);
     setIsLoading(false);
     
     toast({
       title: "Publicação criada",
-      description: "Sua publicação foi criada com sucesso!",
+      description: "Sua publicação foi criada com sucesso e já aparece no seu feed!",
     });
   };
   
@@ -336,7 +327,6 @@ export function NewPostDialog() {
             </>
           )}
           
-          {/* Image upload section */}
           <div className="space-y-2">
             <Label className="block">Imagem <span className="text-sm text-gray-500">(Opcional)</span></Label>
             <div className="flex items-center gap-2">
