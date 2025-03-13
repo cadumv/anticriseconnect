@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,14 +37,12 @@ export const Feed = () => {
   
   useEffect(() => {
     if (user) {
-      // Load user posts including shared achievements
       const postsKey = `user_posts_${user.id}`;
       const storedPosts = localStorage.getItem(postsKey);
       if (storedPosts) {
         setUserPosts(JSON.parse(storedPosts));
       }
       
-      // Load liked and saved status
       const likedKey = `user_liked_posts_${user.id}`;
       const savedKey = `user_saved_posts_${user.id}`;
       const storedLiked = localStorage.getItem(likedKey);
@@ -59,12 +56,10 @@ export const Feed = () => {
   const handleLike = (postId: string) => {
     if (!user) return;
     
-    // Update local liked state
     const newLiked = { ...liked, [postId]: !liked[postId] };
     setLiked(newLiked);
     localStorage.setItem(`user_liked_posts_${user.id}`, JSON.stringify(newLiked));
     
-    // Update post likes count
     const updatedPosts = userPosts.map(post => {
       if (post.id === postId) {
         const currentLikes = post.likes || 0;
@@ -83,12 +78,10 @@ export const Feed = () => {
   const handleSave = (postId: string) => {
     if (!user) return;
     
-    // Update local saved state
     const newSaved = { ...saved, [postId]: !saved[postId] };
     setSaved(newSaved);
     localStorage.setItem(`user_saved_posts_${user.id}`, JSON.stringify(newSaved));
     
-    // Update post saves count
     const updatedPosts = userPosts.map(post => {
       if (post.id === postId) {
         const currentSaves = post.saves || 0;
@@ -114,7 +107,6 @@ export const Feed = () => {
   const handleShare = (postId: string) => {
     if (!user) return;
     
-    // Update post shares count
     const updatedPosts = userPosts.map(post => {
       if (post.id === postId) {
         const currentShares = post.shares || 0;
@@ -158,7 +150,6 @@ export const Feed = () => {
         {user && <NewPostDialog />}
       </CardHeader>
       <CardContent>
-        {/* User achievement posts */}
         {userPosts.length > 0 && userPosts.map((post) => (
           <div key={post.id} className="mb-6 pb-6 border-b last:border-0">
             {post.type === 'achievement' ? (
@@ -353,7 +344,6 @@ export const Feed = () => {
           </div>
         ))}
         
-        {/* Default posts */}
         {posts.map((post) => (
           <div key={post.id} className="mb-6 pb-6 border-b last:border-0">
             <h3 className="text-lg font-medium mb-2">{post.title}</h3>
