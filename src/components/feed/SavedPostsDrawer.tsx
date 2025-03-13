@@ -10,18 +10,49 @@ import { User } from "@supabase/supabase-js";
 interface SavedPostsDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User | null;
+  user?: User | null;
+  savedPosts?: Post[];
+  userName?: string;
+  liked?: Record<string, boolean>;
+  saved?: Record<string, boolean>;
+  onLike?: (postId: string) => void;
+  onSave?: (postId: string) => void;
+  onShare?: (postId: string) => void;
 }
 
 export function SavedPostsDrawer({
   open,
   onOpenChange,
-  user
+  user,
+  savedPosts: propsSavedPosts,
+  userName: propsUserName,
+  liked: propsLiked,
+  saved: propsSaved,
+  onLike: propsOnLike,
+  onSave: propsOnSave,
+  onShare: propsOnShare
 }: SavedPostsDrawerProps) {
   const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
+  
+  // Use provided props if available, otherwise fetch data
+  useEffect(() => {
+    if (propsSavedPosts) {
+      setSavedPosts(propsSavedPosts);
+    } else if (open && user) {
+      fetchSavedPosts();
+    }
+    
+    if (propsLiked) {
+      setLiked(propsLiked);
+    }
+    
+    if (propsSaved) {
+      setSaved(propsSaved);
+    }
+  }, [open, user, propsSavedPosts, propsLiked, propsSaved]);
   
   // Fetch saved posts
   const fetchSavedPosts = async () => {
@@ -94,14 +125,13 @@ export function SavedPostsDrawer({
     }
   };
   
-  useEffect(() => {
-    if (open) {
-      fetchSavedPosts();
-    }
-  }, [open, user]);
-  
   // Handle like action
   const handleLike = async (postId: string) => {
+    if (propsOnLike) {
+      propsOnLike(postId);
+      return;
+    }
+    
     if (!user) return;
     
     const newLiked = { ...liked, [postId]: !liked[postId] };
@@ -145,6 +175,11 @@ export function SavedPostsDrawer({
   
   // Handle save action
   const handleSave = async (postId: string) => {
+    if (propsOnSave) {
+      propsOnSave(postId);
+      return;
+    }
+    
     if (!user) return;
     
     const newSaved = { ...saved, [postId]: !saved[postId] };
@@ -198,6 +233,11 @@ export function SavedPostsDrawer({
   
   // Handle share action
   const handleShare = (postId: string) => {
+    if (propsOnShare) {
+      propsOnShare(postId);
+      return;
+    }
+    
     // In a real app, this would open the share dialog
     // For now, let's just show a toast
     toast({
@@ -205,6 +245,11 @@ export function SavedPostsDrawer({
       description: "Para compartilhar, use a opção no feed principal.",
     });
   };
+
+  const displaySavedPosts = propsSavedPosts || savedPosts;
+  const displayUserName = propsUserName || (user?.user_metadata?.name || "Usuário");
+  const displayLiked = propsLiked || liked;
+  const displaySaved = propsSaved || saved;
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -217,15 +262,15 @@ export function SavedPostsDrawer({
             <div className="flex justify-center py-10">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
-          ) : savedPosts.length > 0 ? (
+          ) : displaySavedPosts.length > 0 ? (
             <UserPostsList 
-              posts={savedPosts}
-              userName={user?.user_metadata?.name || "Usuário"}
-              liked={liked}
-              saved={saved}
-              onLike={handleLike}
-              onSave={handleSave}
-              onShare={handleShare}
+              posts={displaySavedPosts}
+              userName={displayUserName}
+              liked={displayLiked}
+              saved={displaySaved}
+              onLike={propsOnLike || handleLike}
+              onSave={propsOnSave || handleSave}
+              onShare={propsOnShare || handleShare}
             />
           ) : (
             <div className="py-8 text-center">

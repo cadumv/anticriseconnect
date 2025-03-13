@@ -103,6 +103,7 @@ export const Feed = () => {
       <SavedPostsDrawer
         open={showSavedDrawer}
         onOpenChange={setShowSavedDrawer}
+        user={user}
         savedPosts={savedPosts}
         userName={user?.user_metadata?.name || "Usuário"}
         liked={liked}
