@@ -16,9 +16,9 @@ export function MonthlyRanking() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl">Engenheiro Pioneiro</CardTitle>
+        <CardTitle className="text-xl">Ranking de Engenharia</CardTitle>
         <Badge variant="outline" className="ml-2 bg-yellow-50 text-yellow-700 border-yellow-200 px-3 py-1">
-          Primeiro Usuário
+          Top Engenheiros
         </Badge>
       </CardHeader>
       <CardContent>
@@ -35,11 +35,11 @@ export function MonthlyRanking() {
               <div className="font-medium">{user.user_metadata?.name || "Usuário Teste"}</div>
             </div>
             <Badge variant="secondary" className="ml-auto">
-              Pioneiro
+              1º Lugar
             </Badge>
           </div>
           <div className="text-center text-sm text-muted-foreground mt-2">
-            <p>Parabéns por ser o primeiro engenheiro em nossa plataforma! Continue completando missões para desbloquear conquistas.</p>
+            <p>Você está liderando o ranking! Continue completando missões para acumular mais pontos.</p>
           </div>
         </div>
       </CardContent>
