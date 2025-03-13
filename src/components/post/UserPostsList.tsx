@@ -2,54 +2,7 @@
 import React from "react";
 import { PostCard } from "./PostCard";
 import { AchievementCard } from "./AchievementCard";
-
-interface Post {
-  id: string;
-  title?: string;
-  author?: string;
-  date?: string;
-  excerpt?: string;
-  tags?: string[];
-  content?: string;
-  type?: 'achievement' | 'post' | 'service' | 'technical_article';
-  achievementId?: string;
-  timestamp: string;
-  imageUrl?: string;
-  summary?: string;
-  conclusions?: string;
-  mainContent?: string;
-  company?: string;
-  likes?: number;
-  saves?: number;
-  shares?: number;
-}
-
-interface AchievementPost {
-  id: string;
-  content?: string;
-  timestamp: string;
-  type: 'achievement';
-}
-
-interface StandardPost {
-  id: string;
-  title?: string;
-  author?: string;
-  date?: string;
-  excerpt?: string;
-  content?: string;
-  tags?: string[];
-  type?: 'service' | 'technical_article';
-  timestamp: string;
-  imageUrl?: string;
-  summary?: string;
-  mainContent?: string;
-  conclusions?: string;
-  company?: string;
-  likes?: number;
-  saves?: number;
-  shares?: number;
-}
+import { Post } from "@/types/post";
 
 interface UserPostsListProps {
   posts: Post[];
@@ -76,18 +29,21 @@ export function UserPostsList({
         <div key={post.id} className="mb-4 rounded-lg overflow-hidden shadow-sm">
           {post.type === 'achievement' ? (
             <AchievementCard 
-              post={post as AchievementPost} 
+              post={post as any} 
               userName={userName} 
             />
           ) : (
-            <PostCard 
-              post={post as StandardPost} 
-              liked={liked} 
-              saved={saved} 
-              onLike={onLike} 
-              onSave={onSave} 
-              onShare={onShare} 
-            />
+            <div className="max-w-full">
+              <PostCard 
+                post={post as any} 
+                liked={liked} 
+                saved={saved} 
+                onLike={onLike} 
+                onSave={onSave} 
+                onShare={onShare}
+                compact={true}
+              />
+            </div>
           )}
         </div>
       ))}
