@@ -1,269 +1,144 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { MessageCircle, FileText, Users, Mail, Share, Copy, Check, Link } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
-interface Mission {
+type Mission = {
   id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
   requiredProgress: number;
   currentProgress: number;
-  reward: number;
-  action?: () => void;
-  actionLabel?: string;
-}
+  points: number;
+  type: 'daily' | 'weekly';
+};
 
-export const WeeklyMissions = () => {
+export function WeeklyMissions() {
   const { user } = useAuth();
   const [missions, setMissions] = useState<Mission[]>([]);
-  const [referralLink, setReferralLink] = useState("");
-  const [copied, setCopied] = useState(false);
   
   useEffect(() => {
     if (user) {
-      // Generate referral link
-      const baseUrl = window.location.origin;
-      const refLink = `${baseUrl}/signup?ref=${user.id}`;
-      setReferralLink(refLink);
+      // Retrieve missions data from localStorage
+      const missionsKey = `user_missions_${user.id}`;
+      const savedMissions = localStorage.getItem(missionsKey);
       
-      // In a real implementation, we would fetch the user's mission progress from the backend
-      loadUserMissions(user.id);
-    } else {
-      // Default missions with no progress for non-authenticated users
-      loadDefaultMissions();
+      if (savedMissions) {
+        try {
+          setMissions(JSON.parse(savedMissions));
+        } catch (error) {
+          console.error("Error parsing missions:", error);
+          // Initialize with empty missions if there's an error
+          setMissions([]);
+        }
+      } else {
+        // If no missions exist yet, create default missions
+        const defaultMissions: Mission[] = [
+          {
+            id: "mission-invite",
+            title: "Convide engenheiros",
+            description: "Convide 10 novos engenheiros para a plataforma",
+            requiredProgress: 10,
+            currentProgress: 0,
+            points: 50,
+            type: 'weekly'
+          },
+          {
+            id: "mission-connect",
+            title: "Faça conexões",
+            description: "Conecte-se com 5 novos engenheiros",
+            requiredProgress: 5,
+            currentProgress: 0,
+            points: 30,
+            type: 'weekly'
+          },
+          {
+            id: "mission-post",
+            title: "Compartilhe conhecimento",
+            description: "Publique um artigo técnico",
+            requiredProgress: 1,
+            currentProgress: 0,
+            points: 20,
+            type: 'weekly'
+          }
+        ];
+        
+        setMissions(defaultMissions);
+        // Save default missions to localStorage
+        localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
+      }
     }
   }, [user]);
   
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    setCopied(true);
-    toast({
-      title: "Link copiado!",
-      description: "O link de convite foi copiado para sua área de transferência."
-    });
+  const handleClaimReward = (missionId: string) => {
+    if (!user) return;
     
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
-  const loadUserMissions = (userId: string) => {
-    try {
-      // Try to get missions from localStorage
-      const missionsKey = `user_missions_${userId}`;
-      const savedMissions = localStorage.getItem(missionsKey);
-      
-      if (savedMissions) {
-        const parsedMissions = JSON.parse(savedMissions);
-        
-        // Add the action to the invite mission
-        const updatedMissions = parsedMissions.map((mission: Mission) => {
-          if (mission.id === "mission-invite") {
-            return {
-              ...mission,
-              action: copyReferralLink,
-              actionLabel: copied ? "Copiado!" : "Copiar Link"
-            };
-          }
-          return mission;
-        });
-        
-        setMissions(updatedMissions);
-      } else {
-        // First time - set up default missions with 0 progress
-        const defaultMissions = getDefaultMissions();
-        localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
-        setMissions(defaultMissions.map(mission => {
-          if (mission.id === "mission-invite") {
-            return {
-              ...mission,
-              action: copyReferralLink,
-              actionLabel: copied ? "Copiado!" : "Copiar Link"
-            };
-          }
-          return mission;
-        }));
-      }
-      
-      // Check for referrals count from localStorage
-      const referralsKey = `user_referrals_${userId}`;
-      const referralsData = localStorage.getItem(referralsKey);
-      
-      if (referralsData) {
-        const referrals = JSON.parse(referralsData);
-        
-        // Update the mission progress
-        updateMissionProgress(userId, "mission-invite", referrals.length);
-      }
-    } catch (error) {
-      console.error('Error loading missions:', error);
-      // Fallback to default missions
-      loadDefaultMissions();
-    }
-  };
-  
-  const updateMissionProgress = (userId: string, missionId: string, progress: number) => {
-    try {
-      const missionsKey = `user_missions_${userId}`;
-      const savedMissions = localStorage.getItem(missionsKey);
-      
-      if (savedMissions) {
-        const parsedMissions = JSON.parse(savedMissions);
-        const updatedMissions = parsedMissions.map((mission: Mission) => {
-          if (mission.id === missionId) {
-            return {
-              ...mission,
-              currentProgress: progress
-            };
-          }
-          return mission;
-        });
-        
-        localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
-        
-        // Update the missions state with the action for the invite mission
-        setMissions(updatedMissions.map(mission => {
-          if (mission.id === "mission-invite") {
-            return {
-              ...mission,
-              action: copyReferralLink,
-              actionLabel: copied ? "Copiado!" : "Copiar Link"
-            };
-          }
-          return mission;
-        }));
-      }
-    } catch (error) {
-      console.error('Error updating mission progress:', error);
-    }
-  };
-  
-  const loadDefaultMissions = () => {
-    const defaultMissions = getDefaultMissions();
-    setMissions(defaultMissions.map(mission => {
-      if (mission.id === "mission-invite") {
-        return {
-          ...mission,
-          action: copyReferralLink,
-          actionLabel: copied ? "Copiado!" : "Copiar Link"
-        };
+    const updatedMissions = missions.map(mission => {
+      if (mission.id === missionId && mission.currentProgress >= mission.requiredProgress) {
+        // Mark as claimed (in a real app, you'd update this in the database)
+        return { ...mission, claimed: true };
       }
       return mission;
-    }));
+    });
+    
+    setMissions(updatedMissions);
+    localStorage.setItem(`user_missions_${user.id}`, JSON.stringify(updatedMissions));
   };
   
-  const getDefaultMissions = (): Mission[] => {
-    return [
-      {
-        id: "mission-profile",
-        title: "Complete seu Perfil",
-        description: "Preencha todas as informações do seu perfil profissional",
-        icon: <Users className="h-5 w-5 text-blue-500" />,
-        requiredProgress: 1,
-        currentProgress: 0,
-        reward: 50
-      },
-      {
-        id: "mission-invite",
-        title: "Convide Engenheiros",
-        description: "Indique 10 novos usuários para se cadastrarem na plataforma",
-        icon: <Share className="h-5 w-5 text-orange-500" />,
-        requiredProgress: 10,
-        currentProgress: 0,
-        reward: 200
-      },
-      {
-        id: "mission-connect",
-        title: "Crie sua Rede",
-        description: "Faça 3 novas conexões com engenheiros na plataforma",
-        icon: <Users className="h-5 w-5 text-blue-500" />,
-        requiredProgress: 3,
-        currentProgress: 0,
-        reward: 50
-      },
-      {
-        id: "mission-message",
-        title: "Inicie Conversas",
-        description: "Envie uma mensagem para 3 novas conexões",
-        icon: <Mail className="h-5 w-5 text-green-500" />,
-        requiredProgress: 3,
-        currentProgress: 0,
-        reward: 50
-      },
-      {
-        id: "mission-publish",
-        title: "Apresente seu Trabalho",
-        description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
-        icon: <FileText className="h-5 w-5 text-purple-500" />,
-        requiredProgress: 1,
-        currentProgress: 0,
-        reward: 100
-      }
-    ];
-  };
-
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Missões de Progressão</CardTitle>
-        <CardDescription>
-          Complete missões para evoluir na plataforma e ganhar pontos
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl">Missões da Semana</CardTitle>
+        <Badge variant="outline" className="ml-2 px-3 py-1">
+          Recompensas disponíveis
+        </Badge>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {missions.map((mission) => {
-            const isCompleted = mission.currentProgress >= mission.requiredProgress;
-            return (
-              <div 
-                key={mission.id} 
-                className={`border rounded-lg p-4 ${isCompleted ? 'bg-green-50 border-green-200' : 'bg-white'}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${isCompleted ? 'bg-green-100' : 'bg-blue-100'} rounded-full flex items-center justify-center`}>
-                      {mission.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-medium">{mission.title}</h3>
-                      <p className="text-sm text-gray-600">{mission.description}</p>
-                      <p className="text-sm text-gray-600">Recompensa: {mission.reward} pontos</p>
-                    </div>
+          {missions.length > 0 ? (
+            missions.map(mission => (
+              <div key={mission.id} className="bg-card border rounded-lg p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-medium">{mission.title}</h3>
+                    <p className="text-sm text-muted-foreground">{mission.description}</p>
                   </div>
-                  <div className="text-right">
-                    <span className={`font-semibold ${isCompleted ? 'text-green-600' : ''}`}>
+                  <Badge variant="secondary">{mission.points} pts</Badge>
+                </div>
+                <div className="mt-2">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Progresso</span>
+                    <span>
                       {mission.currentProgress}/{mission.requiredProgress}
                     </span>
-                    <Progress 
-                      value={(mission.currentProgress / mission.requiredProgress) * 100} 
-                      className={`h-1 w-24 ${isCompleted ? 'bg-green-100' : ''}`}
-                    />
-                    {mission.action && (
-                      <Button 
-                        size="sm"
-                        variant="outline"
-                        className="mt-2 flex items-center gap-1"
-                        onClick={mission.action}
-                      >
-                        {copied ? <Check className="h-3 w-3" /> : <Link className="h-3 w-3" />}
-                        {mission.actionLabel}
-                      </Button>
-                    )}
-                    {isCompleted && !mission.action && (
-                      <span className="text-xs font-medium text-green-600 mt-1 block">Missão completa</span>
-                    )}
                   </div>
+                  <Progress 
+                    value={(mission.currentProgress / mission.requiredProgress) * 100} 
+                    className="h-2"
+                  />
                 </div>
+                {mission.currentProgress >= mission.requiredProgress && !mission.claimed && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-3 w-full" 
+                    onClick={() => handleClaimReward(mission.id)}
+                  >
+                    Resgatar recompensa
+                  </Button>
+                )}
               </div>
-            );
-          })}
+            ))
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground">Nenhuma missão disponível no momento</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
   );
-};
+}

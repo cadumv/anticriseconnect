@@ -1,140 +1,75 @@
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Achievement } from "@/types/profile";
-import { 
-  Trophy, Medal, Star, FileText, User, MessageCircle, HandshakeIcon, Gem, Share2
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { Trophy, Medal, Star, FileText, User, MessageCircle, HandshakeIcon, Gem } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface AchievementsListProps {
   achievements: Achievement[];
 }
 
-export const AchievementsList = ({ achievements }: AchievementsListProps) => {
-  const [activeTab, setActiveTab] = useState<string>("all");
+export function AchievementsList({ achievements }: AchievementsListProps) {
+  // Get only completed achievements sorted by points (highest first)
+  const completedAchievements = achievements
+    .filter(a => a.completed)
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 3);  // Show only top 3 achievements
   
-  const categories = [
-    { id: 'all', name: 'Todas' },
-    { id: 'profile', name: 'Perfil' },
-    { id: 'connection', name: 'Conexões' },
-    { id: 'publication', name: 'Publicações' },
-    { id: 'evaluation', name: 'Avaliações' },
-    { id: 'partnership', name: 'Parcerias' }
-  ];
-
-  // Filter achievements based on active tab
-  const filteredAchievements = activeTab === 'all' 
-    ? achievements
-    : achievements.filter(a => a.category === activeTab);
-
   // Helper function to render the appropriate icon
-  const renderIcon = (iconName: string, size: number = 5) => {
+  const renderIcon = (iconName: string) => {
     switch (iconName) {
       case 'trophy':
-        return <Trophy className={`h-${size} w-${size} text-yellow-500`} />;
+        return <Trophy className="h-5 w-5 text-yellow-500" />;
       case 'medal':
-        return <Medal className={`h-${size} w-${size} text-blue-500`} />;
+        return <Medal className="h-5 w-5 text-blue-500" />;
       case 'star':
-        return <Star className={`h-${size} w-${size} text-yellow-500`} />;
+        return <Star className="h-5 w-5 text-yellow-500" />;
       case 'file-text':
-        return <FileText className={`h-${size} w-${size} text-blue-500`} />;
+        return <FileText className="h-5 w-5 text-blue-500" />;
       case 'user':
-        return <User className={`h-${size} w-${size} text-gray-500`} />;
+        return <User className="h-5 w-5 text-gray-500" />;
       case 'message-circle':
-        return <MessageCircle className={`h-${size} w-${size} text-green-500`} />;
+        return <MessageCircle className="h-5 w-5 text-green-500" />;
       case 'handshake':
-        return <HandshakeIcon className={`h-${size} w-${size} text-purple-500`} />;
+        return <HandshakeIcon className="h-5 w-5 text-purple-500" />;
       case 'gem':
-        return <Gem className={`h-${size} w-${size} text-indigo-500`} />;
+        return <Gem className="h-5 w-5 text-indigo-500" />;
       default:
-        return <Trophy className={`h-${size} w-${size} text-yellow-500`} />;
+        return <Trophy className="h-5 w-5 text-yellow-500" />;
     }
   };
-
-  const getLevelColor = (level?: 'bronze' | 'silver' | 'gold') => {
-    switch (level) {
-      case 'bronze':
-        return 'bg-amber-600';
-      case 'silver':
-        return 'bg-gray-400';
-      case 'gold':
-        return 'bg-yellow-500';
-      default:
-        return 'bg-blue-500';
-    }
-  };
-
-  const handleShare = (achievement: Achievement) => {
-    toast.success(`Conquista "${achievement.title}" compartilhada no feed!`);
-  };
-
+  
   return (
-    <Tabs defaultValue="all" onValueChange={setActiveTab}>
-      <TabsList className="mb-4">
-        {categories.map(category => (
-          <TabsTrigger key={category.id} value={category.id}>
-            {category.name}
-          </TabsTrigger>
-        ))}
-      </TabsList>
-      
-      <TabsContent value={activeTab}>
-        <Card>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 gap-4">
-              {filteredAchievements.map(achievement => (
-                <div 
-                  key={achievement.id}
-                  className={`border rounded-lg p-4 ${achievement.completed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center ${achievement.completed ? 'bg-white' : 'bg-gray-100'}`}>
-                      {renderIcon(achievement.icon, 6)}
-                      
-                      {achievement.level && (
-                        <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${getLevelColor(achievement.level)} flex items-center justify-center text-white text-xs font-bold`}>
-                          {achievement.level === 'bronze' ? 'B' : achievement.level === 'silver' ? 'S' : 'G'}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-lg">{achievement.title}</h3>
-                        <Badge variant={achievement.completed ? "default" : "outline"} className="ml-2">
-                          {achievement.points} pontos
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">{achievement.description}</p>
-                    </div>
-                    
-                    {achievement.completed && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-gray-500"
-                        onClick={() => handleShare(achievement)}
-                      >
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl">Conquistas Recentes</CardTitle>
+        <Badge variant="outline" className="ml-2 px-3 py-1">
+          {completedAchievements.length} de {achievements.length}
+        </Badge>
+      </CardHeader>
+      <CardContent>
+        {completedAchievements.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {completedAchievements.map(achievement => (
+              <div 
+                key={achievement.id} 
+                className="flex flex-col items-center p-4 bg-gray-50 rounded-lg"
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                  {renderIcon(achievement.icon)}
                 </div>
-              ))}
-              
-              {filteredAchievements.length === 0 && (
-                <div className="text-center py-10">
-                  <p className="text-gray-500">Nenhuma conquista encontrada nesta categoria</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+                <span className="text-sm text-center font-medium">{achievement.title}</span>
+                <span className="text-xs text-center text-gray-500 mt-1">{achievement.points} pts</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Nenhuma conquista obtida ainda</p>
+            <p className="text-sm text-muted-foreground mt-1">Complete missões para desbloquear conquistas</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
-};
+}
