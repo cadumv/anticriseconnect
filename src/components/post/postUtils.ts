@@ -36,10 +36,12 @@ export const savePost = async (
   const existingPosts = localStorage.getItem(postsKey);
   const posts = existingPosts ? JSON.parse(existingPosts) : [];
   
+  // Certifique-se de que a imageUrl seja passada corretamente para o feed
   const feedPost = {
     ...postData,
     author: postData.author || user.user_metadata?.name || "Usuário",
-    date: "Agora"
+    date: "Agora",
+    imageUrl: postData.imageUrl // Garantir que a URL da imagem seja transferida
   };
   
   posts.unshift(feedPost);
@@ -118,7 +120,7 @@ export const createPostData = (
     content: content.trim(),
     type: postType,
     timestamp: new Date().toISOString(),
-    imageUrl: imageUrl || undefined,
+    imageUrl: imageUrl || undefined, // Garante que imageUrl seja undefined se for null
     likes: 0,
     saves: 0,
     shares: 0

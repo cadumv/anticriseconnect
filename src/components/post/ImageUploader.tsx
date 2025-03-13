@@ -1,11 +1,10 @@
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 
 interface ImageUploaderProps {
@@ -43,7 +42,7 @@ export function ImageUploader({
           type="button" 
           variant="outline" 
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1"
         >
           <ImagePlus size={16} />
           Selecionar Imagem
