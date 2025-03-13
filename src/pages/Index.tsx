@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { ProfileHeader } from "@/components/ProfileHeader";
-import { Achievements } from "@/components/Achievements";
 import { Feed } from "@/components/Feed";
 import { Discovery } from "@/components/Discovery";
 import { PartnershipRequests } from "@/components/PartnershipRequests";
@@ -9,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
+import { AchievementsSidebar } from "@/components/achievements/AchievementsSidebar";
 
 const Index = () => {
   const { user } = useAuth();
@@ -76,17 +76,25 @@ const Index = () => {
     }
   };
 
+  // Calculate total achievement points
+  const totalPoints = achievements
+    .filter(a => a.completed)
+    .reduce((sum, achievement) => sum + achievement.points, 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">
           <div className="lg:col-span-8 space-y-8">
             <ProfileHeader />
-            <Achievements achievements={achievements} />
             <Feed />
           </div>
           <div className="lg:col-span-4 space-y-8">
             <div className="sticky top-4 space-y-8">
+              <AchievementsSidebar 
+                achievements={achievements}
+                totalPoints={totalPoints}
+              />
               <PartnershipRequests />
               <Discovery />
             </div>
