@@ -53,9 +53,23 @@ export function useMissions(userId: string | undefined) {
       // If no missions exist yet, create default missions
       const defaultMissions = getDefaultMissions();
       
-      setMissions(defaultMissions);
+      // Add some demo data for the interface screenshot
+      const demoMissions = defaultMissions.map(mission => {
+        if (mission.id === "mission-connect") {
+          return {...mission, currentProgress: 2, requiredProgress: 3};
+        }
+        if (mission.id === "mission-message") {
+          return {...mission, currentProgress: 1, requiredProgress: 3};
+        }
+        if (mission.id === "mission-invite") {
+          return {...mission, currentProgress: 3, requiredProgress: 10};
+        }
+        return mission;
+      });
+      
+      setMissions(demoMissions);
       // Save default missions to localStorage
-      localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
+      localStorage.setItem(missionsKey, JSON.stringify(demoMissions));
     }
   }, [userId]);
   

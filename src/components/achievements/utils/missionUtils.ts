@@ -35,8 +35,8 @@ export const createNewKnowledgeMission = (existingMissions: Mission[]): Mission 
   // Create a new mission with incremented sequence
   return {
     id: `mission-knowledge-${Date.now()}`,
-    title: "Compartilhe conhecimento",
-    description: "Chegou a hora de mostrar o que você sabe e ajudar mais profissionais com o seu conhecimento. Compartilhe um artigo técnico de um serviço ou case de sucesso.",
+    title: "Compartilhe seu Conhecimento",
+    description: "Publique um artigo técnico para colaborar com outros engenheiros",
     requiredProgress: 1,
     currentProgress: 0,
     points: 30,
@@ -60,33 +60,63 @@ export const getDefaultMissions = (): Mission[] => {
     },
     {
       id: "mission-connect",
-      title: "Faça conexões",
-      description: "A parceria começa na conexão anticrise. Faça a sua para mais profissionais te conhecerem",
-      requiredProgress: 20,
+      title: "Crie sua Rede",
+      description: "Faça 3 novas conexões com engenheiros na plataforma",
+      requiredProgress: 3,
       currentProgress: 0,
       points: 30,
       type: 'weekly',
       sequence: 2
     },
     {
-      id: "mission-post",
-      title: "Sua primeira publicação",
-      description: "Faça a sua primeira publicação para os engenheiros(as) conhecerem seus serviços ou áreas de atuação",
-      requiredProgress: 1,
+      id: "mission-message",
+      title: "Inicie Conversas",
+      description: "Envie uma mensagem para 3 novas conexões",
+      requiredProgress: 3,
       currentProgress: 0,
       points: 20,
       type: 'weekly',
       sequence: 3
     },
     {
-      id: "mission-knowledge",
-      title: "Compartilhe conhecimento",
-      description: "Chegou a hora de mostrar o que você sabe e ajudar mais profissionais com o seu conhecimento. Compartilhe um artigo técnico de um serviço ou case de sucesso.",
+      id: "mission-post",
+      title: "Apresente seu Trabalho",
+      description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
       requiredProgress: 1,
       currentProgress: 0,
       points: 30,
       type: 'weekly',
       sequence: 4
+    },
+    {
+      id: "mission-knowledge",
+      title: "Compartilhe seu Conhecimento",
+      description: "Publique um artigo técnico para colaborar com outros engenheiros",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 25,
+      type: 'weekly',
+      sequence: 5
+    },
+    {
+      id: "mission-invite",
+      title: "Convide Engenheiros",
+      description: "Indique 10 novos usuários para se cadastrarem na plataforma",
+      requiredProgress: 10,
+      currentProgress: 0,
+      points: 40,
+      type: 'weekly',
+      sequence: 6
+    },
+    {
+      id: "mission-article",
+      title: "Compartilhe conhecimento",
+      description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 30,
+      type: 'weekly',
+      sequence: 7
     }
   ];
 };

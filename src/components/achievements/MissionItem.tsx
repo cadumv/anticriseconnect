@@ -17,7 +17,7 @@ export function MissionItem({ mission, onClaimReward }: MissionItemProps) {
           <h3 className="font-medium">{mission.title}</h3>
           <p className="text-sm text-muted-foreground">{mission.description}</p>
         </div>
-        <Badge variant="secondary">{mission.points} pts</Badge>
+        <Badge variant="secondary" className="px-2">{mission.points} pts</Badge>
       </div>
       <div className="mt-2">
         <div className="flex justify-between text-sm mb-1">
