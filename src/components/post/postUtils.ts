@@ -1,9 +1,9 @@
-
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
 import { checkFirstPublicationAchievement } from "@/services/achievements/publication-achievements";
 import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missions";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface PostData {
   id: string;
@@ -26,53 +26,65 @@ export const savePost = async (
   user: User, 
   postData: PostData
 ) => {
-  const publicationsKey = `user_publications_${user.id}`;
-  const existingPublications = localStorage.getItem(publicationsKey);
-  const publications = existingPublications ? JSON.parse(existingPublications) : [];
-  publications.unshift(postData);
-  localStorage.setItem(publicationsKey, JSON.stringify(publications));
-  
-  const postsKey = `user_posts_${user.id}`;
-  const existingPosts = localStorage.getItem(postsKey);
-  const posts = existingPosts ? JSON.parse(existingPosts) : [];
-  
-  // Certifique-se de que a imageUrl seja passada corretamente para o feed
-  const feedPost = {
-    ...postData,
-    author: postData.author || user.user_metadata?.name || "Usuário",
-    date: "Agora",
-    imageUrl: postData.imageUrl // Garantir que a URL da imagem seja transferida
-  };
-  
-  posts.unshift(feedPost);
-  localStorage.setItem(postsKey, JSON.stringify(posts));
-  
-  checkFirstPublicationAchievement(user.id);
-  
-  if (postData.type === 'service') {
-    const missionResult = updatePublicationMissionProgress(user.id);
-    if (missionResult.missionCompleted) {
-      toast({
-        title: "Missão Completa!",
-        description: "Você completou a missão 'Apresente seus serviços ou área de atuação' e ganhou 75 pontos!",
-        variant: "default",
-      });
+  try {
+    // Save post to Supabase
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        user_id: user.id,
+        content: postData.content,
+        image_url: postData.imageUrl,
+        // Additional fields specific to our app that aren't in the database schema
+        // can be stored as metadata in the content field if needed
+      })
+      .select();
+    
+    if (error) throw error;
+    
+    // For backward compatibility with local storage
+    const publicationsKey = `user_publications_${user.id}`;
+    const existingPublications = localStorage.getItem(publicationsKey);
+    const publications = existingPublications ? JSON.parse(existingPublications) : [];
+    publications.unshift(postData);
+    localStorage.setItem(publicationsKey, JSON.stringify(publications));
+    
+    checkFirstPublicationAchievement(user.id);
+    
+    if (postData.type === 'service') {
+      const missionResult = updatePublicationMissionProgress(user.id);
+      if (missionResult.missionCompleted) {
+        toast({
+          title: "Missão Completa!",
+          description: "Você completou a missão 'Apresente seus serviços ou área de atuação' e ganhou 75 pontos!",
+          variant: "default",
+        });
+      }
+    } else if (postData.type === 'technical_article') {
+      const missionResult = updateKnowledgeMissionProgress(user.id);
+      if (missionResult.missionCompleted) {
+        toast({
+          title: "Missão Completa!",
+          description: "Você completou a missão 'Compartilhe seu conhecimento' e ganhou 125 pontos!",
+          variant: "default",
+        });
+      }
     }
-  } else if (postData.type === 'technical_article') {
-    const missionResult = updateKnowledgeMissionProgress(user.id);
-    if (missionResult.missionCompleted) {
-      toast({
-        title: "Missão Completa!",
-        description: "Você completou a missão 'Compartilhe seu conhecimento' e ganhou 125 pontos!",
-        variant: "default",
-      });
-    }
-  }
 
-  toast({
-    title: "Publicação criada",
-    description: "Sua publicação foi criada com sucesso e já aparece no seu feed!",
-  });
+    toast({
+      title: "Publicação criada",
+      description: "Sua publicação foi criada com sucesso e já aparece no seu feed!",
+    });
+    
+    return data[0];
+  } catch (error) {
+    console.error("Error saving post:", error);
+    toast({
+      title: "Erro ao criar publicação",
+      description: "Não foi possível criar sua publicação. Tente novamente.",
+      variant: "destructive",
+    });
+    throw error;
+  }
 };
 
 export const validatePostData = (

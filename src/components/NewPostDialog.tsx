@@ -11,7 +11,11 @@ import { TechnicalArticleForm } from "./post/TechnicalArticleForm";
 import { createPostData, savePost, validatePostData } from "./post/postUtils";
 import { supabase } from "@/integrations/supabase/client";
 
-export function NewPostDialog() {
+interface NewPostDialogProps {
+  onPostCreated?: () => void;
+}
+
+export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -92,10 +96,20 @@ export function NewPostDialog() {
       user.user_metadata?.name
     );
     
-    await savePost(user, newPost);
-    resetForm();
-    setOpen(false);
-    setIsLoading(false);
+    try {
+      await savePost(user, newPost);
+      resetForm();
+      setOpen(false);
+      
+      // Call the callback function if provided
+      if (onPostCreated) {
+        onPostCreated();
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
