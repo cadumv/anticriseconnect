@@ -49,10 +49,10 @@ export function useMissions(userId: string | undefined) {
         };
       }
       
-      // Check if user has made any publications
+      // Check if user has made any service publications
       const publicationMissionIndex = updatedMissions.findIndex(m => m.id === "mission-publication");
       if (publicationMissionIndex !== -1) {
-        const publicationCount = getPublicationCount(userId);
+        const publicationCount = getServicePublicationCount(userId);
         
         updatedMissions[publicationMissionIndex] = {
           ...updatedMissions[publicationMissionIndex],
@@ -60,6 +60,21 @@ export function useMissions(userId: string | undefined) {
           completed: publicationCount >= updatedMissions[publicationMissionIndex].requiredProgress,
           completedDate: publicationCount >= updatedMissions[publicationMissionIndex].requiredProgress ? 
                           updatedMissions[publicationMissionIndex].completedDate || new Date().toISOString() : 
+                          undefined
+        };
+      }
+      
+      // Check if user has made any technical articles 
+      const knowledgeMissionIndex = updatedMissions.findIndex(m => m.id === "mission-knowledge");
+      if (knowledgeMissionIndex !== -1) {
+        const technicalArticlesCount = getTechnicalArticlesCount(userId);
+        
+        updatedMissions[knowledgeMissionIndex] = {
+          ...updatedMissions[knowledgeMissionIndex],
+          currentProgress: Math.min(technicalArticlesCount, updatedMissions[knowledgeMissionIndex].requiredProgress),
+          completed: technicalArticlesCount >= updatedMissions[knowledgeMissionIndex].requiredProgress,
+          completedDate: technicalArticlesCount >= updatedMissions[knowledgeMissionIndex].requiredProgress ? 
+                          updatedMissions[knowledgeMissionIndex].completedDate || new Date().toISOString() : 
                           undefined
         };
       }
@@ -142,7 +157,47 @@ function getConnectionCount(userId: string): number {
   }
 }
 
-// Helper function to count user publications
+// Helper function to count user technical articles
+function getTechnicalArticlesCount(userId: string): number {
+  try {
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      if (Array.isArray(parsedPublications)) {
+        return parsedPublications.filter(pub => pub.type === 'technical_article').length;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting technical articles:', error);
+    return 0;
+  }
+}
+
+// Helper function to count user service publications
+function getServicePublicationCount(userId: string): number {
+  try {
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      if (Array.isArray(parsedPublications)) {
+        return parsedPublications.filter(pub => pub.type === 'service').length;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting service publications:', error);
+    return 0;
+  }
+}
+
+// Standard publication count for backward compatibility
 function getPublicationCount(userId: string): number {
   try {
     // Check user publications

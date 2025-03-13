@@ -54,6 +54,16 @@ const Index = () => {
             // Update achievements list immediately
             setAchievements(AchievementsManager.getUserAchievements(user.id));
           }
+          // Check for technical article achievement
+          else {
+            const technicalArticleAchievement = AchievementsManager.checkTechnicalArticleAchievement(user.id);
+            if (technicalArticleAchievement) {
+              setAchievementUnlocked(technicalArticleAchievement);
+              setShowAchievementPopup(true);
+              // Update achievements list immediately
+              setAchievements(AchievementsManager.getUserAchievements(user.id));
+            }
+          }
         }
       }
     }

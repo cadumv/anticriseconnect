@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Trophy } from "lucide-react";
+import { NewPostDialog } from "./NewPostDialog";
 
 interface Post {
   id: string;
@@ -14,7 +15,7 @@ interface Post {
   excerpt?: string;
   tags?: string[];
   content?: string;
-  type?: 'achievement' | 'post';
+  type?: 'achievement' | 'post' | 'service' | 'technical_article';
   achievementId?: string;
   timestamp: string;
 }
@@ -57,11 +58,7 @@ export const Feed = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Feed de Projetos</CardTitle>
-        {user && (
-          <Button size="sm" variant="outline">
-            Novo Post
-          </Button>
-        )}
+        {user && <NewPostDialog />}
       </CardHeader>
       <CardContent>
         {/* User achievement posts */}
@@ -74,7 +71,7 @@ export const Feed = () => {
                 </div>
                 <div>
                   <div className="flex gap-2 text-sm text-gray-500 mb-1">
-                    <span>{user.user_metadata?.name || "Usuário"}</span>
+                    <span>{user?.user_metadata?.name || "Usuário"}</span>
                     <span>•</span>
                     <span>{new Date(post.timestamp).toLocaleDateString('pt-BR')}</span>
                   </div>
@@ -89,6 +86,15 @@ export const Feed = () => {
                   <span>{post.author}</span>
                   <span>•</span>
                   <span>{post.date}</span>
+                  {post.type && (
+                    <>
+                      <span>•</span>
+                      <span className="text-blue-600">
+                        {post.type === 'service' ? 'Serviço/Área de Atuação' : 
+                         post.type === 'technical_article' ? 'Artigo Técnico' : ''}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <p className="text-gray-600 mb-3">{post.excerpt || post.content}</p>
               </>

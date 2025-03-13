@@ -97,7 +97,80 @@ export const updateConnectionMissionProgress = (userId: string): {
   };
 };
 
-// Update publication mission progress
+// Update knowledge mission progress
+export const updateKnowledgeMissionProgress = (userId: string): { 
+  currentProgress: number;
+  requiredProgress: number;
+  missionCompleted: boolean;
+} => {
+  const missionsKey = `user_missions_${userId}`;
+  const missionsData = localStorage.getItem(missionsKey);
+  
+  if (!missionsData) {
+    return { currentProgress: 0, requiredProgress: 1, missionCompleted: false };
+  }
+  
+  const missions = JSON.parse(missionsData);
+  const knowledgeMission = missions.find((m: Mission) => m.id === "mission-knowledge");
+  
+  if (!knowledgeMission) {
+    return { currentProgress: 0, requiredProgress: 1, missionCompleted: false };
+  }
+  
+  // Count technical articles
+  const technicalArticlesCount = getTechnicalArticlesCount(userId);
+  const requiredProgress = knowledgeMission.requiredProgress;
+  const currentProgress = Math.min(technicalArticlesCount, requiredProgress);
+  const wasAlreadyCompleted = knowledgeMission.completed;
+  
+  // Check if mission was just completed
+  const justCompleted = !wasAlreadyCompleted && technicalArticlesCount >= requiredProgress;
+  
+  // Update mission status
+  if (technicalArticlesCount > knowledgeMission.currentProgress || justCompleted) {
+    const updatedMissions = missions.map((mission: Mission) => {
+      if (mission.id === "mission-knowledge") {
+        return {
+          ...mission,
+          currentProgress: currentProgress,
+          completed: technicalArticlesCount >= requiredProgress,
+          completedDate: justCompleted ? new Date().toISOString() : mission.completedDate
+        };
+      }
+      return mission;
+    });
+    
+    localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+  }
+  
+  return { 
+    currentProgress, 
+    requiredProgress, 
+    missionCompleted: justCompleted 
+  };
+};
+
+// Helper function to count user's technical articles
+function getTechnicalArticlesCount(userId: string): number {
+  try {
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      if (Array.isArray(parsedPublications)) {
+        return parsedPublications.filter(pub => pub.type === 'technical_article').length;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting technical articles:', error);
+    return 0;
+  }
+}
+
+// Update publication mission progress - modify to only count service publications
 export const updatePublicationMissionProgress = (userId: string): { 
   currentProgress: number;
   requiredProgress: number;
@@ -117,23 +190,23 @@ export const updatePublicationMissionProgress = (userId: string): {
     return { currentProgress: 0, requiredProgress: 1, missionCompleted: false };
   }
   
-  // Count publications
-  const publicationCount = getPublicationCount(userId);
+  // Count service publications
+  const servicePublicationCount = getServicePublicationCount(userId);
   const requiredProgress = publicationMission.requiredProgress;
-  const currentProgress = Math.min(publicationCount, requiredProgress);
+  const currentProgress = Math.min(servicePublicationCount, requiredProgress);
   const wasAlreadyCompleted = publicationMission.completed;
   
   // Check if mission was just completed
-  const justCompleted = !wasAlreadyCompleted && publicationCount >= requiredProgress;
+  const justCompleted = !wasAlreadyCompleted && servicePublicationCount >= requiredProgress;
   
   // Update mission status
-  if (publicationCount > publicationMission.currentProgress || justCompleted) {
+  if (servicePublicationCount > publicationMission.currentProgress || justCompleted) {
     const updatedMissions = missions.map((mission: Mission) => {
       if (mission.id === "mission-publication") {
         return {
           ...mission,
           currentProgress: currentProgress,
-          completed: publicationCount >= requiredProgress,
+          completed: servicePublicationCount >= requiredProgress,
           completedDate: justCompleted ? new Date().toISOString() : mission.completedDate
         };
       }
@@ -149,6 +222,26 @@ export const updatePublicationMissionProgress = (userId: string): {
     missionCompleted: justCompleted 
   };
 };
+
+// Helper function to count user's service publications
+function getServicePublicationCount(userId: string): number {
+  try {
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      if (Array.isArray(parsedPublications)) {
+        return parsedPublications.filter(pub => pub.type === 'service').length;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting service publications:', error);
+    return 0;
+  }
+}
 
 // Helper function to count user publications (for direct access in utility functions)
 function getPublicationCount(userId: string): number {
