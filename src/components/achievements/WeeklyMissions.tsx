@@ -14,7 +14,6 @@ type Mission = {
   currentProgress: number;
   points: number;
   type: 'daily' | 'weekly';
-  claimed?: boolean; // Add the claimed property to the type
 };
 
 export function WeeklyMissions() {
