@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { NotificationType, TimeFilter } from "./types";
 import { TimeFilterSelector } from "./TimeFilterSelector";
 import { NotificationItem } from "./NotificationItem";
 import { EmptyState } from "./EmptyState";
+import { filterNotificationsByTime } from "./NotificationsHelper";
 
 interface NotificationsSectionProps {
   title: React.ReactNode;

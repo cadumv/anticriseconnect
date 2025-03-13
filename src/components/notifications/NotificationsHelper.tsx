@@ -1,5 +1,7 @@
 
+import React from "react";
 import { NotificationType, TimeFilter } from "./types";
+import { AtSign, Handshake, Bell } from "lucide-react";
 
 export const filterNotificationsByTime = (
   notifications: NotificationType[], 
@@ -35,6 +37,3 @@ export const getNotificationIcon = (type: string) => {
       return <Bell className="h-5 w-5 text-gray-500" />;
   }
 };
-
-// Fix: Import missing components
-import { AtSign, Handshake, Bell } from "lucide-react";

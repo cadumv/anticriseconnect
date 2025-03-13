@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Bell, AtSign, Handshake } from "lucide-react";
 import { Navigate } from "react-router-dom";
@@ -11,15 +10,11 @@ import { filterNotificationsByTime } from "@/components/notifications/Notificati
 const Notifications = () => {
   const { user, loading } = useAuth();
   
-  // Estado local para gerenciar notificações
   const [notifications, setNotifications] = useState<NotificationType[]>([
-    // Deixaremos o array vazio para mostrar a interface quando não há notificações
   ]);
 
-  // Estado para filtro de tempo
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
   
-  // Filtra notificações por tipo e tempo
   const mentions = filterNotificationsByTime(
     notifications.filter(n => n.type === "mention"),
     timeFilter
@@ -30,10 +25,8 @@ const Notifications = () => {
     timeFilter
   );
   
-  // Conta notificações não lidas
   const unreadCount = notifications.filter(n => !n.read).length;
   
-  // Função para marcar notificação como lida
   const markAsRead = (id: string) => {
     setNotifications(prev => 
       prev.map(notification => 
@@ -47,7 +40,6 @@ const Notifications = () => {
     });
   };
   
-  // Função para apagar uma notificação
   const deleteNotification = (id: string) => {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
     toast({
@@ -55,7 +47,6 @@ const Notifications = () => {
     });
   };
   
-  // Função para apagar todas as notificações de um tipo
   const deleteAllNotifications = (type: "mention" | "partnership") => {
     setNotifications(prev => prev.filter(notification => notification.type !== type));
     toast({
@@ -63,18 +54,14 @@ const Notifications = () => {
     });
   };
 
-  // Função para aceitar uma solicitação de parceria
   const acceptPartnership = (id: string, senderId?: string) => {
-    // Lógica para aceitar parceria será implementada aqui
     markAsRead(id);
     toast({
       description: "Solicitação de parceria aceita com sucesso!",
     });
   };
 
-  // Função para recusar uma solicitação de parceria
   const declinePartnership = (id: string) => {
-    // Lógica para recusar parceria será implementada aqui
     deleteNotification(id);
     toast({
       description: "Solicitação de parceria recusada.",
@@ -107,7 +94,6 @@ const Notifications = () => {
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Menções */}
         <NotificationsSection
           title="Menções"
           notifications={mentions}
@@ -120,7 +106,6 @@ const Notifications = () => {
           onDelete={deleteNotification}
         />
         
-        {/* Solicitações de Parceria */}
         <NotificationsSection
           title="Solicitações de Parceria"
           notifications={partnerships}
