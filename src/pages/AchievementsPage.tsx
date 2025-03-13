@@ -26,6 +26,9 @@ const AchievementsPage = () => {
         const userAchievements = AchievementsManager.getUserAchievements(user.id);
         setAchievements(userAchievements);
 
+        // Check if the user has completed the referral mission
+        checkReferralMission(user.id);
+
         // Check for connections achievement
         const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
         if (connectionsAchievement) {
@@ -55,6 +58,55 @@ const AchievementsPage = () => {
       setAchievements(DEMO_ACHIEVEMENTS);
     }
   }, [user]);
+
+  const checkReferralMission = (userId: string) => {
+    try {
+      // Check if the user has completed the referral mission
+      const referralsKey = `user_referrals_${userId}`;
+      const referralsData = localStorage.getItem(referralsKey);
+      
+      if (referralsData) {
+        const referrals = JSON.parse(referralsData);
+        
+        // If the user has 10 or more referrals, check if they've already been rewarded
+        if (referrals.length >= 10) {
+          const achievementId = "referral-achievement";
+          const unlockedAchievements = AchievementsManager.getUnlockedAchievements(userId);
+          
+          if (!unlockedAchievements.includes(achievementId)) {
+            // Create the achievement
+            const referralAchievement: Achievement = {
+              id: achievementId,
+              title: "Rede de Engenheiros",
+              description: "Convidou 10 engenheiros para a plataforma",
+              icon: "share",
+              completed: true,
+              points: 200,
+              category: 'connection'
+            };
+            
+            // Add it to the user's achievements
+            const userAchievements = AchievementsManager.getUserAchievements(userId);
+            userAchievements.push(referralAchievement);
+            AchievementsManager.saveUserAchievements(userId, userAchievements);
+            
+            // Mark as unlocked
+            unlockedAchievements.push(achievementId);
+            AchievementsManager.saveUnlockedAchievements(userId, unlockedAchievements);
+            
+            // Show the achievement popup
+            setAchievementUnlocked(referralAchievement);
+            setShowAchievementPopup(true);
+            
+            // Update achievements list immediately
+            setAchievements(AchievementsManager.getUserAchievements(userId));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking referral mission:", error);
+    }
+  };
   
   const handleShareAchievement = () => {
     if (achievementUnlocked && user) {

@@ -1,9 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { MessageCircle, FileText, Users, Mail, Share } from "lucide-react";
+import { MessageCircle, FileText, Users, Mail, Share, Copy, Check, Link } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Mission {
   id: string;
@@ -13,22 +16,41 @@ interface Mission {
   requiredProgress: number;
   currentProgress: number;
   reward: number;
+  action?: () => void;
+  actionLabel?: string;
 }
 
 export const WeeklyMissions = () => {
   const { user } = useAuth();
   const [missions, setMissions] = useState<Mission[]>([]);
+  const [referralLink, setReferralLink] = useState("");
+  const [copied, setCopied] = useState(false);
   
   useEffect(() => {
     if (user) {
+      // Generate referral link
+      const baseUrl = window.location.origin;
+      const refLink = `${baseUrl}/signup?ref=${user.id}`;
+      setReferralLink(refLink);
+      
       // In a real implementation, we would fetch the user's mission progress from the backend
-      // For now, we'll set all mission progress to 0 for new user experience
       loadUserMissions(user.id);
     } else {
       // Default missions with no progress for non-authenticated users
       loadDefaultMissions();
     }
   }, [user]);
+  
+  const copyReferralLink = () => {
+    navigator.clipboard.writeText(referralLink);
+    setCopied(true);
+    toast({
+      title: "Link copiado!",
+      description: "O link de convite foi copiado para sua área de transferência."
+    });
+    
+    setTimeout(() => setCopied(false), 2000);
+  };
   
   const loadUserMissions = (userId: string) => {
     try {
@@ -37,12 +59,46 @@ export const WeeklyMissions = () => {
       const savedMissions = localStorage.getItem(missionsKey);
       
       if (savedMissions) {
-        setMissions(JSON.parse(savedMissions));
+        const parsedMissions = JSON.parse(savedMissions);
+        
+        // Add the action to the invite mission
+        const updatedMissions = parsedMissions.map((mission: Mission) => {
+          if (mission.id === "mission-invite") {
+            return {
+              ...mission,
+              action: copyReferralLink,
+              actionLabel: copied ? "Copiado!" : "Copiar Link"
+            };
+          }
+          return mission;
+        });
+        
+        setMissions(updatedMissions);
       } else {
         // First time - set up default missions with 0 progress
         const defaultMissions = getDefaultMissions();
         localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
-        setMissions(defaultMissions);
+        setMissions(defaultMissions.map(mission => {
+          if (mission.id === "mission-invite") {
+            return {
+              ...mission,
+              action: copyReferralLink,
+              actionLabel: copied ? "Copiado!" : "Copiar Link"
+            };
+          }
+          return mission;
+        }));
+      }
+      
+      // Check for referrals count from localStorage
+      const referralsKey = `user_referrals_${userId}`;
+      const referralsData = localStorage.getItem(referralsKey);
+      
+      if (referralsData) {
+        const referrals = JSON.parse(referralsData);
+        
+        // Update the mission progress
+        updateMissionProgress(userId, "mission-invite", referrals.length);
       }
     } catch (error) {
       console.error('Error loading missions:', error);
@@ -51,56 +107,102 @@ export const WeeklyMissions = () => {
     }
   };
   
+  const updateMissionProgress = (userId: string, missionId: string, progress: number) => {
+    try {
+      const missionsKey = `user_missions_${userId}`;
+      const savedMissions = localStorage.getItem(missionsKey);
+      
+      if (savedMissions) {
+        const parsedMissions = JSON.parse(savedMissions);
+        const updatedMissions = parsedMissions.map((mission: Mission) => {
+          if (mission.id === missionId) {
+            return {
+              ...mission,
+              currentProgress: progress
+            };
+          }
+          return mission;
+        });
+        
+        localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+        
+        // Update the missions state with the action for the invite mission
+        setMissions(updatedMissions.map(mission => {
+          if (mission.id === "mission-invite") {
+            return {
+              ...mission,
+              action: copyReferralLink,
+              actionLabel: copied ? "Copiado!" : "Copiar Link"
+            };
+          }
+          return mission;
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating mission progress:', error);
+    }
+  };
+  
   const loadDefaultMissions = () => {
-    setMissions(getDefaultMissions());
+    const defaultMissions = getDefaultMissions();
+    setMissions(defaultMissions.map(mission => {
+      if (mission.id === "mission-invite") {
+        return {
+          ...mission,
+          action: copyReferralLink,
+          actionLabel: copied ? "Copiado!" : "Copiar Link"
+        };
+      }
+      return mission;
+    }));
   };
   
   const getDefaultMissions = (): Mission[] => {
     return [
       {
-        id: "mission-1",
-        title: "Crie sua Rede",
-        description: "Faça 3 novas conexões com engenheiros na plataforma",
+        id: "mission-profile",
+        title: "Complete seu Perfil",
+        description: "Preencha todas as informações do seu perfil profissional",
         icon: <Users className="h-5 w-5 text-blue-500" />,
-        requiredProgress: 3,
-        currentProgress: 0, // Set to 0 for new user experience
+        requiredProgress: 1,
+        currentProgress: 0,
         reward: 50
       },
       {
-        id: "mission-2",
-        title: "Inicie Conversas",
-        description: "Envie uma mensagem para 3 novas conexões",
-        icon: <Mail className="h-5 w-5 text-green-500" />,
-        requiredProgress: 3,
-        currentProgress: 0, // Set to 0 for new user experience
-        reward: 50
-      },
-      {
-        id: "mission-3",
-        title: "Apresente seu Trabal ho",
-        description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
-        icon: <FileText className="h-5 w-5 text-purple-500" />,
-        requiredProgress: 1,
-        currentProgress: 0, // Set to 0 for new user experience
-        reward: 100
-      },
-      {
-        id: "mission-4",
-        title: "Compartilhe seu Conhecimento",
-        description: "Publique um artigo técnico para colaborar com outros engenheiros",
-        icon: <FileText className="h-5 w-5 text-indigo-500" />,
-        requiredProgress: 1,
-        currentProgress: 0, // Set to 0 for new user experience
-        reward: 100
-      },
-      {
-        id: "mission-5",
+        id: "mission-invite",
         title: "Convide Engenheiros",
         description: "Indique 10 novos usuários para se cadastrarem na plataforma",
         icon: <Share className="h-5 w-5 text-orange-500" />,
         requiredProgress: 10,
-        currentProgress: 0, // Set to 0 for new user experience
+        currentProgress: 0,
         reward: 200
+      },
+      {
+        id: "mission-connect",
+        title: "Crie sua Rede",
+        description: "Faça 3 novas conexões com engenheiros na plataforma",
+        icon: <Users className="h-5 w-5 text-blue-500" />,
+        requiredProgress: 3,
+        currentProgress: 0,
+        reward: 50
+      },
+      {
+        id: "mission-message",
+        title: "Inicie Conversas",
+        description: "Envie uma mensagem para 3 novas conexões",
+        icon: <Mail className="h-5 w-5 text-green-500" />,
+        requiredProgress: 3,
+        currentProgress: 0,
+        reward: 50
+      },
+      {
+        id: "mission-publish",
+        title: "Apresente seu Trabalho",
+        description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
+        icon: <FileText className="h-5 w-5 text-purple-500" />,
+        requiredProgress: 1,
+        currentProgress: 0,
+        reward: 100
       }
     ];
   };
@@ -141,7 +243,18 @@ export const WeeklyMissions = () => {
                       value={(mission.currentProgress / mission.requiredProgress) * 100} 
                       className={`h-1 w-24 ${isCompleted ? 'bg-green-100' : ''}`}
                     />
-                    {isCompleted && (
+                    {mission.action && (
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 flex items-center gap-1"
+                        onClick={mission.action}
+                      >
+                        {copied ? <Check className="h-3 w-3" /> : <Link className="h-3 w-3" />}
+                        {mission.actionLabel}
+                      </Button>
+                    )}
+                    {isCompleted && !mission.action && (
                       <span className="text-xs font-medium text-green-600 mt-1 block">Missão completa</span>
                     )}
                   </div>

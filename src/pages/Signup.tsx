@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,20 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [referrerId, setReferrerId] = useState("");
   const { signUp, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Extract referrer id from URL if present
+    const queryParams = new URLSearchParams(location.search);
+    const ref = queryParams.get('ref');
+    if (ref) {
+      setReferrerId(ref);
+      console.log("User referred by:", ref);
+    }
+  }, [location]);
 
   const validatePasswords = () => {
     if (password !== confirmPassword) {
@@ -33,10 +46,53 @@ const Signup = () => {
     e.preventDefault();
     if (!validatePasswords()) return;
     
-    await signUp(email, password, {
-      name,
-      phone: phone || undefined
-    });
+    try {
+      await signUp(email, password, {
+        name,
+        phone: phone || undefined,
+        referrerId: referrerId || undefined
+      });
+      
+      // If we have a referrer ID, update their referral count
+      if (referrerId) {
+        // Update referrer's referral count in localStorage for now
+        // In a real app, this would be stored in the database
+        const referralsKey = `user_referrals_${referrerId}`;
+        const existingReferrals = localStorage.getItem(referralsKey);
+        const referrals = existingReferrals ? JSON.parse(existingReferrals) : [];
+        
+        // Add this user as a referral
+        const newReferral = {
+          id: Date.now().toString(),
+          email: email,
+          date: new Date().toISOString()
+        };
+        
+        referrals.push(newReferral);
+        localStorage.setItem(referralsKey, JSON.stringify(referrals));
+        
+        // Update the referrer's mission progress
+        const missionsKey = `user_missions_${referrerId}`;
+        const savedMissions = localStorage.getItem(missionsKey);
+        
+        if (savedMissions) {
+          const parsedMissions = JSON.parse(savedMissions);
+          const updatedMissions = parsedMissions.map((mission: any) => {
+            if (mission.id === "mission-invite") {
+              return {
+                ...mission,
+                currentProgress: Math.min(referrals.length, mission.requiredProgress)
+              };
+            }
+            return mission;
+          });
+          
+          localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+        }
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+    }
   };
 
   return (
@@ -47,6 +103,11 @@ const Signup = () => {
           <CardDescription>
             Crie sua conta para conectar-se com outros engenheiros
           </CardDescription>
+          {referrerId && (
+            <div className="mt-2 text-sm text-blue-600">
+              Você foi convidado por um colega engenheiro
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup}>

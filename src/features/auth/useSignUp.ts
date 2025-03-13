@@ -10,7 +10,11 @@ export function useSignUp() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const signUp = async (email: string, password: string, metadata?: { name?: string, phone?: string }) => {
+  const signUp = async (email: string, password: string, metadata?: { 
+    name?: string, 
+    phone?: string, 
+    referrerId?: string 
+  }) => {
     setLoading(true);
     try {
       const redirectURL = `${window.location.origin}/auth/confirm`;
