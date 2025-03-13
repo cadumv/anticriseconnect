@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Achievement } from "@/types/profile";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { AchievementPopup } from "../achievements/AchievementPopup";
+import { Mission } from "../achievements/types/mission";
 
 interface ProfileFormProps {
   user: User;
@@ -53,6 +55,36 @@ export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }
     const updatedAreas = [...areasOfExpertise];
     updatedAreas[index] = value;
     setAreasOfExpertise(updatedAreas);
+  };
+
+  const updateProfileMission = () => {
+    if (!user) return;
+    
+    // Check if profile is now complete
+    const isProfileComplete = name && username && engineeringType && 
+      professionalDescription && areasOfExpertise.filter(a => a.trim() !== "").length > 0;
+    
+    if (isProfileComplete) {
+      // Update mission in localStorage
+      const missionsKey = `user_missions_${user.id}`;
+      const savedMissions = localStorage.getItem(missionsKey);
+      
+      if (savedMissions) {
+        const missions = JSON.parse(savedMissions) as Mission[];
+        const updatedMissions = missions.map(mission => {
+          if (mission.id === "mission-profile" && mission.currentProgress < mission.requiredProgress) {
+            return {
+              ...mission,
+              currentProgress: mission.requiredProgress,
+              completed: true
+            };
+          }
+          return mission;
+        });
+        
+        localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+      }
+    }
   };
 
   const updateProfile = async (e: React.FormEvent) => {
@@ -102,6 +134,9 @@ export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }
         .eq('id', user.id);
         
       if (profileError) throw profileError;
+      
+      // Update mission progress
+      updateProfileMission();
       
       toast({
         title: "Perfil atualizado com sucesso",
