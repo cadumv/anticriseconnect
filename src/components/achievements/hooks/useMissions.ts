@@ -11,33 +11,13 @@ export function useMissions(userId: string | undefined) {
     
     // Retrieve missions data from localStorage
     const missionsKey = `user_missions_${userId}`;
-    const savedMissions = localStorage.getItem(missionsKey);
     
-    if (savedMissions) {
-      try {
-        let parsedMissions = JSON.parse(savedMissions) as Mission[];
-        
-        // Filter missions based on their sequence and completion status
-        parsedMissions = parsedMissions.filter(mission => 
-          !mission.sequence || isPreviousMissionCompleted(parsedMissions, mission.sequence)
-        );
-        
-        setMissions(parsedMissions);
-      } catch (error) {
-        console.error("Error parsing missions:", error);
-        // Initialize with default missions if there's an error
-        const defaultMissions = getDefaultMissions();
-        setMissions(defaultMissions);
-        localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
-      }
-    } else {
-      // If no missions exist yet, create default missions
-      const defaultMissions = getDefaultMissions();
-      setMissions(defaultMissions);
-      
-      // Save default missions to localStorage
-      localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
-    }
+    // Reset with default missions
+    const defaultMissions = getDefaultMissions();
+    setMissions(defaultMissions);
+    
+    // Save default missions to localStorage
+    localStorage.setItem(missionsKey, JSON.stringify(defaultMissions));
   }, [userId]);
   
   const handleClaimReward = (missionId: string) => {
