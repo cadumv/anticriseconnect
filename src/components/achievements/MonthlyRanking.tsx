@@ -29,7 +29,7 @@ export function MonthlyRanking() {
                 <Trophy className="h-5 w-5 text-yellow-500" />
               </div>
               <Avatar className="h-10 w-10">
-                <AvatarImage src="" alt={user.user_metadata?.name || "Usuário"} />
+                <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.user_metadata?.name || "Usuário"} />
                 <AvatarFallback>{(user.user_metadata?.name || "Usuário").slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="font-medium">{user.user_metadata?.name || "Usuário Teste"}</div>

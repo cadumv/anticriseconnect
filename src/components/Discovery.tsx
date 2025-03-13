@@ -4,12 +4,14 @@ import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 import { Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Engineer {
   id: string;
   name: string;
   engineering_type: string;
+  avatar_url?: string | null;
 }
 
 interface Category {
@@ -60,7 +62,7 @@ export const Discovery = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, engineering_type')
+        .select('id, name, engineering_type, avatar_url')
         .not('name', 'is', null)
         .limit(5);
 
@@ -110,9 +112,10 @@ export const Discovery = () => {
                 {featuredEngineers.map((engineer) => (
                   <Link key={engineer.id} to={`/profile/${engineer.id}`} className="block">
                     <div className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-md transition-colors">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="font-medium text-blue-500">{engineer.name?.[0]}</span>
-                      </div>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={engineer.avatar_url || ""} alt={engineer.name || "Usuário"} />
+                        <AvatarFallback>{engineer.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                      </Avatar>
                       <div>
                         <p className="font-medium">{engineer.name}</p>
                         <p className="text-sm text-gray-500">{engineer.engineering_type}</p>
@@ -129,4 +132,4 @@ export const Discovery = () => {
       </CardContent>
     </Card>
   );
-};
+}
