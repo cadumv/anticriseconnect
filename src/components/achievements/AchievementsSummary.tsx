@@ -25,7 +25,7 @@ export function AchievementsSummary({
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex flex-col justify-center items-center md:items-start">
-            <h3 className="text-lg font-semibold text-blue-900">Nível de Engenheiro</h3>
+            <h3 className="text-lg font-semibold text-blue-900">Nível de Engenharia</h3>
             <div className="mt-2 flex items-center gap-2">
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
                 <Trophy className="h-6 w-6 text-white" />
