@@ -45,6 +45,102 @@ export const createNewKnowledgeMission = (existingMissions: Mission[]): Mission 
   };
 };
 
+// Update connection mission progress
+export const updateConnectionMissionProgress = (userId: string): { 
+  currentProgress: number;
+  requiredProgress: number;
+  missionCompleted: boolean;
+} => {
+  const missionsKey = `user_missions_${userId}`;
+  const missionsData = localStorage.getItem(missionsKey);
+  
+  if (!missionsData) {
+    return { currentProgress: 0, requiredProgress: 20, missionCompleted: false };
+  }
+  
+  const missions = JSON.parse(missionsData);
+  const connectionMission = missions.find((m: Mission) => m.id === "mission-connections");
+  
+  if (!connectionMission) {
+    return { currentProgress: 0, requiredProgress: 20, missionCompleted: false };
+  }
+  
+  // Count connections
+  const connectionCount = getConnectionCount(userId);
+  const requiredProgress = connectionMission.requiredProgress;
+  const currentProgress = Math.min(connectionCount, requiredProgress);
+  const wasAlreadyCompleted = connectionMission.completed;
+  
+  // Check if mission was just completed
+  const justCompleted = !wasAlreadyCompleted && connectionCount >= requiredProgress;
+  
+  // Update mission status
+  if (connectionCount > connectionMission.currentProgress || justCompleted) {
+    const updatedMissions = missions.map((mission: Mission) => {
+      if (mission.id === "mission-connections") {
+        return {
+          ...mission,
+          currentProgress: currentProgress,
+          completed: connectionCount >= requiredProgress,
+          completedDate: justCompleted ? new Date().toISOString() : mission.completedDate
+        };
+      }
+      return mission;
+    });
+    
+    localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+  }
+  
+  return { 
+    currentProgress, 
+    requiredProgress, 
+    missionCompleted: justCompleted 
+  };
+};
+
+// Helper function to count user connections (duplicated from useMissions for direct access)
+function getConnectionCount(userId: string): number {
+  let connectionCount = 0;
+  
+  try {
+    // Check connections made by the user
+    const userConnectionKey = `connection_requests_${userId}`;
+    const userRequests = localStorage.getItem(userConnectionKey);
+    
+    if (userRequests) {
+      const parsedUserRequests = JSON.parse(userRequests);
+      // Count accepted connection requests
+      connectionCount += parsedUserRequests.filter((request: any) => 
+        request.status === 'accepted'
+      ).length;
+    }
+    
+    // Check connections received by the user
+    const allUsers = JSON.parse(localStorage.getItem('all_users') || '[]');
+    
+    for (const otherUserId of allUsers) {
+      if (otherUserId === userId) continue;
+      
+      const connectionKey = `connection_requests_${otherUserId}`;
+      const existingRequests = localStorage.getItem(connectionKey);
+      
+      if (existingRequests) {
+        const requests = JSON.parse(existingRequests);
+        const acceptedRequests = requests.filter((req: any) => 
+          req.targetId === userId && req.status === 'accepted'
+        );
+        
+        connectionCount += acceptedRequests.length;
+      }
+    }
+    
+    return connectionCount;
+  } catch (error) {
+    console.error('Error counting connections:', error);
+    return 0;
+  }
+}
+
 // Get default missions with our new missions
 export const getDefaultMissions = (): Mission[] => {
   return [

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
+import { updateConnectionMissionProgress } from "@/components/achievements/utils/missionUtils";
 
 interface ConnectionRequestDialogProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export const ConnectionRequestDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+  const [showMissionCompletePopup, setShowMissionCompletePopup] = useState(false);
   
   const handleSubmit = () => {
     setIsSubmitting(true);
@@ -87,6 +89,18 @@ export const ConnectionRequestDialog = ({
       if (!allUsers.includes(targetProfileId)) {
         allUsers.push(targetProfileId);
         localStorage.setItem('all_users', JSON.stringify(allUsers));
+      }
+      
+      // Update mission progress for connections
+      const { currentProgress, requiredProgress, missionCompleted } = updateConnectionMissionProgress(currentUserId);
+      
+      // Show progress notification
+      if (!missionCompleted) {
+        const remaining = requiredProgress - currentProgress;
+        toast.success(`Parabéns, você realizou uma nova conexão. Faltam apenas ${remaining} para você completar a missão.`);
+      } else {
+        // Show mission complete popup
+        setShowMissionCompletePopup(true);
       }
       
       // Check if the user has unlocked any achievements
@@ -151,6 +165,28 @@ export const ConnectionRequestDialog = ({
           achievementTitle={achievementUnlocked.title}
           onShare={handleShareAchievement}
         />
+      )}
+
+      {/* Mission Complete Popup */}
+      {showMissionCompletePopup && (
+        <Dialog open={showMissionCompletePopup} onOpenChange={() => setShowMissionCompletePopup(false)}>
+          <DialogContent className="max-w-md mx-auto">
+            <DialogHeader className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 rounded-full bg-green-100 text-green-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                </div>
+              </div>
+              <DialogTitle className="text-xl">PARABÉNS!</DialogTitle>
+              <DialogDescription className="text-base pt-2">
+                Você completou a missão "Faça 20 novas conexões com engenheiros" e ganhou 100 pontos!
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );
