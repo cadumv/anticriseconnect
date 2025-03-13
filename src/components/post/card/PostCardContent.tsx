@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 interface PostCardContentProps {
   post: {
-    type?: 'service' | 'technical_article';
+    type?: 'post' | 'service' | 'technical_article' | 'achievement';
     excerpt?: string;
     content?: string;
     summary?: string;
@@ -24,7 +24,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
   
   return (
     <div className="p-4">
-      {post.type && (
+      {post.type && post.type !== 'post' && post.type !== 'achievement' && (
         <div className="mb-2">
           <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200">
             {post.type === 'service' ? 'Serviço/Área de Atuação' : 
