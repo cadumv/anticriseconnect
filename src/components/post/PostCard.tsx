@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, Bookmark, Share2, MessageSquare, MoreHorizontal, ExternalLink, X } from "lucide-react";
@@ -40,9 +39,10 @@ interface PostCardProps {
   onLike: (postId: string) => void;
   onSave: (postId: string) => void;
   onShare: (postId: string) => void;
+  compact?: boolean;
 }
 
-export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCardProps) {
+export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact = false }: PostCardProps) {
   const { user } = useAuth();
   const [showFullContent, setShowFullContent] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -62,7 +62,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
     ? (post.excerpt || post.content || '') 
     : (post.excerpt || post.content || '').substring(0, maxContentLength);
   
-  // Fetch the post author's profile data
   const fetchUserProfile = async () => {
     if (!post.user_id) return;
     
@@ -80,7 +79,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
     }
   };
 
-  // Handle comments being loaded when comment section is opened
   const loadComments = async () => {
     if (showComments) return; // Already open
     
@@ -88,7 +86,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
       setIsLoadingComments(true);
       setShowComments(true);
       
-      // Mock comments loading - in a real app, you'd fetch from a database
       setTimeout(() => {
         setComments([
           {
@@ -112,7 +109,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
     }
   };
 
-  // Post a new comment
   const postComment = () => {
     if (!comment.trim() || !user) return;
     
@@ -132,14 +128,12 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
     });
   };
 
-  // Load the user profile on component mount
   useState(() => {
     fetchUserProfile();
   });
   
   return (
     <div className="rounded-md border bg-white shadow-sm">
-      {/* Header - Author Info */}
       <div className="p-4 pb-0">
         <div className="flex items-start justify-between">
           <div className="flex gap-3">
@@ -188,9 +182,7 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
         </div>
       </div>
       
-      {/* Content */}
       <div className="p-4">
-        {/* Post Type Tag */}
         {post.type && (
           <div className="mb-2">
             <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200">
@@ -200,7 +192,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
           </div>
         )}
         
-        {/* Content/Excerpt */}
         <div className="whitespace-pre-line text-gray-800">
           {displayContent}
           
@@ -222,7 +213,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
           </div>
         )}
         
-        {/* Tags */}
         <div className="flex flex-wrap gap-2 my-3">
           {post.tags?.map((tag) => (
             <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
@@ -232,10 +222,9 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
         </div>
       </div>
       
-      {/* Media */}
       {post.imageUrl && (
         <div className="mb-3">
-          <AspectRatio ratio={16/9}>
+          <AspectRatio ratio={compact ? 2/1 : 16/9}>
             <img 
               src={post.imageUrl} 
               alt={post.title || "Imagem da publicação"} 
@@ -245,14 +234,12 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
         </div>
       )}
       
-      {/* Article Detail Link */}
       {post.type === 'technical_article' && (
         <div className="px-4 mb-2">
           <ArticleDetailSheet post={post} liked={liked} saved={saved} onLike={onLike} onSave={onSave} onShare={onShare} />
         </div>
       )}
       
-      {/* Engagement Metrics */}
       <div className="px-4 pt-1 pb-1 flex justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1">
           <div className="flex -space-x-1">
@@ -269,7 +256,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
         </div>
       </div>
       
-      {/* Action Buttons */}
       <div className="border-t">
         <div className="grid grid-cols-4 px-2">
           <Button
@@ -320,12 +306,10 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
         </div>
       </div>
       
-      {/* Comments Section */}
       {showComments && (
         <div className="border-t p-4">
           <h4 className="font-medium mb-3">Comentários</h4>
           
-          {/* Add comment */}
           {user && (
             <div className="flex gap-3 mb-4">
               <Avatar className="h-8 w-8">
@@ -360,7 +344,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare }: PostCa
             </div>
           )}
           
-          {/* Comments list */}
           {isLoadingComments ? (
             <div className="flex justify-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
