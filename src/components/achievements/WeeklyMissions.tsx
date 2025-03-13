@@ -59,7 +59,7 @@ export function WeeklyMissions() {
     return {
       id: `mission-knowledge-${Date.now()}`,
       title: "Compartilhe conhecimento",
-      description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
+      description: "Chegou a hora de mostrar o que você sabe e ajudar mais profissionais com o seu conhecimento. Compartilhe um artigo técnico de um serviço ou case de sucesso.",
       requiredProgress: 1,
       currentProgress: 0,
       points: 30,
@@ -116,7 +116,7 @@ export function WeeklyMissions() {
           {
             id: "mission-profile",
             title: "Complete seu perfil",
-            description: "Preencha todas as informações do seu perfil profissional",
+            description: "Ao completar o seu perfil os profissionais da plataforma conseguem te achar mais facilmente",
             requiredProgress: 1,
             currentProgress: 0,
             points: 50,
@@ -126,7 +126,7 @@ export function WeeklyMissions() {
           {
             id: "mission-connect",
             title: "Faça conexões",
-            description: "Conecte-se com 20 novos engenheiros na plataforma",
+            description: "A parceria começa na conexão anticrise. Faça a sua para mais profissionais te conhecerem",
             requiredProgress: 20,
             currentProgress: 0,
             points: 30,
@@ -136,7 +136,7 @@ export function WeeklyMissions() {
           {
             id: "mission-post",
             title: "Sua primeira publicação",
-            description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
+            description: "Faça a sua primeira publicação para os engenheiros(as) conhecerem seus serviços ou áreas de atuação",
             requiredProgress: 1,
             currentProgress: 0,
             points: 20,
@@ -146,7 +146,7 @@ export function WeeklyMissions() {
           {
             id: "mission-knowledge",
             title: "Compartilhe conhecimento",
-            description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
+            description: "Chegou a hora de mostrar o que você sabe e ajudar mais profissionais com o seu conhecimento. Compartilhe um artigo técnico de um serviço ou case de sucesso.",
             requiredProgress: 1,
             currentProgress: 0,
             points: 30,
