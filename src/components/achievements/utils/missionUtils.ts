@@ -1,4 +1,3 @@
-
 import { Mission } from "../types/mission";
 
 // Function to check if a previous mission in sequence was completed
@@ -97,6 +96,78 @@ export const updateConnectionMissionProgress = (userId: string): {
     missionCompleted: justCompleted 
   };
 };
+
+// Update publication mission progress
+export const updatePublicationMissionProgress = (userId: string): { 
+  currentProgress: number;
+  requiredProgress: number;
+  missionCompleted: boolean;
+} => {
+  const missionsKey = `user_missions_${userId}`;
+  const missionsData = localStorage.getItem(missionsKey);
+  
+  if (!missionsData) {
+    return { currentProgress: 0, requiredProgress: 1, missionCompleted: false };
+  }
+  
+  const missions = JSON.parse(missionsData);
+  const publicationMission = missions.find((m: Mission) => m.id === "mission-publication");
+  
+  if (!publicationMission) {
+    return { currentProgress: 0, requiredProgress: 1, missionCompleted: false };
+  }
+  
+  // Count publications
+  const publicationCount = getPublicationCount(userId);
+  const requiredProgress = publicationMission.requiredProgress;
+  const currentProgress = Math.min(publicationCount, requiredProgress);
+  const wasAlreadyCompleted = publicationMission.completed;
+  
+  // Check if mission was just completed
+  const justCompleted = !wasAlreadyCompleted && publicationCount >= requiredProgress;
+  
+  // Update mission status
+  if (publicationCount > publicationMission.currentProgress || justCompleted) {
+    const updatedMissions = missions.map((mission: Mission) => {
+      if (mission.id === "mission-publication") {
+        return {
+          ...mission,
+          currentProgress: currentProgress,
+          completed: publicationCount >= requiredProgress,
+          completedDate: justCompleted ? new Date().toISOString() : mission.completedDate
+        };
+      }
+      return mission;
+    });
+    
+    localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
+  }
+  
+  return { 
+    currentProgress, 
+    requiredProgress, 
+    missionCompleted: justCompleted 
+  };
+};
+
+// Helper function to count user publications (for direct access in utility functions)
+function getPublicationCount(userId: string): number {
+  try {
+    // Check user publications
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      return Array.isArray(parsedPublications) ? parsedPublications.length : 0;
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting publications:', error);
+    return 0;
+  }
+}
 
 // Helper function to count user connections (duplicated from useMissions for direct access)
 function getConnectionCount(userId: string): number {

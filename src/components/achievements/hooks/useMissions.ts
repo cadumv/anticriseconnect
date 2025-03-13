@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Mission } from "../types/mission";
 import { canAddKnowledgeMission, createNewKnowledgeMission, getDefaultMissions, isPreviousMissionCompleted } from "../utils/missionUtils";
@@ -47,6 +46,21 @@ export function useMissions(userId: string | undefined) {
           ...updatedMissions[connectionMissionIndex],
           currentProgress: Math.min(connectionCount, updatedMissions[connectionMissionIndex].requiredProgress),
           completed: connectionCount >= updatedMissions[connectionMissionIndex].requiredProgress
+        };
+      }
+      
+      // Check if user has made any publications
+      const publicationMissionIndex = updatedMissions.findIndex(m => m.id === "mission-publication");
+      if (publicationMissionIndex !== -1) {
+        const publicationCount = getPublicationCount(userId);
+        
+        updatedMissions[publicationMissionIndex] = {
+          ...updatedMissions[publicationMissionIndex],
+          currentProgress: Math.min(publicationCount, updatedMissions[publicationMissionIndex].requiredProgress),
+          completed: publicationCount >= updatedMissions[publicationMissionIndex].requiredProgress,
+          completedDate: publicationCount >= updatedMissions[publicationMissionIndex].requiredProgress ? 
+                          updatedMissions[publicationMissionIndex].completedDate || new Date().toISOString() : 
+                          undefined
         };
       }
       
@@ -124,6 +138,25 @@ function getConnectionCount(userId: string): number {
     return connectionCount;
   } catch (error) {
     console.error('Error counting connections:', error);
+    return 0;
+  }
+}
+
+// Helper function to count user publications
+function getPublicationCount(userId: string): number {
+  try {
+    // Check user publications
+    const publicationsKey = `user_publications_${userId}`;
+    const userPublications = localStorage.getItem(publicationsKey);
+    
+    if (userPublications) {
+      const parsedPublications = JSON.parse(userPublications);
+      return Array.isArray(parsedPublications) ? parsedPublications.length : 0;
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Error counting publications:', error);
     return 0;
   }
 }

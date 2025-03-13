@@ -4,7 +4,9 @@
  */
 
 import { Achievement } from "@/types/profile";
-import { unlockAchievement } from "./utils";
+import { unlockAchievement, shareAchievement } from "./utils";
+import { updatePublicationMissionProgress } from "@/components/achievements/utils/missionUtils";
+import { toast } from "@/hooks/use-toast";
 
 /**
  * Checks if the user has published their first article and awards an achievement if so
@@ -20,6 +22,18 @@ export function checkFirstPublicationAchievement(userId: string): Achievement | 
       
       // If user has at least one publication
       if (parsedPublications && parsedPublications.length > 0) {
+        // Update mission progress
+        const missionResult = updatePublicationMissionProgress(userId);
+        
+        // Show mission completed notification
+        if (missionResult.missionCompleted) {
+          toast({
+            title: "Missão Completa!",
+            description: "Você completou a missão 'Apresente seus serviços ou área de atuação' e ganhou 75 pontos!",
+            variant: "default",
+          });
+        }
+        
         const firstPublicationAchievement: Achievement = {
           id: "ach-4",
           title: "Primeiro Artigo",
