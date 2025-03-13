@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { trackReferralSignup } from "@/utils/referralUtils";
 
 interface SignupFormProps {
   referrerId: string;
@@ -42,42 +43,9 @@ export const SignupForm = ({ referrerId }: SignupFormProps) => {
         referrerId: referrerId || undefined
       });
       
-      // If we have a referrer ID, update their referral count
+      // Track the referral after successful signup
       if (referrerId) {
-        // Update referrer's referral count in localStorage for now
-        // In a real app, this would be stored in the database
-        const referralsKey = `user_referrals_${referrerId}`;
-        const existingReferrals = localStorage.getItem(referralsKey);
-        const referrals = existingReferrals ? JSON.parse(existingReferrals) : [];
-        
-        // Add this user as a referral
-        const newReferral = {
-          id: Date.now().toString(),
-          email: email,
-          date: new Date().toISOString()
-        };
-        
-        referrals.push(newReferral);
-        localStorage.setItem(referralsKey, JSON.stringify(referrals));
-        
-        // Update the referrer's mission progress
-        const missionsKey = `user_missions_${referrerId}`;
-        const savedMissions = localStorage.getItem(missionsKey);
-        
-        if (savedMissions) {
-          const parsedMissions = JSON.parse(savedMissions);
-          const updatedMissions = parsedMissions.map((mission: any) => {
-            if (mission.id === "mission-invite") {
-              return {
-                ...mission,
-                currentProgress: Math.min(referrals.length, mission.requiredProgress)
-              };
-            }
-            return mission;
-          });
-          
-          localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
-        }
+        trackReferralSignup(referrerId, email);
       }
     } catch (error) {
       console.error("Signup error:", error);
