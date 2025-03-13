@@ -51,7 +51,7 @@ export function WeeklyMissions() {
   };
   
   // Generate a new knowledge sharing mission
-  const createNewKnowledgeMission = (existingMissions: Mission[]) => {
+  const createNewKnowledgeMission = (existingMissions: Mission[]): Mission => {
     // Get the highest sequence number
     const maxSequence = Math.max(0, ...existingMissions.map(m => m.sequence || 0));
     
