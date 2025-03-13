@@ -41,23 +41,32 @@ export const PartnershipRequests = () => {
       setRequests(updatedRequests);
       
       // Create a notification for the accepted partnership
-      // This is where the error was occurring. Let's assume we're creating "user_notifications" instead
+      // This is where the error was occurring. Let's handle it differently
       const request = requests.find(r => r.id === requestId);
       if (request && user?.id) {
-        // First, check if the table exists and has the right structure
         try {
-          // Using the RPC approach instead of direct table insertion
-          await supabase.rpc('create_notification', {
-            p_user_id: user.id,
-            p_type: 'partnership_accepted',
-            p_title: 'Parceria aceita',
-            p_message: `Você aceitou a solicitação de parceria de ${request.name}`,
-            p_read: false
-          });
-        } catch (rpcError) {
-          console.error('Could not create notification using RPC:', rpcError);
-          // Fallback: log the action but don't try to insert in DB
-          console.log('Partnership accepted notification would be created for user', user.id);
+          // Store notifications in localStorage as a temporary solution
+          // In a production app, we would store this in a database table
+          const notificationId = `partnership_${Date.now()}`;
+          const newNotification = {
+            id: notificationId,
+            userId: user.id,
+            type: 'partnership_accepted',
+            title: 'Parceria aceita',
+            message: `Você aceitou a solicitação de parceria de ${request.name}`,
+            read: false,
+            date: new Date().toISOString()
+          };
+          
+          // Store in localStorage
+          const userNotifications = localStorage.getItem(`notifications_${user.id}`) || '[]';
+          const notifications = JSON.parse(userNotifications);
+          notifications.push(newNotification);
+          localStorage.setItem(`notifications_${user.id}`, JSON.stringify(notifications));
+          
+          console.log('Partnership accepted notification created:', newNotification);
+        } catch (notificationError) {
+          console.error('Could not create notification:', notificationError);
         }
       }
       
