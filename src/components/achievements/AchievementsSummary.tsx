@@ -2,6 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Trophy } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AchievementsSummaryProps {
   totalPoints: number;
@@ -41,7 +42,10 @@ export function AchievementsSummary({
               <span className="text-sm text-blue-800">Progresso para Nível {currentLevel + 1}</span>
               <span className="text-sm font-medium text-blue-800">{totalPoints % 500}/{500} pontos</span>
             </div>
-            <Progress value={progress} className="h-3 bg-blue-200" indicatorClassName="bg-blue-600" />
+            <Progress 
+              value={progress} 
+              className={cn("h-3 bg-blue-200", "before:bg-blue-600")}
+            />
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
               <div className="bg-white/80 p-3 rounded-lg border border-blue-100">
