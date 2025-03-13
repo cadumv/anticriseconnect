@@ -19,9 +19,19 @@ export function WeeklyMissions() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="text-center py-6">
-            <p className="text-muted-foreground">Nenhuma missão disponível no momento</p>
-          </div>
+          {missions.length > 0 ? (
+            missions.map(mission => (
+              <MissionItem 
+                key={mission.id}
+                mission={mission}
+                onClaimReward={handleClaimReward}
+              />
+            ))
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground">Nenhuma missão disponível no momento</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

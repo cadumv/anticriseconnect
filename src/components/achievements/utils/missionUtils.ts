@@ -1,5 +1,4 @@
 
-
 import { Mission } from "../types/mission";
 
 // Function to check if a previous mission in sequence was completed
@@ -46,8 +45,48 @@ export const createNewKnowledgeMission = (existingMissions: Mission[]): Mission 
   };
 };
 
-// Get default missions - now returns an empty array
+// Get default missions with our new missions
 export const getDefaultMissions = (): Mission[] => {
-  return [];
+  return [
+    {
+      id: "mission-profile",
+      title: "Complete seu perfil",
+      description: "Ao completar o seu perfil os profissionais da plataforma forneça-lhe achar mais facilmente",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 50,
+      type: 'weekly',
+      sequence: 1
+    },
+    {
+      id: "mission-connections",
+      title: "Faça 20 novas conexões",
+      description: "A parceria começa na conexão anticrise. Faça a sua primeira publicação para mais profissionais que você conheça",
+      requiredProgress: 20,
+      currentProgress: 0,
+      points: 100,
+      type: 'weekly',
+      sequence: 2
+    },
+    {
+      id: "mission-publication",
+      title: "Faça sua primeira publicação",
+      description: "Faça a sua primeira publicação para os engenheiros(as) conheçam seus serviços ou áreas de atuação",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 75,
+      type: 'weekly',
+      sequence: 3
+    },
+    {
+      id: "mission-knowledge",
+      title: "Compartilhe seu conhecimento",
+      description: "Chegou a hora de mostrar o que você sabe e ajudar mais profissionais com o seu conhecimento. Compartilhe um artigo técnico de um serviço ou caso de sucesso.",
+      requiredProgress: 1,
+      currentProgress: 0,
+      points: 125,
+      type: 'weekly',
+      sequence: 4
+    }
+  ];
 };
-
