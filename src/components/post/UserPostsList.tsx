@@ -73,7 +73,7 @@ export function UserPostsList({
   return (
     <>
       {posts.length > 0 && posts.map((post) => (
-        <div key={post.id} className="mb-6 pb-6 border-b last:border-0">
+        <div key={post.id} className="mb-4 rounded-lg overflow-hidden shadow-sm">
           {post.type === 'achievement' ? (
             <AchievementCard 
               post={post as AchievementPost} 

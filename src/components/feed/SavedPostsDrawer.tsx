@@ -65,21 +65,23 @@ export function SavedPostsDrawer({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[80vh] overflow-y-auto">
         <DrawerHeader className="text-left">
-          <DrawerTitle>Publicações Salvas</DrawerTitle>
+          <DrawerTitle className="text-xl font-bold">Publicações Salvas</DrawerTitle>
         </DrawerHeader>
         <div className="px-4 pb-4">
           {isLoading ? (
             <DrawerLoader />
           ) : displaySavedPosts.length > 0 ? (
-            <UserPostsList 
-              posts={displaySavedPosts}
-              userName={displayUserName}
-              liked={displayLiked}
-              saved={displaySaved}
-              onLike={propsOnLike || handleLike}
-              onSave={propsOnSave || handleSave}
-              onShare={propsOnShare || handleShare}
-            />
+            <div className="space-y-4 py-2">
+              <UserPostsList 
+                posts={displaySavedPosts}
+                userName={displayUserName}
+                liked={displayLiked}
+                saved={displaySaved}
+                onLike={propsOnLike || handleLike}
+                onSave={propsOnSave || handleSave}
+                onShare={propsOnShare || handleShare}
+              />
+            </div>
           ) : (
             <EmptyPostsState />
           )}
