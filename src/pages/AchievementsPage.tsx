@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DEMO_ACHIEVEMENTS } from "@/types/profile";
 import { AchievementsSummary } from "@/components/achievements/AchievementsSummary";
@@ -13,6 +12,12 @@ import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 
+/**
+ * @restricted
+ * IMPORTANTE: A formatação e estrutura desta página de conquistas está travada.
+ * Não modifique a estrutura, layout ou componentes sem autorização específica.
+ * Qualquer alteração só deve ser feita mediante comando direto autorizado.
+ */
 const AchievementsPage = () => {
   // Safely access useAuth
   const { user } = useAuth();
@@ -123,6 +128,12 @@ const AchievementsPage = () => {
   
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {/* 
+        * @restricted
+        * Componentes abaixo fazem parte do layout travado da página
+        * Não modifique a estrutura ou ordem sem autorização específica
+      */}
+      
       {/* Summary Card */}
       <AchievementsSummary 
         totalPoints={totalPoints} 

@@ -1,9 +1,13 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Achievement } from "@/types/profile";
 import { Trophy, Medal, Star, FileText, User, MessageCircle, HandshakeIcon, Gem } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte da página de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 interface AchievementsListProps {
   achievements: Achievement[];
 }

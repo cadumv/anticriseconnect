@@ -5,6 +5,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { MissionItem } from "./MissionItem";
 import { useMissions } from "./hooks/useMissions";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte da página de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 export function WeeklyMissions() {
   const { user } = useAuth();
   const { missions, handleClaimReward } = useMissions(user?.id);

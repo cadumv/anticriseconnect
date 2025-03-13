@@ -1,9 +1,13 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, FileText, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte do sistema de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 interface Achievement {
   id: string;
   title: string;

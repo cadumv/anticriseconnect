@@ -1,10 +1,14 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte da página de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 export function MonthlyRanking() {
   const { user } = useAuth();
   

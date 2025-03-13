@@ -4,6 +4,11 @@ import { Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { DEMO_ACHIEVEMENTS } from "@/types/profile";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte da página de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 interface AchievementsSummaryProps {
   totalPoints: number;
   completedCount: number;

@@ -5,6 +5,11 @@ import { Progress } from "@/components/ui/progress";
 import { Mission } from "./types/mission";
 import { CheckCircle2 } from "lucide-react";
 
+/**
+ * @restricted
+ * IMPORTANTE: Este componente faz parte da página de conquistas com formatação travada.
+ * Não modifique a estrutura, layout ou estilo sem autorização específica.
+ */
 interface MissionItemProps {
   mission: Mission;
   onClaimReward: (missionId: string) => void;
