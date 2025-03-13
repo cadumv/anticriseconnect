@@ -14,7 +14,7 @@ type Mission = {
   currentProgress: number;
   points: number;
   type: 'daily' | 'weekly';
-  claimed?: boolean; // Add the claimed property to the type
+  claimed?: boolean;
 };
 
 export function WeeklyMissions() {
@@ -39,10 +39,10 @@ export function WeeklyMissions() {
         // If no missions exist yet, create default missions
         const defaultMissions: Mission[] = [
           {
-            id: "mission-invite",
-            title: "Convide engenheiros",
-            description: "Convide 10 novos engenheiros para a plataforma",
-            requiredProgress: 10,
+            id: "mission-profile",
+            title: "Complete seu perfil",
+            description: "Preencha todas as informações do seu perfil profissional",
+            requiredProgress: 1,
             currentProgress: 0,
             points: 50,
             type: 'weekly'
@@ -50,19 +50,28 @@ export function WeeklyMissions() {
           {
             id: "mission-connect",
             title: "Faça conexões",
-            description: "Conecte-se com 5 novos engenheiros",
-            requiredProgress: 5,
+            description: "Conecte-se com 20 novos engenheiros na plataforma",
+            requiredProgress: 20,
             currentProgress: 0,
             points: 30,
             type: 'weekly'
           },
           {
             id: "mission-post",
-            title: "Compartilhe conhecimento",
-            description: "Publique um artigo técnico",
+            title: "Sua primeira publicação",
+            description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
             requiredProgress: 1,
             currentProgress: 0,
             points: 20,
+            type: 'weekly'
+          },
+          {
+            id: "mission-knowledge",
+            title: "Compartilhe conhecimento",
+            description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
+            requiredProgress: 1,
+            currentProgress: 0,
+            points: 30,
             type: 'weekly'
           }
         ];
