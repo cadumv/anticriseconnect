@@ -65,8 +65,8 @@ export function AchievementsList({ achievements }: AchievementsListProps) {
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-muted-foreground">Nenhuma conquista obtida ainda</p>
-            <p className="text-sm text-muted-foreground mt-1">Complete missões para desbloquear conquistas</p>
+            <p className="text-muted-foreground">Seja bem-vindo(a) à sua jornada de conquistas!</p>
+            <p className="text-sm text-muted-foreground mt-1">Complete as missões abaixo para desbloquear suas primeiras conquistas</p>
           </div>
         )}
       </CardContent>

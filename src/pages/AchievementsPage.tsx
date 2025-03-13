@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { DEMO_ACHIEVEMENTS } from "@/types/profile";
 import { AchievementsSummary } from "@/components/achievements/AchievementsSummary";
 import { AchievementsList } from "@/components/achievements/AchievementsList";
 import { WeeklyMissions } from "@/components/achievements/WeeklyMissions";
-import { MonthlyRanking } from "@/components/achievements/MonthlyRanking";
 import { AchievementsDialog } from "@/components/AchievementsDialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -144,9 +142,6 @@ const AchievementsPage = () => {
       
       {/* Weekly Missions */}
       <WeeklyMissions />
-      
-      {/* Monthly Ranking */}
-      <MonthlyRanking />
       
       {/* Achievements Dialog */}
       <AchievementsDialog 
