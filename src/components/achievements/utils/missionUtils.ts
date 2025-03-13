@@ -45,78 +45,8 @@ export const createNewKnowledgeMission = (existingMissions: Mission[]): Mission 
   };
 };
 
-// Get default missions
+// Get default missions - now returns an empty array
 export const getDefaultMissions = (): Mission[] => {
-  return [
-    {
-      id: "mission-profile",
-      title: "Complete seu perfil",
-      description: "Ao completar o seu perfil os profissionais da plataforma conseguem te achar mais facilmente",
-      requiredProgress: 1,
-      currentProgress: 0,
-      points: 50,
-      type: 'weekly',
-      sequence: 1
-    },
-    {
-      id: "mission-connect",
-      title: "Crie sua Rede",
-      description: "Faça 3 novas conexões com engenheiros na plataforma",
-      requiredProgress: 3,
-      currentProgress: 0,
-      points: 30,
-      type: 'weekly',
-      sequence: 2
-    },
-    {
-      id: "mission-message",
-      title: "Inicie Conversas",
-      description: "Envie uma mensagem para 3 novas conexões",
-      requiredProgress: 3,
-      currentProgress: 0,
-      points: 20,
-      type: 'weekly',
-      sequence: 3
-    },
-    {
-      id: "mission-post",
-      title: "Apresente seu Trabalho",
-      description: "Faça sua primeira publicação apresentando um serviço ou área de atuação",
-      requiredProgress: 1,
-      currentProgress: 0,
-      points: 30,
-      type: 'weekly',
-      sequence: 4
-    },
-    {
-      id: "mission-knowledge",
-      title: "Compartilhe seu Conhecimento",
-      description: "Publique um artigo técnico para colaborar com outros engenheiros",
-      requiredProgress: 1,
-      currentProgress: 0,
-      points: 25,
-      type: 'weekly',
-      sequence: 5
-    },
-    {
-      id: "mission-invite",
-      title: "Convide Engenheiros",
-      description: "Indique 10 novos usuários para se cadastrarem na plataforma",
-      requiredProgress: 10,
-      currentProgress: 0,
-      points: 40,
-      type: 'weekly',
-      sequence: 6
-    },
-    {
-      id: "mission-article",
-      title: "Compartilhe conhecimento",
-      description: "Compartilhe seu conhecimento publicando um artigo/informação técnica referente a um assunto de engenharia",
-      requiredProgress: 1,
-      currentProgress: 0,
-      points: 30,
-      type: 'weekly',
-      sequence: 7
-    }
-  ];
+  return [];
 };
+
