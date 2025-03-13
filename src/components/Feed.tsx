@@ -7,6 +7,9 @@ import { toast } from "@/hooks/use-toast";
 import { UserPostsList } from "./post/UserPostsList";
 import { DefaultPostsList } from "./post/DefaultPostsList";
 import { supabase } from "@/integrations/supabase/client";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { Bookmark } from "lucide-react";
 
 interface Post {
   id: string;
@@ -27,6 +30,7 @@ interface Post {
   likes?: number;
   saves?: number;
   shares?: number;
+  user_id?: string;
 }
 
 export const Feed = () => {
@@ -34,7 +38,9 @@ export const Feed = () => {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState<Record<string, boolean>>({});
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSavedDrawer, setShowSavedDrawer] = useState(false);
   
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -57,6 +63,7 @@ export const Feed = () => {
         likes: post.likes,
         saves: post.saves,
         shares: post.shares,
+        user_id: post.user_id,
         author: "Usuário", // Default, we'll fetch this from profiles in a more complete implementation
         date: new Date(post.created_at).toLocaleDateString('pt-BR')
       }));
@@ -72,6 +79,20 @@ export const Feed = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const fetchSavedPosts = () => {
+    if (!user) return;
+    
+    const savedPostsKey = `user_saved_posts_${user.id}`;
+    const savedPostsIds = localStorage.getItem(savedPostsKey);
+    
+    if (!savedPostsIds) return;
+    
+    const parsedSavedPostsIds = JSON.parse(savedPostsIds);
+    const savedPostsList = userPosts.filter(post => parsedSavedPostsIds[post.id]);
+    
+    setSavedPosts(savedPostsList);
   };
   
   useEffect(() => {
@@ -104,6 +125,11 @@ export const Feed = () => {
       };
     }
   }, [user]);
+  
+  // Update saved posts when saved state changes
+  useEffect(() => {
+    fetchSavedPosts();
+  }, [saved, userPosts]);
   
   const handleLike = async (postId: string) => {
     if (!user) return;
@@ -186,6 +212,9 @@ export const Feed = () => {
           ? "O artigo foi removido dos seus salvos" 
           : "O artigo foi salvo e você pode acessá-lo depois",
       });
+      
+      // Update the saved posts list
+      fetchSavedPosts();
     } catch (error) {
       console.error("Error updating saves:", error);
       toast({
@@ -223,9 +252,18 @@ export const Feed = () => {
       
       setUserPosts(updatedPosts);
       
+      // Get list of followed connections
+      const followingData = localStorage.getItem(`following_${user.id}`);
+      let engineersList = "engenheiros da sua rede";
+      
+      if (followingData) {
+        const followingCount = JSON.parse(followingData).length;
+        engineersList = `${followingCount} engenheiro${followingCount !== 1 ? 's' : ''} da sua rede`;
+      }
+      
       toast({
-        title: "Compartilhado",
-        description: "O artigo foi compartilhado com sucesso",
+        title: "Publicação compartilhada",
+        description: `Compartilhado com ${engineersList}`,
       });
     } catch (error) {
       console.error("Error updating shares:", error);
@@ -238,37 +276,75 @@ export const Feed = () => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl">Feed de publicações</CardTitle>
-        {user && <NewPostDialog onPostCreated={fetchPosts} />}
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-10">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          </div>
-        ) : (
-          <>
-            <UserPostsList 
-              posts={userPosts}
-              userName={user?.user_metadata?.name || "Usuário"}
-              liked={liked}
-              saved={saved}
-              onLike={handleLike}
-              onSave={handleSave}
-              onShare={handleShare}
-            />
-            
-            {userPosts.length === 0 && (
-              <DefaultPostsList 
-                posts={[]} 
-                isLoggedIn={!!user}
-              />
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-xl">Feed de publicações</CardTitle>
+          <div className="flex items-center gap-2">
+            {user && savedPosts.length > 0 && (
+              <DrawerTrigger asChild onClick={() => setShowSavedDrawer(true)}>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Bookmark size={16} />
+                  <span>Salvos ({savedPosts.length})</span>
+                </Button>
+              </DrawerTrigger>
             )}
-          </>
-        )}
-      </CardContent>
-    </Card>
+            {user && <NewPostDialog onPostCreated={fetchPosts} />}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          ) : (
+            <>
+              <UserPostsList 
+                posts={userPosts}
+                userName={user?.user_metadata?.name || "Usuário"}
+                liked={liked}
+                saved={saved}
+                onLike={handleLike}
+                onSave={handleSave}
+                onShare={handleShare}
+              />
+              
+              {userPosts.length === 0 && (
+                <DefaultPostsList 
+                  posts={[]} 
+                  isLoggedIn={!!user}
+                />
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Saved Posts Drawer */}
+      <Drawer open={showSavedDrawer} onOpenChange={setShowSavedDrawer}>
+        <DrawerContent className="max-h-[80vh] overflow-y-auto">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Publicações Salvas</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4">
+            {savedPosts.length > 0 ? (
+              <UserPostsList 
+                posts={savedPosts}
+                userName={user?.user_metadata?.name || "Usuário"}
+                liked={liked}
+                saved={saved}
+                onLike={handleLike}
+                onSave={handleSave}
+                onShare={handleShare}
+              />
+            ) : (
+              <div className="py-8 text-center">
+                <p className="text-gray-500">Você ainda não salvou nenhuma publicação.</p>
+              </div>
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </>
   );
 };
