@@ -32,7 +32,7 @@ export const usePostInteractions = (
       const { error } = await supabase
         .from('posts')
         .update({ likes: newLikesCount })
-        .match({ id: postId });
+        .eq('id', postId);
       
       if (error) throw error;
     } catch (error) {
@@ -52,7 +52,7 @@ export const usePostInteractions = (
     setSaved(newSaved);
     localStorage.setItem(`user_saved_posts_${user.id}`, JSON.stringify(newSaved));
     
-    // Update post saves in Supabase
+    // Find the post in the posts array
     const post = posts.find(p => p.id === postId);
     if (!post) return;
     
@@ -64,7 +64,7 @@ export const usePostInteractions = (
       const { error } = await supabase
         .from('posts')
         .update({ saves: newSavesCount })
-        .match({ id: postId });
+        .eq('id', postId);
       
       if (error) throw error;
       
@@ -73,6 +73,7 @@ export const usePostInteractions = (
         description: saved[postId] 
           ? "O artigo foi removido dos seus salvos" 
           : "O artigo foi salvo e você pode acessá-lo depois",
+        variant: "default",
       });
       
       // Update the saved posts list
@@ -87,7 +88,7 @@ export const usePostInteractions = (
     }
   };
   
-  const handleShare = async (postId: string, posts: Post[]) => {
+  const handleShare = async (postId: string) => {
     // This will be handled in the ShareDialog component
     return postId;
   };
@@ -105,7 +106,7 @@ export const usePostInteractions = (
       const { error } = await supabase
         .from('posts')
         .update({ shares: newSharesCount })
-        .match({ id: postId });
+        .eq('id', postId);
       
       if (error) throw error;
     } catch (error) {

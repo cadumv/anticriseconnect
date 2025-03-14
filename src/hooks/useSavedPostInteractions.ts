@@ -43,7 +43,7 @@ export function useSavedPostInteractions(
       const { error } = await supabase
         .from('posts')
         .update({ likes: newLikesCount })
-        .match({ id: postId });
+        .eq('id', postId);
       
       if (error) throw error;
       
@@ -77,36 +77,34 @@ export function useSavedPostInteractions(
     setSaved(newSaved);
     localStorage.setItem(`user_saved_posts_${user.id}`, JSON.stringify(newSaved));
     
-    // Update post saves in Supabase
-    const post = savedPosts.find(p => p.id === postId);
-    if (!post) return;
-    
-    const newSavesCount = saved[postId] 
-      ? Math.max(0, (post.saves || 0) - 1) 
-      : (post.saves || 0) + 1;
-    
     try {
-      const { error } = await supabase
-        .from('posts')
-        .update({ saves: newSavesCount })
-        .match({ id: postId });
+      // Find the post in savedPosts or in another source
+      const post = savedPosts.find(p => p.id === postId);
       
-      if (error) throw error;
-      
-      // Update local state and remove from saved posts if unsaved
-      if (saved[postId]) {
-        // Remove the post from the displayed list if it was unsaved
-        // This is handled in the component since we can't modify state here
-      } else {
-        // Updated save count is handled in the component
+      if (post) {
+        const newSavesCount = saved[postId] 
+          ? Math.max(0, (post.saves || 0) - 1) 
+          : (post.saves || 0) + 1;
+        
+        const { error } = await supabase
+          .from('posts')
+          .update({ saves: newSavesCount })
+          .eq('id', postId);
+        
+        if (error) throw error;
       }
       
+      // Show a success toast
       toast({
         title: saved[postId] ? "Artigo removido" : "Artigo salvo",
         description: saved[postId] 
           ? "O artigo foi removido dos seus salvos" 
           : "O artigo foi salvo e você pode acessá-lo depois",
       });
+      
+      // Update savedPosts list
+      fetchSavedPosts();
+      
     } catch (error) {
       console.error("Error updating saves:", error);
       toast({
@@ -114,6 +112,12 @@ export function useSavedPostInteractions(
         description: "Não foi possível salvar esta publicação. Tente novamente.",
         variant: "destructive",
       });
+      
+      // Revert the local change in case of error
+      setSaved(saved);
+      if (user) {
+        localStorage.setItem(`user_saved_posts_${user.id}`, JSON.stringify(saved));
+      }
     }
   };
   

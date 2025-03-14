@@ -55,7 +55,11 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
   
   return (
     <div className="rounded-md border bg-white shadow-sm">
-      <PostCardHeader post={post} />
+      <PostCardHeader 
+        post={post} 
+        saved={saved}
+        onSave={onSave}
+      />
       <PostCardContent post={post} />
       <PostCardMedia 
         imageUrl={post.imageUrl} 

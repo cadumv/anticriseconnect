@@ -8,15 +8,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface PostCardHeaderProps {
   post: {
+    id?: string;
     author?: string;
     timestamp: string;
     company?: string;
     user_id?: string;
     date?: string;
   };
+  saved?: Record<string, boolean>;
+  onSave?: (postId: string) => void;
 }
 
-export function PostCardHeader({ post }: PostCardHeaderProps) {
+export function PostCardHeader({ post, saved, onSave }: PostCardHeaderProps) {
   const [userProfile, setUserProfile] = useState<{name?: string, avatar_url?: string, username?: string} | null>(null);
   
   const formattedDate = post.date || new Date(post.timestamp).toLocaleDateString('pt-BR', { 
@@ -45,6 +48,12 @@ export function PostCardHeader({ post }: PostCardHeaderProps) {
     fetchUserProfile();
   }, [post.user_id]);
   
+  const handleSaveFromMenu = () => {
+    if (onSave && post.id) {
+      onSave(post.id);
+    }
+  };
+
   return (
     <div className="p-4 pb-0">
       <div className="flex items-start justify-between">
@@ -74,8 +83,13 @@ export function PostCardHeader({ post }: PostCardHeaderProps) {
             </PopoverTrigger>
             <PopoverContent className="w-56 p-0" align="end">
               <div className="flex flex-col">
-                <Button variant="ghost" size="sm" className="justify-start rounded-none">
-                  Salvar publicação
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="justify-start rounded-none"
+                  onClick={handleSaveFromMenu}
+                >
+                  {saved && post.id && saved[post.id] ? "Remover dos salvos" : "Salvar publicação"}
                 </Button>
                 <Button variant="ghost" size="sm" className="justify-start rounded-none">
                   Denunciar

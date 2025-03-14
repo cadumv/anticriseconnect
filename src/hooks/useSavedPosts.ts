@@ -27,10 +27,18 @@ export function useSavedPosts(
     
     if (propsLiked) {
       setLiked(propsLiked);
+    } else if (user) {
+      const likedKey = `user_liked_posts_${user.id}`;
+      const storedLiked = localStorage.getItem(likedKey);
+      if (storedLiked) setLiked(JSON.parse(storedLiked));
     }
     
     if (propsSaved) {
       setSaved(propsSaved);
+    } else if (user) {
+      const savedKey = `user_saved_posts_${user.id}`;
+      const storedSaved = localStorage.getItem(savedKey);
+      if (storedSaved) setSaved(JSON.parse(storedSaved));
     }
   }, [open, user, propsSavedPosts, propsLiked, propsSaved]);
   
@@ -64,13 +72,12 @@ export function useSavedPosts(
       const { data, error } = await supabase
         .from('posts')
         .select('*')
-        .in('id', savedPostIdsArray)
-        .order('created_at', { ascending: false });
+        .in('id', savedPostIdsArray);
       
       if (error) throw error;
       
       // Transform posts to match our format
-      const transformedPosts = data.map(post => ({
+      const transformedPosts: Post[] = data.map(post => ({
         id: post.id,
         content: post.content,
         timestamp: post.created_at,
@@ -84,15 +91,6 @@ export function useSavedPosts(
       }));
       
       setSavedPosts(transformedPosts);
-      
-      // Set liked and saved states
-      const likedKey = `user_liked_posts_${user.id}`;
-      const savedKey = `user_saved_posts_${user.id}`;
-      const storedLiked = localStorage.getItem(likedKey);
-      const storedSaved = localStorage.getItem(savedKey);
-      
-      if (storedLiked) setLiked(JSON.parse(storedLiked));
-      if (storedSaved) setSaved(JSON.parse(storedSaved));
     } catch (error) {
       console.error("Error fetching saved posts:", error);
       toast({
