@@ -13,7 +13,7 @@ export function PostCardMedia({ imageUrl, title, compact = false }: PostCardMedi
   
   return (
     <div className="mb-3">
-      <AspectRatio ratio={compact ? 2/1 : 16/9}>
+      <AspectRatio ratio={compact ? 2.5/1 : 16/9}>
         <img 
           src={imageUrl} 
           alt={title || "Imagem da publicação"} 

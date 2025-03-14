@@ -1,8 +1,7 @@
 
 import React from "react";
-import { ThumbsUp, Bookmark, Share2, MessageSquare } from "lucide-react";
+import { Heart, Bookmark, Share2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface PostCardActionsProps {
   postId: string;
@@ -15,87 +14,82 @@ interface PostCardActionsProps {
   onSave: (postId: string) => void;
   onShare: (postId: string) => void;
   onComment: () => void;
+  compact?: boolean;
 }
 
-export function PostCardActions({ 
-  postId, 
-  likes = 0, 
-  shares = 0, 
-  comments = 0, 
-  liked, 
+export function PostCardActions({
+  postId,
+  likes = 0,
+  shares = 0,
+  comments = 0,
+  liked,
   saved,
   onLike,
   onSave,
   onShare,
-  onComment
+  onComment,
+  compact = false
 }: PostCardActionsProps) {
+  const isLiked = liked[postId] || false;
+  const isSaved = saved[postId] || false;
+  
+  const buttonClasses = compact 
+    ? "h-8 gap-1 px-2 text-xs"
+    : "h-9 gap-2 px-3";
+    
+  const iconSize = compact ? 14 : 18;
+  
   return (
-    <>
-      <div className="px-4 pt-1 pb-1 flex justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-1">
-          <div className="flex -space-x-1">
-            <div className="h-4 w-4 rounded-full bg-blue-500 flex items-center justify-center">
-              <ThumbsUp className="h-2 w-2 text-white" />
-            </div>
-          </div>
-          <span>{likes}</span>
-        </div>
+    <div className={`flex items-center justify-between px-4 py-1 ${compact ? 'text-xs' : 'text-sm'}`}>
+      <div className="flex items-center gap-1">
+        <Button
+          onClick={() => onLike(postId)} 
+          variant="ghost"
+          size="sm"
+          className={buttonClasses}
+        >
+          <Heart 
+            size={iconSize}
+            fill={isLiked ? "currentColor" : "none"} 
+            className={isLiked ? "text-red-500" : "text-gray-500"} 
+          />
+          <span>{likes > 0 ? likes : ''}</span>
+        </Button>
         
-        <div className="flex gap-3">
-          <span>{shares} compartilhamentos</span>
-          <span>{comments} comentários</span>
-        </div>
+        <Button
+          onClick={onComment}
+          variant="ghost"
+          size="sm"
+          className={buttonClasses}
+        >
+          <MessageSquare size={iconSize} className="text-gray-500" />
+          <span>{comments > 0 ? comments : ''}</span>
+        </Button>
+        
+        <Button
+          onClick={() => onShare(postId)}
+          variant="ghost"
+          size="sm"
+          className={buttonClasses}
+        >
+          <Share2 size={iconSize} className="text-gray-500" />
+          <span>{shares > 0 ? shares : ''}</span>
+        </Button>
       </div>
       
-      <div className="border-t">
-        <div className="grid grid-cols-4 px-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "flex items-center justify-center gap-2 rounded-md py-2",
-              liked[postId] ? "text-blue-600" : "text-gray-600"
-            )}
-            onClick={() => onLike(postId)}
-          >
-            <ThumbsUp size={18} />
-            <span className="font-medium">Gostei</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center justify-center gap-2 rounded-md py-2 text-gray-600"
-            onClick={onComment}
-          >
-            <MessageSquare size={18} />
-            <span className="font-medium">Comentar</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center justify-center gap-2 rounded-md py-2 text-gray-600"
-            onClick={() => onShare(postId)}
-          >
-            <Share2 size={18} />
-            <span className="font-medium">Compartilhar</span>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "flex items-center justify-center gap-2 rounded-md py-2",
-              saved[postId] ? "text-blue-600" : "text-gray-600"
-            )}
-            onClick={() => onSave(postId)}
-          >
-            <Bookmark size={18} />
-            <span className="font-medium">Salvar</span>
-          </Button>
-        </div>
-      </div>
-    </>
+      <Button
+        onClick={() => onSave(postId)}
+        variant="ghost"
+        size="sm"
+        className={buttonClasses}
+      >
+        <Bookmark 
+          size={iconSize}
+          fill={isSaved ? "currentColor" : "none"} 
+          className={isSaved ? "text-blue-500" : "text-gray-500"} 
+        />
+        {!compact && <span>{isSaved ? "Salvo" : "Salvar"}</span>}
+      </Button>
+    </div>
   );
 }

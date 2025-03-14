@@ -12,6 +12,7 @@ interface UserPostsListProps {
   onLike: (postId: string) => void;
   onSave: (postId: string) => void;
   onShare: (postId: string) => void;
+  compact?: boolean;
 }
 
 export function UserPostsList({ 
@@ -21,7 +22,8 @@ export function UserPostsList({
   saved, 
   onLike, 
   onSave, 
-  onShare 
+  onShare,
+  compact = false
 }: UserPostsListProps) {
   return (
     <>
@@ -41,7 +43,7 @@ export function UserPostsList({
                 onLike={onLike} 
                 onSave={onSave} 
                 onShare={onShare}
-                compact={true}
+                compact={compact}
               />
             </div>
           )}

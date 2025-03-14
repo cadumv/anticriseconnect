@@ -80,6 +80,7 @@ export function SavedPostsDrawer({
                 onLike={propsOnLike || handleLike}
                 onSave={propsOnSave || handleSave}
                 onShare={propsOnShare || handleShare}
+                compact={true}
               />
             </div>
           ) : (

@@ -54,20 +54,29 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
   };
   
   return (
-    <div className="rounded-md border bg-white shadow-sm">
+    <div className={`rounded-md border bg-white shadow-sm ${compact ? 'text-sm' : ''}`}>
       <PostCardHeader 
         post={post} 
         saved={saved}
         onSave={onSave}
+        compact={compact}
       />
-      <PostCardContent post={post} />
+      
+      {!compact && <PostCardContent post={post} />}
+      
       <PostCardMedia 
         imageUrl={post.imageUrl} 
         title={post.title} 
         compact={compact}
       />
       
-      {post.type === 'technical_article' && (
+      {compact && post.content && (
+        <div className="px-4 py-2">
+          <p className="text-gray-800 line-clamp-2">{post.content}</p>
+        </div>
+      )}
+      
+      {post.type === 'technical_article' && !compact && (
         <div className="px-4 mb-2">
           <ArticleDetailSheet 
             post={post} 
@@ -91,9 +100,10 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
         onSave={onSave}
         onShare={onShare}
         onComment={loadComments}
+        compact={compact}
       />
       
-      {showComments && (
+      {showComments && !compact && (
         <CommentSection 
           comments={comments} 
           isLoading={isLoadingComments}
