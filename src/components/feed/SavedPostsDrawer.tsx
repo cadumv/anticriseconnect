@@ -64,14 +64,14 @@ export function SavedPostsDrawer({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[80vh] overflow-y-auto">
-        <DrawerHeader className="text-left">
+        <DrawerHeader className="text-left pb-1">
           <DrawerTitle className="text-xl font-bold">Publicações Salvas</DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 pb-4">
+        <div className="px-3 pb-4">
           {isLoading ? (
             <DrawerLoader />
           ) : displaySavedPosts.length > 0 ? (
-            <div className="space-y-4 py-2">
+            <div className="space-y-2 py-1">
               <UserPostsList 
                 posts={displaySavedPosts}
                 userName={displayUserName}

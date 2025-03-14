@@ -53,6 +53,11 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
     }
   };
   
+  // Create a shortened content preview for compact mode
+  const contentPreview = post.content && post.content.length > 80 
+    ? post.content.substring(0, 80) + '...' 
+    : post.content;
+  
   return (
     <div className={`rounded-md border bg-white shadow-sm ${compact ? 'text-sm' : ''}`}>
       <PostCardHeader 
@@ -71,8 +76,8 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
       />
       
       {compact && post.content && (
-        <div className="px-4 py-2">
-          <p className="text-gray-800 line-clamp-2">{post.content}</p>
+        <div className="px-3 py-1">
+          <p className="text-gray-800 text-xs line-clamp-2">{contentPreview}</p>
         </div>
       )}
       
