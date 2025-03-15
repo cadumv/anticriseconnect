@@ -66,7 +66,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
         </div>
       )}
       
-      {post.type === 'technical_article' && (
+      {post.type !== 'achievement' && (
         <Button 
           variant="outline" 
           size="sm" 
@@ -74,7 +74,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
           onClick={() => setShowArticleDialog(true)}
         >
           <BookOpen size={16} />
-          Ler artigo completo
+          {post.type === 'technical_article' ? 'Ler artigo completo' : 'Ver publicação completa'}
         </Button>
       )}
       
@@ -90,7 +90,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
       <Dialog open={showArticleDialog} onOpenChange={setShowArticleDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">{post.title}</DialogTitle>
+            <DialogTitle className="text-xl">{post.title || "Publicação completa"}</DialogTitle>
           </DialogHeader>
           <ArticleFullContent post={post} />
         </DialogContent>

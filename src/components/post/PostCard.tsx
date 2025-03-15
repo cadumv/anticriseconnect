@@ -34,7 +34,7 @@ export function PostCard({ post, liked, onLike, onShare, compact = false }: Post
       setShowComments(true);
       
       // In a real implementation, you would fetch comments from the database here
-      // For now, we're just setting an empty array
+      // For now, we're just setting an empty array since we want real comments only
       setComments([]);
       setIsLoadingComments(false);
     } catch (error) {

@@ -13,6 +13,7 @@ interface ArticleFullContentProps {
     conclusions?: string;
     imageUrl?: string;
     timestamp?: string;
+    type?: 'post' | 'service' | 'technical_article' | 'achievement';
   };
 }
 
@@ -102,7 +103,9 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
       )}
       
       <div>
-        <h3 className="font-medium mb-2 text-lg">Conteúdo Principal</h3>
+        <h3 className="font-medium mb-2 text-lg">
+          {post.type === 'technical_article' ? 'Conteúdo Principal' : 'Conteúdo Completo'}
+        </h3>
         <div 
           className="article-content space-y-4" 
           dangerouslySetInnerHTML={{ 
