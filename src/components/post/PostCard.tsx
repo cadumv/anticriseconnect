@@ -23,29 +23,20 @@ export function PostCard({ post, liked, onLike, onShare, compact = false }: Post
   const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const loadComments = async () => {
-    if (showComments) return; // Already open
+    if (showComments) {
+      // If comments are already shown, just hide them
+      setShowComments(false);
+      return;
+    }
     
     try {
       setIsLoadingComments(true);
       setShowComments(true);
       
-      setTimeout(() => {
-        setComments([
-          {
-            id: '1',
-            text: 'Conteúdo muito interessante!',
-            author: 'Maria Silva',
-            timestamp: new Date().toISOString()
-          },
-          {
-            id: '2',
-            text: 'Obrigado por compartilhar esse conhecimento.',
-            author: 'João Costa',
-            timestamp: new Date(Date.now() - 3600000).toISOString()
-          }
-        ]);
-        setIsLoadingComments(false);
-      }, 1000);
+      // In a real implementation, you would fetch comments from the database here
+      // For now, we're just setting an empty array
+      setComments([]);
+      setIsLoadingComments(false);
     } catch (error) {
       console.error("Error loading comments:", error);
       setIsLoadingComments(false);
