@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArticleFullContent } from "./ArticleFullContent";
 import { Post } from "@/types/post";
 
@@ -43,6 +43,10 @@ export function PostCardContent({ post }: PostCardContentProps) {
               post.type === 'technical_article' ? 'Artigo Técnico' : ''}
           </Badge>
         </div>
+      )}
+      
+      {post.title && (
+        <h3 className="font-medium text-lg mb-2">{post.title}</h3>
       )}
       
       <div className="whitespace-pre-line text-gray-800">
@@ -91,6 +95,9 @@ export function PostCardContent({ post }: PostCardContentProps) {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">{post.title || "Publicação completa"}</DialogTitle>
+            <DialogDescription>
+              Visualize todos os detalhes desta publicação
+            </DialogDescription>
           </DialogHeader>
           <ArticleFullContent post={post as Post} />
         </DialogContent>

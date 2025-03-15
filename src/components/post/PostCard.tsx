@@ -66,7 +66,7 @@ export function PostCard({
         onDelete={onDelete}
       />
       
-      {!compact && <PostCardContent post={post} />}
+      <PostCardContent post={post} />
       
       <PostCardMedia 
         imageUrl={post.imageUrl} 
