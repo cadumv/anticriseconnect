@@ -5,7 +5,6 @@ import { PostCardContent } from "./card/PostCardContent";
 import { PostCardMedia } from "./card/PostCardMedia";
 import { PostCardActions } from "./card/PostCardActions";
 import { CommentSection } from "./card/CommentSection";
-import { ArticleDetailSheet } from "./card/ArticleDetailSheet";
 import { Post } from "@/types/post";
 
 interface PostCardProps {
@@ -78,19 +77,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
       {compact && post.content && (
         <div className="px-3 py-1">
           <p className="text-gray-800 text-xs line-clamp-2">{contentPreview}</p>
-        </div>
-      )}
-      
-      {post.type === 'technical_article' && !compact && (
-        <div className="px-4 mb-2">
-          <ArticleDetailSheet 
-            post={post} 
-            liked={liked} 
-            saved={saved} 
-            onLike={onLike} 
-            onSave={onSave} 
-            onShare={onShare} 
-          />
         </div>
       )}
       

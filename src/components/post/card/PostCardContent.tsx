@@ -2,6 +2,10 @@
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BookOpen } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArticleFullContent } from "./ArticleFullContent";
+import { Post } from "@/types/post";
 
 interface PostCardContentProps {
   post: {
@@ -10,11 +14,19 @@ interface PostCardContentProps {
     content?: string;
     summary?: string;
     tags?: string[];
+    title?: string;
+    author?: string;
+    company?: string;
+    mainContent?: string;
+    conclusions?: string;
+    imageUrl?: string;
+    timestamp?: string;
   };
 }
 
 export function PostCardContent({ post }: PostCardContentProps) {
   const [showFullContent, setShowFullContent] = useState(false);
+  const [showArticleDialog, setShowArticleDialog] = useState(false);
   
   const maxContentLength = 280;
   const contentIsTruncated = (post.excerpt || post.content || '').length > maxContentLength;
@@ -54,6 +66,18 @@ export function PostCardContent({ post }: PostCardContentProps) {
         </div>
       )}
       
+      {post.type === 'technical_article' && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="my-2 gap-2"
+          onClick={() => setShowArticleDialog(true)}
+        >
+          <BookOpen size={16} />
+          Ler artigo completo
+        </Button>
+      )}
+      
       <div className="flex flex-wrap gap-2 my-3">
         {post.tags?.map((tag) => (
           <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
@@ -61,6 +85,16 @@ export function PostCardContent({ post }: PostCardContentProps) {
           </span>
         ))}
       </div>
+      
+      {/* Full Article Dialog */}
+      <Dialog open={showArticleDialog} onOpenChange={setShowArticleDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">{post.title}</DialogTitle>
+          </DialogHeader>
+          <ArticleFullContent post={post} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
