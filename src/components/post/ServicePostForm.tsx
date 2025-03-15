@@ -16,8 +16,17 @@ export function ServicePostForm({
   content, 
   setContent 
 }: ServicePostFormProps) {
+  // Prevent form submission on enter key
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.ctrlKey === false && e.metaKey === false) {
+      // Don't do anything special, allow default behavior for textarea
+      // This prevents the dialog from closing on Enter
+      e.stopPropagation();
+    }
+  };
+
   return (
-    <>
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
         <Input
@@ -25,6 +34,7 @@ export function ServicePostForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Digite o título da sua publicação"
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -36,8 +46,9 @@ export function ServicePostForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder="Descreva seus serviços ou área de atuação"
           rows={6}
+          onKeyDown={handleKeyDown}
         />
       </div>
-    </>
+    </form>
   );
 }

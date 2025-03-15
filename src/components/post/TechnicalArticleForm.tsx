@@ -75,8 +75,17 @@ export function TechnicalArticleForm({
     }, 0);
   };
 
+  // Prevent form submission on enter key
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.ctrlKey === false && e.metaKey === false) {
+      // Don't do anything special, allow default behavior for textarea
+      // This prevents the dialog from closing on Enter
+      e.stopPropagation();
+    }
+  };
+
   return (
-    <>
+    <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
         <Input
@@ -84,6 +93,7 @@ export function TechnicalArticleForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Digite o título da sua publicação"
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -94,6 +104,7 @@ export function TechnicalArticleForm({
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           placeholder={userName || "Seu nome"}
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -104,6 +115,7 @@ export function TechnicalArticleForm({
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           placeholder="Onde você aplicou este conhecimento?"
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -115,6 +127,7 @@ export function TechnicalArticleForm({
           onChange={(e) => setSummary(e.target.value)}
           placeholder="Breve introdução explicando o que será abordado"
           rows={3}
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -147,6 +160,7 @@ export function TechnicalArticleForm({
           placeholder="Explicação técnica detalhada, problemas enfrentados, soluções aplicadas..."
           rows={10}
           ref={setTextareaRef}
+          onKeyDown={handleKeyDown}
         />
         <div className="text-xs text-gray-500 mt-1">
           Dica: Selecione o texto e use os botões acima para formatação. <strong>**Texto**</strong> para negrito, e <strong>•</strong> para marcadores de lista.
@@ -161,6 +175,7 @@ export function TechnicalArticleForm({
           onChange={(e) => setConclusions(e.target.value)}
           placeholder="Destaque os aprendizados e recomendações finais"
           rows={3}
+          onKeyDown={handleKeyDown}
         />
       </div>
       
@@ -172,8 +187,9 @@ export function TechnicalArticleForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder="Versão resumida do seu artigo para exibição no feed"
           rows={4}
+          onKeyDown={handleKeyDown}
         />
       </div>
-    </>
+    </form>
   );
 }

@@ -9,7 +9,7 @@ import { PostTypeSelector } from "./post/PostTypeSelector";
 import { ServicePostForm } from "./post/ServicePostForm";
 import { TechnicalArticleForm } from "./post/TechnicalArticleForm";
 import { createPostData, savePost, validatePostData } from "./post/postUtils";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface NewPostDialogProps {
   onPostCreated?: () => void;
@@ -111,9 +111,27 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
       setIsLoading(false);
     }
   };
+
+  // Function to handle click outside
+  const handleOpenChange = (newOpen: boolean) => {
+    // If the dialog is attempting to close and we're loading, prevent it
+    if (!newOpen && isLoading) {
+      return;
+    }
+    
+    // If the dialog is attempting to close and we have form data, confirm
+    if (!newOpen && (title.trim() || content.trim() || summary.trim() || mainContent.trim() || imageFile)) {
+      const confirmClose = window.confirm("Se você sair agora, perderá as alterações não salvas. Deseja realmente sair?");
+      if (!confirmClose) {
+        return;
+      }
+    }
+    
+    setOpen(newOpen);
+  };
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           Novo Post
