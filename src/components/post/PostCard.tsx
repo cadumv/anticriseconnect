@@ -10,14 +10,14 @@ import { Post } from "@/types/post";
 interface PostCardProps {
   post: Post;
   liked: Record<string, boolean>;
-  saved: Record<string, boolean>;
+  saved?: Record<string, boolean>;
   onLike: (postId: string) => void;
-  onSave: (postId: string) => void;
+  onSave?: (postId: string) => void;
   onShare: (postId: string) => void;
   compact?: boolean;
 }
 
-export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact = false }: PostCardProps) {
+export function PostCard({ post, liked, onLike, onShare, compact = false }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -61,8 +61,6 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
     <div className={`rounded-md border bg-white shadow-sm ${compact ? 'text-sm' : ''}`}>
       <PostCardHeader 
         post={post} 
-        saved={saved}
-        onSave={onSave}
         compact={compact}
       />
       
@@ -86,9 +84,8 @@ export function PostCard({ post, liked, saved, onLike, onSave, onShare, compact 
         shares={post.shares}
         comments={comments.length}
         liked={liked}
-        saved={saved}
+        saved={{}}
         onLike={onLike}
-        onSave={onSave}
         onShare={onShare}
         onComment={loadComments}
         compact={compact}

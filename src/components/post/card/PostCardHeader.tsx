@@ -4,7 +4,7 @@ import { MoreHorizontal, X, ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface PostCardHeaderProps {
   post: {
@@ -15,12 +15,10 @@ interface PostCardHeaderProps {
     user_id?: string;
     date?: string;
   };
-  saved?: Record<string, boolean>;
-  onSave?: (postId: string) => void;
   compact?: boolean;
 }
 
-export function PostCardHeader({ post, saved, onSave, compact = false }: PostCardHeaderProps) {
+export function PostCardHeader({ post, compact = false }: PostCardHeaderProps) {
   const [userProfile, setUserProfile] = useState<{name?: string, avatar_url?: string, username?: string} | null>(null);
   
   const formattedDate = post.date || new Date(post.timestamp).toLocaleDateString('pt-BR', { 
@@ -48,12 +46,6 @@ export function PostCardHeader({ post, saved, onSave, compact = false }: PostCar
   useEffect(() => {
     fetchUserProfile();
   }, [post.user_id]);
-  
-  const handleSaveFromMenu = () => {
-    if (onSave && post.id) {
-      onSave(post.id);
-    }
-  };
 
   return (
     <div className={`p-4 ${compact ? 'pb-2' : 'pb-0'}`}>
@@ -84,14 +76,6 @@ export function PostCardHeader({ post, saved, onSave, compact = false }: PostCar
             </PopoverTrigger>
             <PopoverContent className="w-56 p-0" align="end">
               <div className="flex flex-col">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="justify-start rounded-none"
-                  onClick={handleSaveFromMenu}
-                >
-                  {saved && post.id && saved[post.id] ? "Remover dos salvos" : "Salvar publicação"}
-                </Button>
                 <Button variant="ghost" size="sm" className="justify-start rounded-none">
                   Denunciar
                 </Button>

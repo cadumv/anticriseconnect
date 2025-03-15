@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Heart, Bookmark, Share2, MessageSquare } from "lucide-react";
+import { Heart, Share2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PostCardActionsProps {
@@ -11,7 +11,7 @@ interface PostCardActionsProps {
   liked: Record<string, boolean>;
   saved: Record<string, boolean>;
   onLike: (postId: string) => void;
-  onSave: (postId: string) => void;
+  onSave?: (postId: string) => void;
   onShare: (postId: string) => void;
   onComment: () => void;
   compact?: boolean;
@@ -23,15 +23,12 @@ export function PostCardActions({
   shares = 0,
   comments = 0,
   liked,
-  saved,
   onLike,
-  onSave,
   onShare,
   onComment,
   compact = false
 }: PostCardActionsProps) {
   const isLiked = liked[postId] || false;
-  const isSaved = saved[postId] || false;
   
   const buttonClasses = compact 
     ? "h-8 gap-1 px-2 text-xs"
@@ -77,19 +74,7 @@ export function PostCardActions({
         </Button>
       </div>
       
-      <Button
-        onClick={() => onSave(postId)}
-        variant="ghost"
-        size="sm"
-        className={buttonClasses}
-      >
-        <Bookmark 
-          size={iconSize}
-          fill={isSaved ? "currentColor" : "none"} 
-          className={isSaved ? "text-blue-500" : "text-gray-500"} 
-        />
-        {!compact && <span>{isSaved ? "Salvo" : "Salvar"}</span>}
-      </Button>
+      {/* Save button removed */}
     </div>
   );
 }

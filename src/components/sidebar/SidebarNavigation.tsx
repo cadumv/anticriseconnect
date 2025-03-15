@@ -1,18 +1,16 @@
 
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, Search, MessageSquare, Bell, User, Trophy, Bookmark } from "lucide-react";
+import { Home, Search, MessageSquare, Bell, User, Trophy } from "lucide-react";
 
 interface SidebarNavigationProps {
   collapsed: boolean;
-  savedPostsCount: number;
-  onOpenSavedPosts: () => void;
+  savedPostsCount?: number;
+  onOpenSavedPosts?: () => void;
 }
 
 export function SidebarNavigation({ 
-  collapsed, 
-  savedPostsCount, 
-  onOpenSavedPosts 
+  collapsed 
 }: SidebarNavigationProps) {
   const menuItems = [
     { path: "/", label: "Página inicial", icon: Home },
@@ -42,22 +40,6 @@ export function SidebarNavigation({
             </NavLink>
           </li>
         ))}
-        
-        {/* Saved Posts Button */}
-        <li>
-          <button 
-            onClick={onOpenSavedPosts}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
-              collapsed && "justify-center"
-            )}
-          >
-            <Bookmark className={cn("h-5 w-5", collapsed ? "mx-auto" : "")} />
-            {!collapsed && (
-              <span>Publicações salvas {savedPostsCount > 0 && `(${savedPostsCount})`}</span>
-            )}
-          </button>
-        </li>
       </ul>
     </nav>
   );
