@@ -92,7 +92,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
           <DialogHeader>
             <DialogTitle className="text-xl">{post.title || "Publicação completa"}</DialogTitle>
           </DialogHeader>
-          <ArticleFullContent post={post} />
+          <ArticleFullContent post={post as Post} />
         </DialogContent>
       </Dialog>
     </div>

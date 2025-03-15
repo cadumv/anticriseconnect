@@ -34,6 +34,7 @@ export const Feed = () => {
   const {
     handleLike,
     handleSave,
+    handleShare,
     completeShareAction
   } = usePostInteractions(
     user,
@@ -45,7 +46,7 @@ export const Feed = () => {
     fetchSavedPosts
   );
   
-  const handleShare = (postId: string) => {
+  const onShare = (postId: string) => {
     setCurrentPostId(postId);
     setShareDialogOpen(true);
   };
@@ -92,7 +93,7 @@ export const Feed = () => {
                 saved={saved}
                 onLike={handleLike}
                 onSave={handleSave}
-                onShare={handleShare}
+                onShare={onShare}
                 onDelete={handleDeletePost}
               />
               
@@ -108,19 +109,20 @@ export const Feed = () => {
       </Card>
       
       {/* Saved Posts Drawer */}
-      <SavedPostsDrawer
-        open={showSavedDrawer}
-        onOpenChange={setShowSavedDrawer}
-        user={user}
-        savedPosts={savedPosts}
-        userName={user?.user_metadata?.name || "Usuário"}
-        liked={liked}
-        saved={saved}
-        onLike={handleLike}
-        onSave={handleSave}
-        onShare={handleShare}
-        onDelete={handleDeletePost}
-      />
+      {user && (
+        <SavedPostsDrawer
+          open={showSavedDrawer}
+          onOpenChange={setShowSavedDrawer}
+          user={user}
+          savedPosts={savedPosts}
+          userName={user?.user_metadata?.name || "Usuário"}
+          liked={liked}
+          saved={saved}
+          onLike={handleLike}
+          onSave={handleSave}
+          onShare={onShare}
+        />
+      )}
       
       {/* Share Dialog */}
       {shareDialogOpen && (

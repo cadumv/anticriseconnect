@@ -21,7 +21,9 @@ interface PostCardProps {
 export function PostCard({ 
   post, 
   liked, 
+  saved = {},
   onLike, 
+  onSave,
   onShare, 
   onDelete,
   compact = false 
@@ -84,8 +86,9 @@ export function PostCard({
         shares={post.shares}
         comments={comments.length}
         liked={liked}
-        saved={{}}
+        saved={saved}
         onLike={onLike}
+        onSave={onSave}
         onShare={onShare}
         onComment={loadComments}
         compact={compact}

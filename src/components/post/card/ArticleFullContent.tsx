@@ -1,20 +1,10 @@
 
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Post } from "@/types/post";
 
 interface ArticleFullContentProps {
-  post: {
-    title?: string;
-    author?: string;
-    company?: string;
-    summary?: string;
-    mainContent?: string;
-    content?: string;
-    conclusions?: string;
-    imageUrl?: string;
-    timestamp?: string;
-    type?: 'post' | 'service' | 'technical_article' | 'achievement';
-  };
+  post: Post;
 }
 
 // Function to format text with markdown-like syntax
@@ -72,21 +62,19 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
     
   return (
     <div className="mt-4 space-y-6">
-      <div className="flex gap-2 text-sm text-gray-500">
-        <span>{post.author}</span>
+      <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+        {post.author && <span className="font-medium">Autor: {post.author}</span>}
         {post.company && (
-          <>
-            <span>•</span>
-            <span>{post.company}</span>
-          </>
+          <span className="font-medium">Empresa: {post.company}</span>
         )}
         {formattedDate && (
-          <>
-            <span>•</span>
-            <span>{formattedDate}</span>
-          </>
+          <span>Data: {formattedDate}</span>
         )}
       </div>
+      
+      {post.title && (
+        <h2 className="text-xl font-semibold">{post.title}</h2>
+      )}
       
       {post.imageUrl && (
         <div className="py-2 max-w-xl mx-auto">
@@ -103,7 +91,7 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
       {post.summary && (
         <div className="bg-blue-50 p-4 rounded-md">
           <h3 className="font-medium mb-1">Resumo</h3>
-          <p>{post.summary}</p>
+          <p className="whitespace-pre-line">{post.summary}</p>
         </div>
       )}
       
@@ -112,7 +100,7 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
           {post.type === 'technical_article' ? 'Conteúdo Principal' : 'Conteúdo Completo'}
         </h3>
         <div 
-          className="article-content space-y-4" 
+          className="article-content space-y-4 whitespace-pre-line" 
           dangerouslySetInnerHTML={{ 
             __html: formatText(mainDisplayContent) 
           }}
@@ -122,7 +110,25 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
       {post.conclusions && (
         <div className="bg-gray-50 p-4 rounded-md mt-6">
           <h3 className="font-medium mb-1">Principais Conclusões</h3>
-          <p>{post.conclusions}</p>
+          <div 
+            className="whitespace-pre-line"
+            dangerouslySetInnerHTML={{ 
+              __html: formatText(post.conclusions) 
+            }}
+          />
+        </div>
+      )}
+      
+      {post.tags && post.tags.length > 0 && (
+        <div className="mt-4">
+          <h3 className="font-medium mb-1">Tags</h3>
+          <div className="flex flex-wrap gap-2">
+            {post.tags.map(tag => (
+              <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                #{tag}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>
