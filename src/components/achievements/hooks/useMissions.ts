@@ -18,9 +18,13 @@ export function useMissions(userId: string | undefined) {
     
     // Retrieve missions data from localStorage
     const missionsKey = `user_missions_${userId}`;
+    const storedMissions = localStorage.getItem(missionsKey);
     
     // Get default missions
     const defaultMissions = getDefaultMissions();
+    
+    // Initialize with stored data or default missions
+    let initialMissions = storedMissions ? JSON.parse(storedMissions) : defaultMissions;
     
     // Check if profile is complete to mark the profile mission
     if (user) {
@@ -32,13 +36,14 @@ export function useMissions(userId: string | undefined) {
                       metadata.areas_of_expertise && 
                       metadata.areas_of_expertise.length > 0;
       
-      const updatedMissions = [...defaultMissions];
+      const updatedMissions = [...initialMissions];
       
       // Update profile mission if complete
-      if (isProfileComplete) {
-        updatedMissions[0] = {
-          ...updatedMissions[0],
-          currentProgress: updatedMissions[0].requiredProgress,
+      const profileMissionIndex = updatedMissions.findIndex(m => m.id === "mission-profile");
+      if (profileMissionIndex !== -1 && isProfileComplete) {
+        updatedMissions[profileMissionIndex] = {
+          ...updatedMissions[profileMissionIndex],
+          currentProgress: updatedMissions[profileMissionIndex].requiredProgress,
           completed: true
         };
       }
@@ -85,6 +90,17 @@ export function useMissions(userId: string | undefined) {
         };
       }
       
+      // Preserve claimed status for missions that were previously claimed
+      if (storedMissions) {
+        const previousMissions = JSON.parse(storedMissions);
+        updatedMissions.forEach((mission, index) => {
+          const prevMission = previousMissions.find((m: Mission) => m.id === mission.id);
+          if (prevMission && prevMission.claimed) {
+            updatedMissions[index].claimed = true;
+          }
+        });
+      }
+      
       setMissions(updatedMissions);
       localStorage.setItem(missionsKey, JSON.stringify(updatedMissions));
       return;
@@ -99,13 +115,13 @@ export function useMissions(userId: string | undefined) {
     if (!userId) return;
     
     const updatedMissions = missions.map(mission => {
-      if (mission.id === missionId && mission.currentProgress >= mission.requiredProgress) {
+      if (mission.id === missionId && mission.currentProgress >= mission.requiredProgress && !mission.claimed) {
         // Mark as claimed and completed
         return { 
           ...mission, 
           claimed: true, 
           completed: true,
-          completedDate: new Date().toISOString()
+          completedDate: mission.completedDate || new Date().toISOString()
         };
       }
       return mission;
