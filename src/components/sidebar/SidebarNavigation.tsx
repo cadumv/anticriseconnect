@@ -30,6 +30,7 @@ export function SidebarNavigation({
           <li key={item.path}>
             <NavLink
               to={item.path}
+              end={item.path === "/"}
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-4 py-2.5 text-gray-700 rounded-md hover:bg-gray-100 transition-colors",
                 isActive && "font-medium text-blue-600 bg-blue-50 hover:bg-blue-100",

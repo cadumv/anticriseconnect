@@ -26,7 +26,7 @@ function App() {
       <AuthProvider>
         <div className='min-h-screen w-full bg-slate-50 flex'>
           <Sidebar />
-          <div className="flex-1">
+          <div className="flex-1 overflow-y-auto">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/signup" element={<Signup />} />
