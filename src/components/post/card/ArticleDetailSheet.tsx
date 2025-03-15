@@ -15,6 +15,49 @@ interface ArticleDetailSheetProps {
   onShare: (postId: string) => void;
 }
 
+// Function to format text with markdown-like syntax
+const formatText = (text: string) => {
+  if (!text) return "";
+  
+  // Format bold text
+  let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Format bullet lists (lines starting with •)
+  formattedText = formattedText.split('\n').map(line => {
+    if (line.trim().startsWith('•')) {
+      return `<li>${line.trim().substring(1).trim()}</li>`;
+    }
+    return line;
+  }).join('\n');
+  
+  // Wrap adjacent list items in <ul> tags
+  let inList = false;
+  const lines = formattedText.split('\n');
+  formattedText = lines.map((line, index) => {
+    if (line.startsWith('<li>')) {
+      if (!inList) {
+        inList = true;
+        return '<ul>' + line;
+      }
+      return line;
+    } else if (inList) {
+      inList = false;
+      return '</ul>' + line;
+    }
+    return line;
+  }).join('\n');
+  
+  // Close any open list at the end
+  if (inList) {
+    formattedText += '</ul>';
+  }
+  
+  // Convert newlines to <br> tags for HTML rendering
+  formattedText = formattedText.replace(/\n/g, '<br>');
+  
+  return formattedText;
+};
+
 export function ArticleDetailSheet({ post, liked, saved, onLike, onSave, onShare }: ArticleDetailSheetProps) {
   return (
     <Sheet>
@@ -59,9 +102,12 @@ export function ArticleDetailSheet({ post, liked, saved, onLike, onSave, onShare
           
           <div>
             <h3 className="font-medium mb-1">Conteúdo Principal</h3>
-            <div className="whitespace-pre-line">
-              {post.mainContent || post.content}
-            </div>
+            <div 
+              className="article-content" 
+              dangerouslySetInnerHTML={{ 
+                __html: formatText(post.mainContent || post.content || '') 
+              }}
+            />
           </div>
           
           {post.conclusions && (

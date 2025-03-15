@@ -2,6 +2,9 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Bold, List } from "lucide-react";
+import { useState } from "react";
 
 interface TechnicalArticleFormProps {
   title: string;
@@ -38,6 +41,40 @@ export function TechnicalArticleForm({
   setContent,
   userName
 }: TechnicalArticleFormProps) {
+  const [textareaRef, setTextareaRef] = useState<HTMLTextAreaElement | null>(null);
+
+  const applyFormatting = (format: 'bold' | 'list') => {
+    if (!textareaRef) return;
+    
+    const start = textareaRef.selectionStart;
+    const end = textareaRef.selectionEnd;
+    const selectedText = mainContent.substring(start, end);
+    
+    let formattedText = '';
+    let newCursorPosition = end;
+    
+    if (format === 'bold') {
+      formattedText = `**${selectedText}**`;
+      newCursorPosition = start + formattedText.length;
+    } else if (format === 'list') {
+      // Split the selected text by new lines
+      const lines = selectedText.split('\n');
+      formattedText = lines.map(line => `• ${line}`).join('\n');
+      newCursorPosition = start + formattedText.length;
+    }
+    
+    const newContent = mainContent.substring(0, start) + formattedText + mainContent.substring(end);
+    setMainContent(newContent);
+    
+    // Set focus back to textarea and restore cursor position after React re-renders
+    setTimeout(() => {
+      if (textareaRef) {
+        textareaRef.focus();
+        textareaRef.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    }, 0);
+  };
+
   return (
     <>
       <div className="space-y-2">
@@ -83,13 +120,37 @@ export function TechnicalArticleForm({
       
       <div className="space-y-2">
         <Label htmlFor="mainContent">Conteúdo Principal</Label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm"
+            onClick={() => applyFormatting('bold')}
+            title="Negrito"
+          >
+            <Bold size={16} />
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="sm"
+            onClick={() => applyFormatting('list')}
+            title="Lista com marcadores"
+          >
+            <List size={16} />
+          </Button>
+        </div>
         <Textarea
           id="mainContent"
           value={mainContent}
           onChange={(e) => setMainContent(e.target.value)}
           placeholder="Explicação técnica detalhada, problemas enfrentados, soluções aplicadas..."
           rows={10}
+          ref={setTextareaRef}
         />
+        <div className="text-xs text-gray-500 mt-1">
+          Dica: Selecione o texto e use os botões acima para formatação. <strong>**Texto**</strong> para negrito, e <strong>•</strong> para marcadores de lista.
+        </div>
       </div>
       
       <div className="space-y-2">
