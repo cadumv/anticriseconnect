@@ -65,6 +65,11 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
     ? new Date(post.timestamp).toLocaleDateString('pt-BR') 
     : '';
     
+  // For service posts or generic posts, we prioritize content
+  const mainDisplayContent = post.type === 'technical_article' 
+    ? (post.mainContent || post.content || '')
+    : (post.content || post.mainContent || '');
+    
   return (
     <div className="mt-4 space-y-6">
       <div className="flex gap-2 text-sm text-gray-500">
@@ -84,7 +89,7 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
       </div>
       
       {post.imageUrl && (
-        <div className="py-2 max-w-md mx-auto">
+        <div className="py-2 max-w-xl mx-auto">
           <AspectRatio ratio={16 / 9}>
             <img 
               src={post.imageUrl} 
@@ -109,7 +114,7 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
         <div 
           className="article-content space-y-4" 
           dangerouslySetInnerHTML={{ 
-            __html: formatText(post.mainContent || post.content || '') 
+            __html: formatText(mainDisplayContent) 
           }}
         />
       </div>
