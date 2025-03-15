@@ -9,6 +9,7 @@ import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 import { AchievementsSidebar } from "@/components/achievements/AchievementsSidebar";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const Index = () => {
   const { user } = useAuth();
@@ -18,6 +19,8 @@ const Index = () => {
 
   // Load user achievements when component mounts or user changes
   useEffect(() => {
+    console.log("Current ID param:", user?.id);
+    
     if (user) {
       const userAchievements = AchievementsManager.getUserAchievements(user.id);
       setAchievements(userAchievements);
@@ -103,15 +106,19 @@ const Index = () => {
       </main>
 
       {/* Achievement Popup */}
-      {achievementUnlocked && showAchievementPopup && (
-        <AchievementPopup
-          isOpen={showAchievementPopup}
-          onClose={() => setShowAchievementPopup(false)}
-          userName={user?.user_metadata?.name || ""}
-          achievementTitle={achievementUnlocked.title}
-          onShare={handleShareAchievement}
-        />
-      )}
+      <Dialog open={showAchievementPopup} onOpenChange={setShowAchievementPopup}>
+        <DialogContent className="p-0 border-none bg-transparent" forceMount>
+          {achievementUnlocked && (
+            <AchievementPopup
+              isOpen={showAchievementPopup}
+              onClose={() => setShowAchievementPopup(false)}
+              userName={user?.user_metadata?.name || ""}
+              achievementTitle={achievementUnlocked.title}
+              onShare={handleShareAchievement}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

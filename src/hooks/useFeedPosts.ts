@@ -4,7 +4,7 @@ import { Post } from "@/types/post";
 import { User } from "@supabase/supabase-js";
 import { fetchPostsFromSupabase, subscribeToPostsChanges } from "@/services/posts/postService";
 import { loadPostInteractionStates, getSavedPosts } from "@/services/posts/postStorageService";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 export const useFeedPosts = (user: User | null) => {
   // Posts state
@@ -19,13 +19,18 @@ export const useFeedPosts = (user: User | null) => {
   // Fetch posts from the database
   const fetchPosts = async () => {
     setIsLoading(true);
-    const posts = await fetchPostsFromSupabase();
-    setUserPosts(posts);
-    setIsLoading(false);
+    try {
+      const posts = await fetchPostsFromSupabase();
+      setUserPosts(posts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoading(false);
+    }
     
     // Update saved posts after fetching all posts
     if (user) {
-      const savedPostsList = getSavedPosts(user.id, posts);
+      const savedPostsList = getSavedPosts(user.id, userPosts);
       setSavedPosts(savedPostsList);
     }
   };
@@ -51,7 +56,9 @@ export const useFeedPosts = (user: User | null) => {
       const postsSubscription = subscribeToPostsChanges(fetchPosts);
       
       return () => {
-        supabase.removeChannel(postsSubscription);
+        if (postsSubscription) {
+          supabase.removeChannel(postsSubscription);
+        }
       };
     }
   }, [user]);

@@ -25,9 +25,17 @@ export function UserPostsList({
   onShare,
   compact = false
 }: UserPostsListProps) {
+  if (!posts || posts.length === 0) {
+    return (
+      <div className="text-center py-6 text-gray-500">
+        Nenhuma publicação encontrada
+      </div>
+    );
+  }
+
   return (
     <>
-      {posts.length > 0 && posts.map((post) => (
+      {posts.map((post) => (
         <div key={post.id} className={`mb-3 rounded-lg overflow-hidden shadow-sm ${compact ? 'border border-gray-100' : ''}`}>
           {post.type === 'achievement' ? (
             <AchievementCard 
