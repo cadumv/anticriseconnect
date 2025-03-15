@@ -5,13 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { NewPostDialog } from "./NewPostDialog";
 import { UserPostsList } from "./post/UserPostsList";
 import { DefaultPostsList } from "./post/DefaultPostsList";
-import { DrawerTrigger } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
 import { ShareDialog } from "./ShareDialog";
 import { useFeedPosts } from "@/hooks/useFeedPosts";
 import { usePostInteractions } from "@/hooks/usePostInteractions";
 import { SavedPostsDrawer } from "./feed/SavedPostsDrawer";
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 
 export const Feed = () => {
   const { user } = useAuth();
@@ -61,12 +61,14 @@ export const Feed = () => {
           <CardTitle className="text-xl">Feed de publicações</CardTitle>
           <div className="flex items-center gap-2">
             {user && savedPosts.length > 0 && (
-              <DrawerTrigger asChild onClick={() => setShowSavedDrawer(true)}>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Bookmark size={16} />
-                  <span>Salvos ({savedPosts.length})</span>
-                </Button>
-              </DrawerTrigger>
+              <Drawer>
+                <DrawerTrigger asChild onClick={() => setShowSavedDrawer(true)}>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Bookmark size={16} />
+                    <span>Salvos ({savedPosts.length})</span>
+                  </Button>
+                </DrawerTrigger>
+              </Drawer>
             )}
             {user && <NewPostDialog onPostCreated={fetchPosts} />}
           </div>

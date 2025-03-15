@@ -1,10 +1,9 @@
-
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
 import { checkFirstPublicationAchievement } from "@/services/achievements/publication-achievements";
 import { updatePublicationMissionProgress, updateKnowledgeMissionProgress } from "@/components/achievements/utils/missions";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 export interface PostData {
   id: string;

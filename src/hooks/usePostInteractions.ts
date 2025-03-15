@@ -1,5 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { Post } from "@/types/post";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
