@@ -53,6 +53,11 @@ export const Feed = () => {
   const onShareComplete = (userIds: string[]) => {
     completeShareAction(currentPostId, userIds);
   };
+  
+  const handleDeletePost = (postId: string) => {
+    // After deleting the post in PostCardHeader component, we need to refresh the feed
+    fetchPosts();
+  };
 
   return (
     <>
@@ -88,6 +93,7 @@ export const Feed = () => {
                 onLike={handleLike}
                 onSave={handleSave}
                 onShare={handleShare}
+                onDelete={handleDeletePost}
               />
               
               {userPosts.length === 0 && (
@@ -113,6 +119,7 @@ export const Feed = () => {
         onLike={handleLike}
         onSave={handleSave}
         onShare={handleShare}
+        onDelete={handleDeletePost}
       />
       
       {/* Share Dialog */}

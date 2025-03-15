@@ -14,10 +14,18 @@ interface PostCardProps {
   onLike: (postId: string) => void;
   onSave?: (postId: string) => void;
   onShare: (postId: string) => void;
+  onDelete?: () => void;
   compact?: boolean;
 }
 
-export function PostCard({ post, liked, onLike, onShare, compact = false }: PostCardProps) {
+export function PostCard({ 
+  post, 
+  liked, 
+  onLike, 
+  onShare, 
+  onDelete,
+  compact = false 
+}: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -53,6 +61,7 @@ export function PostCard({ post, liked, onLike, onShare, compact = false }: Post
       <PostCardHeader 
         post={post} 
         compact={compact}
+        onDelete={onDelete}
       />
       
       {!compact && <PostCardContent post={post} />}

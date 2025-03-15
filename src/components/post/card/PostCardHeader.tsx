@@ -1,10 +1,22 @@
 
 import React, { useEffect, useState } from "react";
-import { MoreHorizontal, X, ExternalLink } from "lucide-react";
+import { MoreHorizontal, X, ExternalLink, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 
 interface PostCardHeaderProps {
   post: {
@@ -16,10 +28,14 @@ interface PostCardHeaderProps {
     date?: string;
   };
   compact?: boolean;
+  onDelete?: () => void;
 }
 
-export function PostCardHeader({ post, compact = false }: PostCardHeaderProps) {
+export function PostCardHeader({ post, compact = false, onDelete }: PostCardHeaderProps) {
+  const { user } = useAuth();
   const [userProfile, setUserProfile] = useState<{name?: string, avatar_url?: string, username?: string} | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const isPostCreator = user && post.user_id === user.id;
   
   const formattedDate = post.date || new Date(post.timestamp).toLocaleDateString('pt-BR', { 
     day: 'numeric', 
@@ -40,6 +56,35 @@ export function PostCardHeader({ post, compact = false }: PostCardHeaderProps) {
       setUserProfile(data);
     } catch (error) {
       console.error("Error fetching user profile:", error);
+    }
+  };
+  
+  const handleDelete = async () => {
+    if (!post.id || !user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', post.id)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Publicação excluída",
+        description: "Sua publicação foi excluída com sucesso.",
+      });
+      
+      if (onDelete) onDelete();
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      toast({
+        title: "Erro ao excluir publicação",
+        description: "Não foi possível excluir sua publicação. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -76,6 +121,17 @@ export function PostCardHeader({ post, compact = false }: PostCardHeaderProps) {
             </PopoverTrigger>
             <PopoverContent className="w-56 p-0" align="end">
               <div className="flex flex-col">
+                {isPostCreator && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start rounded-none text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center gap-2"
+                    onClick={() => setShowDeleteDialog(true)}
+                  >
+                    <Trash2 size={16} />
+                    <span>Excluir publicação</span>
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" className="justify-start rounded-none">
                   Denunciar
                 </Button>
@@ -93,6 +149,24 @@ export function PostCardHeader({ post, compact = false }: PostCardHeaderProps) {
           )}
         </div>
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir publicação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta publicação? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
