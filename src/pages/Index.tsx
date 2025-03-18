@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ProfileHeader } from "@/components/ProfileHeader";
 import { Feed } from "@/components/Feed";
 import { Discovery } from "@/components/Discovery";
@@ -10,12 +9,14 @@ import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 import { AchievementsSidebar } from "@/components/achievements/AchievementsSidebar";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Achievements } from "@/components/Achievements";
 
 const Index = () => {
   const { user } = useAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+  const firstLoadRef = useRef(true);
 
   // Load user achievements when component mounts or user changes
   useEffect(() => {

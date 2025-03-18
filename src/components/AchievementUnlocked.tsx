@@ -4,14 +4,18 @@ import { Trophy, X, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Achievement } from "@/types/profile";
 import { toast } from "sonner";
+import { AchievementsManager } from "@/services/AchievementsManager";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AchievementUnlockedProps {
   achievement: Achievement;
   onClose: () => void;
+  onShare?: () => void;
 }
 
-export const AchievementUnlocked = ({ achievement, onClose }: AchievementUnlockedProps) => {
+export const AchievementUnlocked = ({ achievement, onClose, onShare }: AchievementUnlockedProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { user } = useAuth();
   
   useEffect(() => {
     // Play sound
@@ -32,7 +36,15 @@ export const AchievementUnlocked = ({ achievement, onClose }: AchievementUnlocke
   }, [onClose]);
   
   const handleShare = () => {
-    toast.success(`Conquista "${achievement.title}" compartilhada no feed!`);
+    if (user && achievement) {
+      AchievementsManager.shareAchievement(user.id, achievement);
+      toast.success(`Conquista "${achievement.title}" compartilhada no feed!`);
+      
+      if (onShare) {
+        onShare();
+      }
+    }
+    
     setIsVisible(false);
     setTimeout(onClose, 500);
   };

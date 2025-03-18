@@ -9,9 +9,11 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AchievementsDialog } from "./AchievementsDialog";
 import { Achievement } from "@/types/profile";
+import { AchievementUnlocked } from "./AchievementUnlocked";
+import { AchievementsManager } from "@/services/AchievementsManager";
 
 interface AchievementsProps {
   showProfileSpecific?: boolean;
@@ -56,6 +58,21 @@ export const Achievements = ({
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
+  // State for detecting newly unlocked achievements
+  const [prevAchievements, setPrevAchievements] = useState<Achievement[]>(achievements);
+  const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
+  const [activeAchievement, setActiveAchievement] = useState<Achievement | null>(null);
+  
+  // Track if component is mounted
+  const isMounted = useRef(true);
+  
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+  
   // If showing for a specific profile and it's not the current user
   const showingForOtherProfile = showProfileSpecific && profileId !== user?.id;
   
@@ -65,6 +82,42 @@ export const Achievements = ({
   // Get achievements data - use passed achievements or demo achievements if in demo mode
   const achievementsToShow = demoMode ? DEMO_ACHIEVEMENTS : achievements;
   const completedAchievements = achievementsToShow.filter(a => a.completed);
+  
+  // Check for newly unlocked achievements
+  useEffect(() => {
+    if (!achievementsToShow.length) {
+      setPrevAchievements([]);
+      return;
+    }
+
+    // Find achievements that were just unlocked
+    const newlyUnlocked = achievementsToShow.filter((ach) => {
+      const prev = prevAchievements.find((p) => p.id === ach.id);
+      // If it was incomplete before and now is complete => newly unlocked
+      return prev && !prev.completed && ach.completed;
+    });
+
+    // Add newly unlocked achievements to the queue
+    if (newlyUnlocked.length > 0) {
+      setAchievementQueue((prevQ) => [...prevQ, ...newlyUnlocked]);
+    }
+
+    // Update previous achievements
+    setPrevAchievements(achievementsToShow);
+  }, [achievementsToShow, prevAchievements]);
+
+  // Show next achievement in queue
+  useEffect(() => {
+    if (!activeAchievement && achievementQueue.length > 0 && isMounted.current) {
+      setActiveAchievement(achievementQueue[0]);
+      setAchievementQueue((prevQ) => prevQ.slice(1));
+    }
+  }, [achievementQueue, activeAchievement]);
+
+  // Handle achievement popup close
+  const handleAchievementClose = () => {
+    setActiveAchievement(null);
+  };
   
   // Calculate total points - only for demo or authenticated users
   const totalPoints = completedAchievements.reduce((sum, ach) => sum + ach.points, 0);
@@ -80,6 +133,10 @@ export const Achievements = ({
     } else {
       setIsDialogOpen(true);
     }
+  };
+
+  const handleShareAchievement = () => {
+    // This is already handled inside the AchievementUnlocked component now
   };
 
   return (
@@ -141,6 +198,15 @@ export const Achievements = ({
           isOpen={isDialogOpen} 
           onClose={() => setIsDialogOpen(false)} 
           achievements={achievementsToShow}
+        />
+      )}
+      
+      {/* Achievement popup for newly unlocked achievements */}
+      {activeAchievement && (
+        <AchievementUnlocked 
+          achievement={activeAchievement}
+          onClose={handleAchievementClose}
+          onShare={handleShareAchievement}
         />
       )}
     </>
