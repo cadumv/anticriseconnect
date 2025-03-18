@@ -119,14 +119,13 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
       const postData: any = {
         content: content,
         image_url: imageUrl,
-        user_id: user.id
+        user_id: user.id,
+        metadata: {} // Initialize metadata as empty object
       };
       
       // Add additional data based on post type
       if (selectedTab === "technical_article") {
         // For technical articles, we'll store the additional fields in the metadata JSON field
-        // since they don't exist as direct columns in the posts table
-        postData.type = "technical_article";
         postData.metadata = {
           title: title,
           type: "technical_article",
@@ -139,7 +138,6 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
         };
       } else if (selectedTab === "service") {
         // For services, we'll store the additional fields in the metadata JSON field
-        postData.type = "service";
         postData.metadata = {
           title: serviceArea,
           type: "service",
@@ -149,7 +147,9 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
         };
       } else {
         // Regular post
-        postData.type = "post";
+        postData.metadata = {
+          type: "post"
+        };
       }
       
       console.log("Saving post data:", postData); // Debug log

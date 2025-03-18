@@ -16,6 +16,7 @@ export type Database = {
           id: string
           image_url: string | null
           likes: number | null
+          metadata: Json | null
           saves: number | null
           shares: number | null
           updated_at: string
@@ -27,6 +28,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          metadata?: Json | null
           saves?: number | null
           shares?: number | null
           updated_at?: string
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          metadata?: Json | null
           saves?: number | null
           shares?: number | null
           updated_at?: string
