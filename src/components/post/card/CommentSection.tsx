@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ interface CommentSectionProps {
   comments: Comment[];
   isLoading: boolean;
   onCancel: () => void;
-  postId: string; // Add postId to know which post the comments belong to
+  postId: string;
 }
 
 export function CommentSection({ comments: initialComments, isLoading: initialLoading, onCancel, postId }: CommentSectionProps) {
@@ -30,7 +29,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
   const [isLoading, setIsLoading] = useState(initialLoading);
   const [authorProfiles, setAuthorProfiles] = useState<Record<string, { avatar_url: string, name: string }>>({});
   
-  // Fetch comments from the database
   useEffect(() => {
     const fetchComments = async () => {
       if (!postId) return;
@@ -51,18 +49,16 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
         
         if (error) throw error;
         
-        // Transform the data to match our Comment interface
         const formattedComments: Comment[] = data.map(comment => ({
           id: comment.id,
           text: comment.text,
-          author: 'Loading...', // Will be replaced when we fetch profiles
+          author: 'Loading...',
           authorId: comment.user_id,
           timestamp: comment.created_at
         }));
         
         setLocalComments(formattedComments);
         
-        // Fetch user profiles for the comments
         const userIds = Array.from(new Set(formattedComments.map(c => c.authorId)));
         if (userIds.length > 0) {
           await fetchUserProfiles(userIds as string[]);
@@ -81,7 +77,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
     
     fetchComments();
     
-    // Set up realtime subscription for new comments
     const channel = supabase
       .channel('public:comments')
       .on('postgres_changes', 
@@ -95,19 +90,17 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
           console.log('New comment:', payload);
           const newComment = payload.new as any;
           
-          // Only add the comment if it's not from the current user (we've already added it locally)
           if (newComment.user_id !== user?.id) {
             const commentData: Comment = {
               id: newComment.id,
               text: newComment.text,
-              author: 'Loading...', // Will be replaced when we fetch the profile
+              author: 'Loading...',
               authorId: newComment.user_id,
               timestamp: newComment.created_at
             };
             
             setLocalComments(prev => [commentData, ...prev]);
             
-            // Fetch the user profile for this comment
             fetchUserProfiles([newComment.user_id]);
           }
         }
@@ -119,7 +112,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
     };
   }, [postId]);
   
-  // Fetch profile pictures for all authors in comments
   const fetchUserProfiles = async (userIds: string[]) => {
     try {
       if (userIds.length === 0) return;
@@ -131,7 +123,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
       
       if (error) throw error;
       
-      // Create a lookup map of author ID to avatar URL and name
       const profileMap: Record<string, { avatar_url: string, name: string }> = {};
       data?.forEach(profile => {
         profileMap[profile.id] = { 
@@ -150,7 +141,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
     if (!comment.trim() || !user || !postId) return;
     
     try {
-      // Save the comment to the database
       const { data, error } = await supabase
         .from('comments')
         .insert({
@@ -163,7 +153,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
       
       if (error) throw error;
       
-      // Add the comment to the local state
       const newComment: Comment = {
         id: data.id,
         text: comment,
@@ -212,14 +201,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
             />
             <div className="flex justify-end">
               <Button 
-                variant="outline" 
-                size="sm"
-                onClick={onCancel}
-                className="mr-2"
-              >
-                Cancelar
-              </Button>
-              <Button 
                 size="sm"
                 onClick={postComment}
                 disabled={!comment.trim()}
@@ -238,7 +219,6 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
       ) : (
         <div className="space-y-4">
           {localComments.map((comment) => {
-            // Get profile info if available
             const profileInfo = comment.authorId ? authorProfiles[comment.authorId] : null;
             const avatarUrl = comment.authorAvatar || (profileInfo ? profileInfo.avatar_url : null);
             const authorName = comment.author !== 'Loading...' ? comment.author : (profileInfo ? profileInfo.name : 'Usuário');

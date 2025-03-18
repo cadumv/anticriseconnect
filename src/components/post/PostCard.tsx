@@ -29,7 +29,6 @@ export function PostCard({
   onDelete,
   compact = false 
 }: PostCardProps) {
-  const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -55,17 +54,6 @@ export function PostCard({
       fetchCommentCount();
     }
   }, [post.id]);
-
-  const loadComments = async () => {
-    if (showComments) {
-      // If comments are already shown, just hide them
-      setShowComments(false);
-      return;
-    }
-    
-    // Show the comments section without waiting for the fetch to complete
-    setShowComments(true);
-  };
   
   // Create a shortened content preview for compact mode
   const contentPreview = post.content && post.content.length > 80 
@@ -104,15 +92,15 @@ export function PostCard({
         onLike={onLike}
         onSave={onSave}
         onShare={onShare}
-        onComment={loadComments}
+        onComment={() => {}} // Empty function since we don't toggle comments anymore
         compact={compact}
       />
       
-      {showComments && !compact && (
+      {!compact && (
         <CommentSection 
           comments={comments}
           isLoading={isLoadingComments}
-          onCancel={() => setShowComments(false)}
+          onCancel={() => {}} // Empty function since we don't hide comments anymore
           postId={post.id}
         />
       )}
