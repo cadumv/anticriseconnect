@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Comment } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, Reply } from "lucide-react";
 import { formatCommentText } from "./commentUtils";
+import { useNavigate } from "react-router-dom";
 
 interface CommentItemProps {
   comment: Comment;
@@ -31,8 +33,16 @@ export function CommentItem({
   onLikeReply,
   onReplyToReply
 }: CommentItemProps) {
+  const navigate = useNavigate();
+  
   // Maximum nesting level allowed
   const MAX_DEPTH = 3;
+  
+  const handleUserClick = () => {
+    if (comment.authorId) {
+      navigate(`/profile/${comment.authorId}`);
+    }
+  };
   
   const renderReplies = () => {
     if (!comment.replies || comment.replies.length === 0) return null;
@@ -108,7 +118,7 @@ export function CommentItem({
 
   return (
     <div className="flex gap-2 mb-3">
-      <Avatar className="h-8 w-8 flex-shrink-0">
+      <Avatar className="h-8 w-8 flex-shrink-0 cursor-pointer" onClick={handleUserClick}>
         {avatarUrl ? (
           <AvatarImage src={avatarUrl} alt={authorName} />
         ) : (
@@ -118,7 +128,7 @@ export function CommentItem({
       <div className="flex-1">
         <div className="relative group">
           <div className="bg-gray-100 p-2 rounded-lg">
-            <p className="font-bold text-sm">{authorName}</p>
+            <p className="font-bold text-sm cursor-pointer hover:underline" onClick={handleUserClick}>{authorName}</p>
             <div 
               className="text-sm" 
               dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { PostCardHeader } from "./card/PostCardHeader";
 import { PostCardContent } from "./card/PostCardContent";
@@ -7,6 +6,7 @@ import { PostCardActions } from "./card/PostCardActions";
 import { CommentSection } from "./card/CommentSection";
 import { Post, Comment } from "@/types/post";
 import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardProps {
   post: Post;
@@ -29,6 +29,7 @@ export function PostCard({
   onDelete,
   compact = false 
 }: PostCardProps) {
+  const navigate = useNavigate();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [commentCount, setCommentCount] = useState(0);
@@ -36,7 +37,6 @@ export function PostCard({
   const [localLikes, setLocalLikes] = useState(post.likes || 0);
   const [showComments, setShowComments] = useState(false);
 
-  // Get comment count and likes when the post is loaded
   useEffect(() => {
     const fetchCommentCount = async () => {
       try {
@@ -72,7 +72,6 @@ export function PostCard({
         
         if (error) throw error;
         
-        // Transform comments to our Comment type
         const formattedComments: Comment[] = data.map(comment => ({
           id: comment.id,
           text: comment.text,
@@ -97,7 +96,6 @@ export function PostCard({
       fetchComments();
       fetchLikedByUsers();
       
-      // Subscribe to real-time updates for this post
       const postChannel = supabase
         .channel(`post-${post.id}`)
         .on('postgres_changes', 
@@ -110,7 +108,7 @@ export function PostCard({
           (payload) => {
             const updatedPost = payload.new as any;
             setLocalLikes(updatedPost.likes || 0);
-            fetchLikedByUsers(); // Refetch liked by users on update
+            fetchLikedByUsers();
           }
         )
         .subscribe();
@@ -121,12 +119,8 @@ export function PostCard({
     }
   }, [post.id]);
   
-  // Fetch the users who liked this post
   const fetchLikedByUsers = async () => {
     try {
-      // In a real implementation, you would have a likes table
-      // For this feature, we'll simulate by fetching profiles
-      // and filtering randomly to show some users who "liked" the post
       if (post.likes && post.likes > 0) {
         const { data, error } = await supabase
           .from('profiles')
@@ -136,8 +130,6 @@ export function PostCard({
         if (error) throw error;
         
         if (data && data.length > 0) {
-          // Simulate liked users by taking a random subset of profiles
-          // In a real implementation, you would query a likes table
           const numLikes = Math.min(localLikes, data.length);
           const shuffled = [...data].sort(() => 0.5 - Math.random());
           const selectedUsers = shuffled.slice(0, numLikes);
@@ -152,17 +144,26 @@ export function PostCard({
     }
   };
   
-  // Create a shortened content preview for compact mode
+  const handleUserClick = (userId: string) => {
+    if (userId) {
+      navigate(`/profile/${userId}`);
+    }
+  };
+
+  const handleCommentCountClick = () => {
+    if (compact) {
+      return;
+    }
+    setShowComments(true);
+  };
+  
   const contentPreview = post.content && post.content.length > 80 
     ? post.content.substring(0, 80) + '...' 
     : post.content;
   
-  // Custom like handler to update UI immediately
   const handlePostLike = (postId: string) => {
-    // Call the parent onLike handler
     onLike(postId);
     
-    // Update local likes count for immediate feedback
     const isCurrentlyLiked = liked[postId] || false;
     const newLikesCount = isCurrentlyLiked 
       ? Math.max(0, localLikes - 1)
@@ -171,7 +172,6 @@ export function PostCard({
     setLocalLikes(newLikesCount);
   };
 
-  // Toggle comments visibility
   const toggleComments = () => {
     setShowComments(prev => !prev);
   };
@@ -182,6 +182,7 @@ export function PostCard({
         post={post} 
         compact={compact}
         onDelete={onDelete}
+        onUserClick={() => handleUserClick(post.user_id || '')}
       />
       
       {!compact && post.content && (
@@ -202,25 +203,33 @@ export function PostCard({
         </div>
       )}
       
-      {/* People who engaged with the post */}
       {likedByUsers.length > 0 && (
         <div className="px-4 py-1 text-xs text-gray-500 flex items-center border-t">
           <div className="flex -space-x-1 mr-2">
             {likedByUsers.slice(0, 3).map((user, index) => (
-              <div key={index} className="w-5 h-5 rounded-full bg-blue-100 border border-white flex items-center justify-center overflow-hidden">
+              <div 
+                key={index} 
+                className="w-5 h-5 rounded-full bg-blue-100 border border-white flex items-center justify-center overflow-hidden cursor-pointer"
+                onClick={() => handleUserClick(user.id)}
+              >
                 <span className="text-[9px] font-bold">{user.name[0].toUpperCase()}</span>
               </div>
             ))}
           </div>
           <span>
             {likedByUsers.length === 1 
-              ? `${likedByUsers[0].name}`
-              : `${likedByUsers[0].name} e mais ${likedByUsers.length - 1} ${likedByUsers.length - 1 > 1 ? 'pessoas' : 'pessoa'}`}
+              ? <span className="cursor-pointer hover:underline" onClick={() => handleUserClick(likedByUsers[0].id)}>{likedByUsers[0].name}</span>
+              : <><span className="cursor-pointer hover:underline" onClick={() => handleUserClick(likedByUsers[0].id)}>{likedByUsers[0].name}</span> e mais {likedByUsers.length - 1} {likedByUsers.length - 1 > 1 ? 'pessoas' : 'pessoa'}</>}
           </span>
           {commentCount > 0 && (
             <>
               <span className="mx-1">•</span>
-              <span>{commentCount} {commentCount === 1 ? 'comentário' : 'comentários'}</span>
+              <span 
+                className="cursor-pointer hover:underline"
+                onClick={handleCommentCountClick}
+              >
+                {commentCount} {commentCount === 1 ? 'comentário' : 'comentários'}
+              </span>
             </>
           )}
         </div>
