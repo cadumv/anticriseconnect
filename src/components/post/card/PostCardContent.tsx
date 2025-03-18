@@ -43,10 +43,10 @@ export function PostCardContent({ post }: PostCardContentProps) {
   const postConclusions = post.conclusions || metadata.conclusions;
   const postTags = post.tags || metadata.tags || [];
   
-  // For technical articles, show the content or mainContent, but not the summary in the regular display
-  // as we'll show the summary in the blue box
+  // For technical articles, only show the summary in the card view
+  // The main content will only be shown in the full article dialog
   if (postType === 'technical_article') {
-    displayContent = post.content || postMainContent || '';
+    displayContent = postSummary || ''; // Use summary for technical articles
   } else {
     displayContent = post.excerpt || post.content || '';
   }
@@ -94,7 +94,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
         </div>
       )}
       
-      {displayedContent && (
+      {displayedContent && postType !== 'technical_article' && (
         <div className="whitespace-pre-line text-gray-800">
           {displayedContent}
           
