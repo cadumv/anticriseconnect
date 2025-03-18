@@ -12,11 +12,21 @@ export const formatCommentText = (text: string): string => {
     '<span class="text-blue-600 font-medium">@$1</span>'
   );
   
-  // Handle image tags that may be in the comment text (improved regex to better match image tags)
+  // Extract and replace image tags with properly formatted ones
+  // This improved regex will match both self-closing tags and regular tags with various attribute orders
   formattedText = formattedText.replace(
-    /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*class="([^"]*)"[^>]*\/?>/g,
+    /<img(?:[^>]*\s)src="([^"]+)"(?:[^>]*\s)alt="([^"]*)"(?:[^>]*\s?)class="([^"]*)"[^>]*>(?:<\/img>)?/g,
     (match, src, alt, className) => {
-      return `<div class="mt-2"><img src="${src}" alt="${alt}" class="max-h-60 max-w-full rounded-md object-contain ${className}" /></div>`;
+      return `<div class="mt-2 mb-2"><img src="${src}" alt="${alt}" class="max-h-60 max-w-full rounded-md object-contain ${className}" /></div>`;
+    }
+  );
+  
+  // Also handle cases where attributes might be in different order
+  formattedText = formattedText.replace(
+    /<img(?:[^>]*\s)src="([^"]+)"(?:[^>]*\s?)(?:class="([^"]*)")?(?:[^>]*\s?)(?:alt="([^"]*)")?[^>]*>(?:<\/img>)?/g,
+    (match, src, className, alt) => {
+      if (match.includes('max-h-60')) return match; // Skip if already processed
+      return `<div class="mt-2 mb-2"><img src="${src}" alt="${alt || ''}" class="max-h-60 max-w-full rounded-md object-contain ${className || ''}" /></div>`;
     }
   );
   
@@ -65,18 +75,38 @@ export const processCommentImages = (text: string): string => {
     return text;
   }
   
-  // First handle any complex image tags and convert them to consistent format
+  // Create a more universal regex that captures various forms of img tags
+  // This will normalize all image tags into a consistent format
   let processedText = text.replace(
-    /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*class="([^"]*)"[^>]*\/?>/g,
+    /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*class="([^"]*)"[^>]*>(?:<\/img>)?/g,
     (match, src, alt, className) => {
       return `<img src="${src}" alt="${alt}" class="${className}" />`;
     }
   );
   
-  // Then handle simple image tags
+  // Handle alternate attribute orders
   processedText = processedText.replace(
-    /<img src="(data:image\/[^;]+;base64,[^"]+|https?:\/\/[^"]+)" alt="([^"]*)" class="([^"]*)"(\/| \/)>/g,
+    /<img[^>]*src="([^"]+)"[^>]*class="([^"]*)"[^>]*alt="([^"]*)"[^>]*>(?:<\/img>)?/g,
+    (match, src, className, alt) => {
+      if (match.includes('"/>')) return match; // Skip if already processed
+      return `<img src="${src}" alt="${alt}" class="${className}" />`;
+    }
+  );
+  
+  // Also fix self-closing tags with various formats
+  processedText = processedText.replace(
+    /<img\s+src="([^"]+)"\s+alt="([^"]*)"\s+class="([^"]*)"\s*\/?>/g,
     (match, src, alt, className) => {
+      return `<img src="${src}" alt="${alt}" class="${className}" />`;
+    }
+  );
+  
+  // Fix any remaining inconsistent image tags
+  processedText = processedText.replace(
+    /<img\s+src="([^"]+)"\s+(?:(?:alt="([^"]*)"\s+class="([^"]*)")|(?:class="([^"]*)"\s+alt="([^"]*)"))\s*\/?>/g,
+    (match, src, alt1, class1, class2, alt2) => {
+      const alt = alt1 || alt2 || '';
+      const className = class1 || class2 || '';
       return `<img src="${src}" alt="${alt}" class="${className}" />`;
     }
   );

@@ -13,7 +13,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
         <img 
           src={imageUrl} 
           alt="Preview" 
-          className="max-h-60 max-w-full rounded-md object-contain" 
+          className="max-h-60 max-w-full rounded-md object-contain comment-image" 
         />
         <button 
           className="absolute top-1 right-1 bg-gray-800 bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-opacity-70"
