@@ -5,12 +5,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { MentionInput } from "./MentionInput";
 import { useCommentContext } from "./CommentContext";
 import { SmilePlus, Image } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function CommentForm() {
   const { user } = useAuth();
   const { replyTo, authorProfiles, setReplyTo, mentionUsers, postComment } = useCommentContext();
   const [comment, setComment] = useState("");
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) {
     return null;
@@ -33,6 +36,31 @@ export function CommentForm() {
     if (e.key === 'Enter' && !e.shiftKey && comment.trim()) {
       e.preventDefault();
       handlePostComment();
+    }
+  };
+
+  const handleEmojiClick = () => {
+    // In a real implementation, this would open an emoji picker
+    // For now, we'll add a simple emoji to demonstrate
+    setComment(prev => prev + " 😊");
+    toast.info("Emoji picker would open here");
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        toast.success(`Selected image: ${file.name}`);
+        // In a real implementation, you would upload the image and add it to the comment
+        // For now, we'll just mention the image name in the comment
+        setComment(prev => prev + ` [Image: ${file.name}]`);
+      } else {
+        toast.error("Please select an image file");
+      }
     }
   };
 
@@ -65,29 +93,54 @@ export function CommentForm() {
           </div>
         )}
         
-        <div className="w-full rounded-full border border-gray-300 bg-gray-100 hover:border-gray-400 focus-within:border-gray-400 transition-colors">
-          <div className="flex items-center pr-2 w-full">
+        <div className="w-full rounded-md border border-gray-300 bg-white hover:border-gray-400 focus-within:border-gray-500 transition-colors">
+          <div className="w-full">
             <MentionInput
               users={mentionUsers}
               value={comment}
               onChange={setComment}
               onKeyDown={handleKeyDown}
               placeholder={replyTo ? "Escreva uma resposta..." : "Adicionar comentário..."}
-              className="w-full rounded-full px-3 py-2 bg-transparent border-none focus:ring-0 min-h-[38px] text-sm resize-none"
+              className="w-full rounded-t-md px-3 py-2 bg-transparent border-none focus:ring-0 min-h-[38px] text-sm resize-none"
               ref={commentInputRef}
             />
             
-            <div className="flex gap-1 flex-shrink-0">
-              <button 
-                className="p-1 rounded-full text-gray-500 hover:bg-gray-200"
+            <div className="flex justify-between items-center border-t border-gray-200 px-2 py-1">
+              <div className="flex gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-1 h-8 w-8 rounded-full text-gray-500 hover:bg-gray-100"
+                  onClick={handleEmojiClick}
+                >
+                  <SmilePlus size={18} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-1 h-8 w-8 rounded-full text-gray-500 hover:bg-gray-100"
+                  onClick={handleImageClick}
+                >
+                  <Image size={18} />
+                </Button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </div>
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 h-8"
                 disabled={!comment.trim()}
                 onClick={handlePostComment}
               >
-                <SmilePlus size={18} />
-              </button>
-              <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
-                <Image size={18} />
-              </button>
+                Publicar
+              </Button>
             </div>
           </div>
         </div>
