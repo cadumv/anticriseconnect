@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -123,24 +124,35 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
       
       // Add additional data based on post type
       if (selectedTab === "technical_article") {
+        // For technical articles, we'll store the additional fields in the metadata JSON field
+        // since they don't exist as direct columns in the posts table
         postData.type = "technical_article";
-        postData.title = title;
-        postData.summary = summary;
-        postData.mainContent = mainContent;
-        postData.conclusions = conclusions;
-        postData.tags = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-        postData.author = author.trim() || user.user_metadata?.name || "Anônimo";
-        postData.company = user.user_metadata?.engineering_type || "Engenheiro";
+        postData.metadata = {
+          title: title,
+          type: "technical_article",
+          summary: summary,
+          mainContent: mainContent,
+          conclusions: conclusions,
+          tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+          author: author.trim() || user.user_metadata?.name || "Anônimo",
+          company: user.user_metadata?.engineering_type || "Engenheiro"
+        };
       } else if (selectedTab === "service") {
+        // For services, we'll store the additional fields in the metadata JSON field
         postData.type = "service";
-        postData.title = serviceArea;
-        postData.content = serviceDescription;
-        postData.author = user.user_metadata?.name || "Anônimo";
-        postData.company = user.user_metadata?.engineering_type || "Engenheiro";
+        postData.metadata = {
+          title: serviceArea,
+          type: "service",
+          content: serviceDescription,
+          author: user.user_metadata?.name || "Anônimo",
+          company: user.user_metadata?.engineering_type || "Engenheiro"
+        };
       } else {
         // Regular post
         postData.type = "post";
       }
+      
+      console.log("Saving post data:", postData); // Debug log
       
       // Save to Supabase
       const { data, error } = await supabase

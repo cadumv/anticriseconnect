@@ -32,8 +32,8 @@ export const savePost = async (
     const metadata: Record<string, any> = {
       type: postData.type,
       title: postData.title,
-      author: postData.author,
-      company: postData.company,
+      author: postData.author || user.user_metadata?.name || "Anônimo",
+      company: postData.company || user.user_metadata?.engineering_type || "Engenheiro",
     };
     
     // Add fields specific to technical articles
