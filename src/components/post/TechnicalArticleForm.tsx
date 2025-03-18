@@ -189,6 +189,9 @@ export function TechnicalArticleForm({
           rows={4}
           onKeyDown={handleKeyDown}
         />
+        <div className="text-xs text-gray-500 mt-1">
+          Este texto será mostrado no feed. O conteúdo principal completo será exibido ao clicar em "Ler artigo completo".
+        </div>
       </div>
     </form>
   );

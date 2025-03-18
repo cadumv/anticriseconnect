@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
@@ -27,6 +28,21 @@ export const savePost = async (
   postData: PostData
 ) => {
   try {
+    // Ensure all article fields are included in the metadata
+    const metadata: Record<string, any> = {
+      type: postData.type,
+      title: postData.title,
+      author: postData.author,
+      company: postData.company,
+    };
+    
+    // Add fields specific to technical articles
+    if (postData.type === 'technical_article') {
+      metadata.summary = postData.summary;
+      metadata.mainContent = postData.mainContent;
+      metadata.conclusions = postData.conclusions;
+    }
+    
     // Save post to Supabase
     const { data, error } = await supabase
       .from('posts')
@@ -34,8 +50,7 @@ export const savePost = async (
         user_id: user.id,
         content: postData.content,
         image_url: postData.imageUrl,
-        // Additional fields specific to our app that aren't in the database schema
-        // can be stored as metadata in the content field if needed
+        metadata: metadata // Store additional fields in metadata column
       })
       .select();
     
@@ -145,6 +160,8 @@ export const createPostData = (
     newPost.mainContent = mainContent.trim() || content.trim();
     newPost.conclusions = conclusions.trim() || undefined;
   }
+  
+  console.log("Created technical article post:", newPost); // Debug
   
   return newPost;
 };

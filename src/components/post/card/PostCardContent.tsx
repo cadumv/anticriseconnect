@@ -44,6 +44,21 @@ export function PostCardContent({ post }: PostCardContentProps) {
     : displayContent;
   
   const displayedContent = showFullContent ? displayContent : truncatedContent;
+
+  // Debug info - log when opening a technical article to check its fields
+  const handleOpenFullArticle = () => {
+    if (post.type === 'technical_article') {
+      console.log("Opening technical article:", {
+        type: post.type,
+        title: post.title,
+        summary: post.summary,
+        mainContent: post.mainContent,
+        conclusions: post.conclusions,
+        content: post.content
+      });
+    }
+    setShowArticleDialog(true);
+  };
   
   return (
     <div className="p-4">
@@ -93,7 +108,7 @@ export function PostCardContent({ post }: PostCardContentProps) {
           variant="outline" 
           size="sm" 
           className="my-2 gap-2"
-          onClick={() => setShowArticleDialog(true)}
+          onClick={handleOpenFullArticle}
         >
           <BookOpen size={16} />
           {post.type === 'technical_article' ? 'Ler artigo completo' : 'Ver publicação completa'}
