@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext } from "react";
 import { Comment } from "@/types/post";
-import { useComments, AuthorProfile } from "@/hooks/useComments";
+import { useComments, AuthorProfile } from "@/hooks/comments/useComments";
 
 interface CommentContextType {
   comments: Comment[];
