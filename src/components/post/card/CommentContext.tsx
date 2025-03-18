@@ -98,7 +98,6 @@ export const CommentProvider: React.FC<{
           user_id,
           created_at,
           parent_id,
-          likes,
           post_id
         `)
         .eq('post_id', postId)
@@ -114,7 +113,7 @@ export const CommentProvider: React.FC<{
         authorId: comment.user_id,
         timestamp: comment.created_at,
         parentId: comment.parent_id,
-        likes: comment.likes || 0,
+        likes: 0,
         post_id: comment.post_id
       }));
       
@@ -190,31 +189,13 @@ export const CommentProvider: React.FC<{
               authorId: newComment.user_id,
               timestamp: newComment.created_at,
               parentId: newComment.parent_id,
-              likes: newComment.likes || 0,
+              likes: 0,
               post_id: newComment.post_id
             };
             
             updateCommentsWithNewComment(commentData);
             fetchUserProfiles([newComment.user_id]);
           }
-        }
-      )
-      .on('postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'comments',
-          filter: `post_id=eq.${postId}`
-        },
-        (payload) => {
-          const updatedComment = payload.new as any;
-          
-          setComments(prevComments => {
-            return updateCommentInList(prevComments, {
-              id: updatedComment.id,
-              likes: updatedComment.likes || 0
-            });
-          });
         }
       )
       .subscribe();
@@ -330,66 +311,22 @@ export const CommentProvider: React.FC<{
     
     // Save to localStorage
     localStorage.setItem(`user_liked_comments_${user.id}`, JSON.stringify(newLiked));
-    
-    // Find the comment to update its likes count
-    let commentToUpdate: Comment | undefined;
-    
-    const findComment = (comments: Comment[]): Comment | undefined => {
-      for (const comment of comments) {
-        if (comment.id === commentId) {
-          return comment;
-        }
-        if (comment.replies && comment.replies.length > 0) {
-          const found = findComment(comment.replies);
-          if (found) return found;
-        }
-      }
-      return undefined;
-    };
-    
-    commentToUpdate = findComment(comments);
-    
-    if (commentToUpdate) {
-      const newLikesCount = isLiked 
-        ? Math.max(0, (commentToUpdate.likes || 0) - 1)
-        : (commentToUpdate.likes || 0) + 1;
-      
-      try {
-        const { error } = await supabase
-          .from('comments')
-          .update({ likes: newLikesCount })
-          .eq('id', commentId);
-        
-        if (error) throw error;
-        
-        // Since we're subscribed to real-time updates, the UI will update automatically
-      } catch (error) {
-        console.error('Error updating comment likes:', error);
-        toast({
-          title: "Erro ao curtir comentário",
-          description: "Não foi possível registrar sua curtida. Tente novamente.",
-          variant: "destructive"
-        });
-        
-        // Revert UI state on error
-        setLiked(prev => ({ ...prev, [commentId]: isLiked }));
-      }
-    }
   };
 
   const postComment = async (text: string, parentId: string | null = null) => {
     if (!text.trim() || !user || !postId) return;
     
     try {
+      const commentData = {
+        post_id: postId,
+        user_id: user.id,
+        text: text,
+        parent_id: parentId
+      };
+      
       const { data, error } = await supabase
         .from('comments')
-        .insert({
-          post_id: postId,
-          user_id: user.id,
-          text: text,
-          parent_id: parentId,
-          likes: 0
-        })
+        .insert(commentData)
         .select('id, created_at')
         .single();
       

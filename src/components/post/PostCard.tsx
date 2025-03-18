@@ -30,7 +30,7 @@ export function PostCard({
   compact = false 
 }: PostCardProps) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [commentCount, setCommentCount] = useState(0);
   const [likedByUsers, setLikedByUsers] = useState<Array<{id: string, name: string}>>([]);
   const [localLikes, setLocalLikes] = useState(post.likes || 0);
@@ -52,8 +52,47 @@ export function PostCard({
       }
     };
     
+    const fetchComments = async () => {
+      try {
+        setIsLoadingComments(true);
+        const { data, error } = await supabase
+          .from('comments')
+          .select(`
+            id,
+            text,
+            user_id,
+            created_at,
+            parent_id,
+            post_id
+          `)
+          .eq('post_id', post.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Transform comments to our Comment type
+        const formattedComments: Comment[] = data.map(comment => ({
+          id: comment.id,
+          text: comment.text,
+          author: 'Loading...',
+          authorId: comment.user_id,
+          timestamp: comment.created_at,
+          parentId: comment.parent_id,
+          likes: 0,
+          post_id: comment.post_id
+        }));
+        
+        setComments(formattedComments);
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      } finally {
+        setIsLoadingComments(false);
+      }
+    };
+    
     if (post.id) {
       fetchCommentCount();
+      fetchComments();
       fetchLikedByUsers();
       
       // Subscribe to real-time updates for this post
