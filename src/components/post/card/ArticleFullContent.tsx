@@ -55,11 +55,7 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
     ? new Date(post.timestamp).toLocaleDateString('pt-BR') 
     : '';
     
-  // For service posts or generic posts, we prioritize content
-  const mainDisplayContent = post.type === 'technical_article' 
-    ? (post.mainContent || post.content || '')
-    : (post.content || post.mainContent || '');
-    
+  // For technical articles, we should ensure we're using all available content 
   return (
     <div className="mt-4 space-y-6">
       <div className="flex flex-wrap gap-2 text-sm text-gray-500">
@@ -91,21 +87,38 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
       {post.summary && (
         <div className="bg-blue-50 p-4 rounded-md">
           <h3 className="font-medium mb-1">Resumo</h3>
-          <p className="whitespace-pre-line">{post.summary}</p>
+          <div 
+            className="whitespace-pre-line"
+            dangerouslySetInnerHTML={{ 
+              __html: formatText(post.summary) 
+            }}
+          />
         </div>
       )}
       
-      <div>
-        <h3 className="font-medium mb-2 text-lg">
-          {post.type === 'technical_article' ? 'Conteúdo Principal' : 'Conteúdo Completo'}
-        </h3>
-        <div 
-          className="article-content space-y-4 whitespace-pre-line" 
-          dangerouslySetInnerHTML={{ 
-            __html: formatText(mainDisplayContent) 
-          }}
-        />
-      </div>
+      {post.mainContent && (
+        <div>
+          <h3 className="font-medium mb-2 text-lg">Conteúdo Principal</h3>
+          <div 
+            className="article-content space-y-4" 
+            dangerouslySetInnerHTML={{ 
+              __html: formatText(post.mainContent) 
+            }}
+          />
+        </div>
+      )}
+      
+      {!post.mainContent && post.content && (
+        <div>
+          <h3 className="font-medium mb-2 text-lg">Conteúdo</h3>
+          <div 
+            className="article-content space-y-4" 
+            dangerouslySetInnerHTML={{ 
+              __html: formatText(post.content) 
+            }}
+          />
+        </div>
+      )}
       
       {post.conclusions && (
         <div className="bg-gray-50 p-4 rounded-md mt-6">
