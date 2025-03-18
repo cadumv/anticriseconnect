@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Comment } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -119,7 +118,7 @@ export function CommentItem({
       <div className="flex-1">
         <div className="relative group">
           <div className="bg-gray-100 p-2 rounded-lg">
-            <p className="font-medium text-sm">{authorName}</p>
+            <p className="font-bold text-sm">{authorName}</p>
             <div 
               className="text-sm" 
               dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
