@@ -32,6 +32,7 @@ export function CommentForm() {
     if (imagePreview) {
       // Make sure to add a line break if there's already comment text
       const separator = finalComment.trim() ? '\n' : '';
+      // Ensure consistent format for the image tag
       finalComment += `${separator}<img src="${imagePreview}" alt="Uploaded image" class="comment-image" />`;
     }
     

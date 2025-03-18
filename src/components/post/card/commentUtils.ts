@@ -65,12 +65,21 @@ export const processCommentImages = (text: string): string => {
     return text;
   }
   
-  // Convert complex image tags to simpler ones that can be properly parsed
-  return text.replace(
-    /<img src="(data:image\/[^;]+;base64,[^"]+|https?:\/\/[^"]+)" alt="([^"]*)" class="([^"]*)" \/>/g,
+  // First handle any complex image tags and convert them to consistent format
+  let processedText = text.replace(
+    /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*class="([^"]*)"[^>]*\/?>/g,
     (match, src, alt, className) => {
-      // Create a cleaner img tag for display
       return `<img src="${src}" alt="${alt}" class="${className}" />`;
     }
   );
+  
+  // Then handle simple image tags
+  processedText = processedText.replace(
+    /<img src="(data:image\/[^;]+;base64,[^"]+|https?:\/\/[^"]+)" alt="([^"]*)" class="([^"]*)"(\/| \/)>/g,
+    (match, src, alt, className) => {
+      return `<img src="${src}" alt="${alt}" class="${className}" />`;
+    }
+  );
+  
+  return processedText;
 };
