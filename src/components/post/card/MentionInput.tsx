@@ -73,7 +73,7 @@ export const MentionInput = forwardRef<HTMLTextAreaElement, MentionInputProps>(
     ).slice(0, 5); // Limit to 5 suggestions
     
     return (
-      <div className="relative">
+      <div className="relative w-full">
         <Textarea
           {...props}
           ref={(node) => {
@@ -87,6 +87,7 @@ export const MentionInput = forwardRef<HTMLTextAreaElement, MentionInputProps>(
           }}
           value={value}
           onChange={handleChange}
+          className="w-full min-h-0 p-0 border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         
         {showSuggestions && filteredUsers.length > 0 && (

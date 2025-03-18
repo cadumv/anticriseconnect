@@ -37,7 +37,7 @@ export function CommentForm() {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 w-full">
       <Avatar className="h-8 w-8 flex-shrink-0">
         <AvatarImage 
           src={user.user_metadata?.avatar_url} 
@@ -46,7 +46,7 @@ export function CommentForm() {
         <AvatarFallback>{(user.user_metadata?.name?.[0] || "U").toUpperCase()}</AvatarFallback>
       </Avatar>
       
-      <div className="flex-1 relative">
+      <div className="flex-1 w-full">
         {replyTo && (
           <div className="bg-gray-100 p-2 mb-2 rounded-md flex justify-between items-center">
             <span className="text-sm text-gray-600">
@@ -65,8 +65,8 @@ export function CommentForm() {
           </div>
         )}
         
-        <div className="rounded-full border border-gray-300 bg-gray-100 hover:border-gray-400 focus-within:border-gray-400 transition-colors">
-          <div className="flex items-center pr-2">
+        <div className="w-full rounded-full border border-gray-300 bg-gray-100 hover:border-gray-400 focus-within:border-gray-400 transition-colors">
+          <div className="flex items-center pr-2 w-full">
             <MentionInput
               users={mentionUsers}
               value={comment}
@@ -77,7 +77,7 @@ export function CommentForm() {
               ref={commentInputRef}
             />
             
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-shrink-0">
               <button 
                 className="p-1 rounded-full text-gray-500 hover:bg-gray-200"
                 disabled={!comment.trim()}
