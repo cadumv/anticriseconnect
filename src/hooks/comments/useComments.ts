@@ -83,4 +83,5 @@ export function useComments(postId: string): UseCommentsReturn {
   };
 }
 
-export { AuthorProfile };
+// Use 'export type' instead of 'export' for re-exporting types
+export type { AuthorProfile };
