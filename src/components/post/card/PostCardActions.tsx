@@ -8,6 +8,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { toast } from "sonner";
 
 interface PostCardActionsProps {
   postId: string;
@@ -47,6 +53,20 @@ export function PostCardActions({
       const firstUsers = likedByUsers.slice(0, 3).map(user => user.name).join(", ");
       return `${firstUsers} e ${likedByUsers.length - 3} outros`;
     }
+  };
+  
+  const handleGenerateLink = () => {
+    // Generate a shareable link
+    const url = `${window.location.origin}/post/${postId}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        toast.success("Link copiado para a área de transferência");
+      })
+      .catch(() => {
+        toast.error("Não foi possível copiar o link");
+      });
   };
   
   return (
@@ -89,17 +109,43 @@ export function PostCardActions({
           </div>
         </Button>
         
-        <Button
-          onClick={() => onShare(postId)}
-          variant="ghost"
-          size="sm"
-          className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
-        >
-          <div className="flex items-center justify-center gap-2 w-full text-gray-600">
-            <Share2 size={18} className="text-gray-500" />
-            <span className="text-sm font-medium">Compartilhar</span>
-          </div>
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
+            >
+              <div className="flex items-center justify-center gap-2 w-full text-gray-600">
+                <Share2 size={18} className="text-gray-500" />
+                <span className="text-sm font-medium">Compartilhar</span>
+              </div>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-3">
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm">Compartilhar publicação</h4>
+              <div className="grid gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onShare(postId)}
+                  className="justify-start"
+                >
+                  Compartilhar com contatos
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleGenerateLink}
+                  className="justify-start"
+                >
+                  Copiar link
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <Button
           variant="ghost"
