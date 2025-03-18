@@ -20,6 +20,36 @@ export const ProfileAvatar = ({ userId, avatarUrl, setAvatarUrl }: ProfileAvatar
     fileInputRef.current?.click();
   };
 
+  const deleteOldAvatar = async () => {
+    // Skip if no previous avatar exists
+    if (!avatarUrl) return;
+    
+    try {
+      // Extract the file path from the avatar URL
+      const storageUrl = new URL(avatarUrl);
+      const pathArray = storageUrl.pathname.split('/');
+      const bucketName = pathArray[1];
+      
+      // The actual file path in storage is everything after the bucket name
+      const filePath = pathArray.slice(2).join('/');
+      
+      if (bucketName === 'avatars') {
+        // Delete the old avatar file
+        const { error } = await supabase.storage
+          .from(bucketName)
+          .remove([filePath]);
+        
+        if (error) {
+          console.error("Error deleting old avatar:", error);
+        } else {
+          console.log("Old avatar deleted successfully");
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing avatar URL or deleting file:", error);
+    }
+  };
+
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -41,6 +71,9 @@ export const ProfileAvatar = ({ userId, avatarUrl, setAvatarUrl }: ProfileAvatar
       if (!file.type.startsWith("image/")) {
         throw new Error("O arquivo deve ser uma imagem.");
       }
+
+      // Delete old avatar before uploading new one
+      await deleteOldAvatar();
 
       // Fazer upload da imagem
       const { data, error } = await supabase.storage
