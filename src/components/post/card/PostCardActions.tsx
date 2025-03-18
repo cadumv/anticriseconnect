@@ -2,6 +2,12 @@
 import React from "react";
 import { Heart, Share2, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PostCardActionsProps {
   postId: string;
@@ -15,6 +21,7 @@ interface PostCardActionsProps {
   onShare: (postId: string) => void;
   onComment: () => void;
   compact?: boolean;
+  likedByUsers?: Array<{id: string, name: string}>;
 }
 
 export function PostCardActions({
@@ -26,7 +33,8 @@ export function PostCardActions({
   onLike,
   onShare,
   onComment,
-  compact = false
+  compact = false,
+  likedByUsers = []
 }: PostCardActionsProps) {
   const isLiked = liked[postId] || false;
   
@@ -36,22 +44,43 @@ export function PostCardActions({
     
   const iconSize = compact ? 14 : 18;
   
+  // Format the list of users who liked the post
+  const formatLikedByList = () => {
+    if (likedByUsers.length === 0) return "Ninguém curtiu ainda";
+    
+    if (likedByUsers.length <= 3) {
+      return likedByUsers.map(user => user.name).join(", ");
+    } else {
+      const firstUsers = likedByUsers.slice(0, 3).map(user => user.name).join(", ");
+      return `${firstUsers} e ${likedByUsers.length - 3} outros`;
+    }
+  };
+  
   return (
     <div className={`flex items-center justify-between px-4 py-1 ${compact ? 'text-xs' : 'text-sm'}`}>
       <div className="flex items-center gap-1">
-        <Button
-          onClick={() => onLike(postId)} 
-          variant="ghost"
-          size="sm"
-          className={buttonClasses}
-        >
-          <Heart 
-            size={iconSize}
-            fill={isLiked ? "currentColor" : "none"} 
-            className={isLiked ? "text-red-500" : "text-gray-500"} 
-          />
-          <span>{likes > 0 ? likes : ''}</span>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => onLike(postId)} 
+                variant="ghost"
+                size="sm"
+                className={buttonClasses}
+              >
+                <Heart 
+                  size={iconSize}
+                  fill={isLiked ? "currentColor" : "none"} 
+                  className={isLiked ? "text-red-500" : "text-gray-500"} 
+                />
+                <span>{likes > 0 ? likes : ''}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{formatLikedByList()}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <Button
           onClick={onComment}

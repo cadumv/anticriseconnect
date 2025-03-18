@@ -19,7 +19,8 @@ export interface Post {
   saves?: number;
   shares?: number;
   user_id?: string;
-  metadata?: any; // Add metadata field
+  metadata?: any;
+  liked_by?: Array<{id: string, name: string}>; // Add liked_by field
 }
 
 export interface AchievementPost {
@@ -48,5 +49,6 @@ export interface StandardPost {
   saves?: number;
   shares?: number;
   user_id?: string;
-  metadata?: any; // Add metadata field
+  metadata?: any;
+  liked_by?: Array<{id: string, name: string}>; // Add liked_by field
 }
