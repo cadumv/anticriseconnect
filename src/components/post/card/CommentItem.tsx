@@ -2,7 +2,6 @@
 import React from "react";
 import { Comment } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Heart, Reply } from "lucide-react";
 import { formatCommentText } from "./commentUtils";
 
@@ -135,3 +134,5 @@ export function CommentItem({
     </div>
   );
 }
+
+export default CommentItem;
