@@ -35,6 +35,9 @@ export const usePostInteractions = (
         .eq('id', postId);
       
       if (error) throw error;
+      
+      // In a real app, we would also update a likes table to track who liked the post
+      // This is just a simplified version that updates the like count on the post
     } catch (error) {
       console.error("Error updating likes:", error);
       toast({

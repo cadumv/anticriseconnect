@@ -33,8 +33,9 @@ export function PostCard({
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [likedByUsers, setLikedByUsers] = useState<Array<{id: string, name: string}>>([]);
+  const [localLikes, setLocalLikes] = useState(post.likes || 0);
 
-  // Get comment count when the post is loaded
+  // Get comment count and likes when the post is loaded
   useEffect(() => {
     const fetchCommentCount = async () => {
       try {
@@ -54,6 +55,28 @@ export function PostCard({
     if (post.id) {
       fetchCommentCount();
       fetchLikedByUsers();
+      
+      // Subscribe to real-time updates for this post
+      const postChannel = supabase
+        .channel(`post-${post.id}`)
+        .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'posts',
+            filter: `id=eq.${post.id}`
+          }, 
+          (payload) => {
+            const updatedPost = payload.new as any;
+            setLocalLikes(updatedPost.likes || 0);
+            fetchLikedByUsers(); // Refetch liked by users on update
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(postChannel);
+      };
     }
   }, [post.id]);
   
@@ -74,12 +97,14 @@ export function PostCard({
         if (data && data.length > 0) {
           // Simulate liked users by taking a random subset of profiles
           // In a real implementation, you would query a likes table
-          const numLikes = Math.min(post.likes, data.length);
+          const numLikes = Math.min(localLikes, data.length);
           const shuffled = [...data].sort(() => 0.5 - Math.random());
           const selectedUsers = shuffled.slice(0, numLikes);
           
           setLikedByUsers(selectedUsers);
         }
+      } else {
+        setLikedByUsers([]);
       }
     } catch (error) {
       console.error("Error fetching liked by users:", error);
@@ -90,6 +115,20 @@ export function PostCard({
   const contentPreview = post.content && post.content.length > 80 
     ? post.content.substring(0, 80) + '...' 
     : post.content;
+  
+  // Custom like handler to update UI immediately
+  const handlePostLike = (postId: string) => {
+    // Call the parent onLike handler
+    onLike(postId);
+    
+    // Update local likes count for immediate feedback
+    const isCurrentlyLiked = liked[postId] || false;
+    const newLikesCount = isCurrentlyLiked 
+      ? Math.max(0, localLikes - 1)
+      : localLikes + 1;
+    
+    setLocalLikes(newLikesCount);
+  };
   
   return (
     <div className={`rounded-md border bg-white shadow-sm ${compact ? 'text-sm' : ''}`}>
@@ -115,15 +154,15 @@ export function PostCard({
       
       <PostCardActions 
         postId={post.id}
-        likes={post.likes}
+        likes={localLikes}
         shares={post.shares}
         comments={commentCount}
         liked={liked}
         saved={saved}
-        onLike={onLike}
+        onLike={handlePostLike}
         onSave={onSave}
         onShare={onShare}
-        onComment={() => {}} // Empty function since we don't toggle comments anymore
+        onComment={() => {}} // Empty function since comments are always visible now
         compact={compact}
         likedByUsers={likedByUsers}
       />
@@ -132,7 +171,6 @@ export function PostCard({
         <CommentSection 
           comments={comments}
           isLoading={isLoadingComments}
-          onCancel={() => {}} // Empty function since we don't hide comments anymore
           postId={post.id}
         />
       )}

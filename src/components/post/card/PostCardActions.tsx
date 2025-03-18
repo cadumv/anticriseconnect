@@ -102,8 +102,6 @@ export function PostCardActions({
           <span>{shares > 0 ? shares : ''}</span>
         </Button>
       </div>
-      
-      {/* Save button removed */}
     </div>
   );
 }

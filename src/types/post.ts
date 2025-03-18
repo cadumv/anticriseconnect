@@ -20,7 +20,7 @@ export interface Post {
   shares?: number;
   user_id?: string;
   metadata?: any;
-  liked_by?: Array<{id: string, name: string}>; // Add liked_by field
+  liked_by?: Array<{id: string, name: string}>;
 }
 
 export interface AchievementPost {
@@ -50,5 +50,19 @@ export interface StandardPost {
   shares?: number;
   user_id?: string;
   metadata?: any;
-  liked_by?: Array<{id: string, name: string}>; // Add liked_by field
+  liked_by?: Array<{id: string, name: string}>;
+}
+
+export interface Comment {
+  id: string;
+  text: string;
+  author: string;
+  authorId?: string;
+  authorAvatar?: string;
+  timestamp: string;
+  parentId?: string | null;
+  likes?: number;
+  liked_by?: Array<{id: string, name: string}>;
+  replies?: Comment[];
+  post_id?: string;
 }
