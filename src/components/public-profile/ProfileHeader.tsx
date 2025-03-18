@@ -40,13 +40,63 @@ export const ProfileHeader = ({
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        // Example query to fetch counts - adjust based on your actual database structure
-        // This is a placeholder implementation
-        
-        // For now, we'll set some placeholder values
-        setConnections(Math.floor(Math.random() * 10) + 5); // Random number between 5 and 14
-        setFollowers(Math.floor(Math.random() * 20) + 10); // Random number between 10 and 29
-        setFollowing(Math.floor(Math.random() * 15) + 5); // Random number between 5 and 19
+        // For now, we'll show real counts based on localStorage if available
+        if (currentUser) {
+          // Get following count
+          const followingData = localStorage.getItem(`following_${profile.id}`);
+          if (followingData) {
+            try {
+              const followingList = JSON.parse(followingData);
+              if (Array.isArray(followingList)) {
+                setFollowing(followingList.length);
+              } else {
+                setFollowing(0);
+              }
+            } catch (e) {
+              setFollowing(0);
+            }
+          } else {
+            setFollowing(0);
+          }
+          
+          // Get followers (people following this profile)
+          let followersCount = 0;
+          if (profile.id) {
+            const allUserIds = [];
+            // This is just a demo implementation - in a real app, we would query the database
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith('following_')) {
+                allUserIds.push(key.replace('following_', ''));
+              }
+            }
+            
+            // Check each user's following list
+            for (const userId of allUserIds) {
+              const userData = localStorage.getItem(`following_${userId}`);
+              if (userData) {
+                try {
+                  const userFollowing = JSON.parse(userData);
+                  if (Array.isArray(userFollowing) && userFollowing.includes(profile.id)) {
+                    followersCount++;
+                  }
+                } catch (e) {
+                  // Skip this user if data is invalid
+                }
+              }
+            }
+          }
+          setFollowers(followersCount);
+          
+          // Get connections (just a placeholder for now)
+          // For now using 0 for connections since we don't have a clear "connections" implementation
+          setConnections(0);
+        } else {
+          // Set zeros when not logged in
+          setConnections(0);
+          setFollowers(0);
+          setFollowing(0);
+        }
         
         // In a real implementation, you would fetch the actual counts:
         // const { count: followersCount } = await supabase
@@ -58,11 +108,15 @@ export const ProfileHeader = ({
         // ... similarly for connections and following
       } catch (error) {
         console.error("Error fetching counts:", error);
+        // Reset to zero on error
+        setConnections(0);
+        setFollowers(0);
+        setFollowing(0);
       }
     };
     
     fetchCounts();
-  }, [profile.id]);
+  }, [profile.id, currentUser, isFollowing]);
 
   return (
     <div className="flex flex-col gap-4">

@@ -17,6 +17,8 @@ export function CommentForm() {
   }
 
   const handlePostComment = () => {
+    if (!comment.trim()) return;
+    
     postComment(comment, replyTo?.id || null);
     setComment("");
     setReplyTo(null);
@@ -70,12 +72,16 @@ export function CommentForm() {
             onChange={setComment}
             onKeyDown={handleKeyDown}
             placeholder={replyTo ? "Escreva uma resposta..." : "Adicionar comentário..."}
-            className="w-full rounded-full px-3 py-2 bg-gray-100 border-none focus:ring-0 min-h-[38px] text-sm"
+            className="w-full rounded-full px-3 py-2 bg-gray-100 border-none focus:ring-0 min-h-[38px] text-sm resize-none"
             ref={commentInputRef}
           />
           
           <div className="flex gap-1">
-            <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
+            <button 
+              className="p-1 rounded-full text-gray-500 hover:bg-gray-200"
+              disabled={!comment.trim()}
+              onClick={handlePostComment}
+            >
               <SmilePlus size={18} />
             </button>
             <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
