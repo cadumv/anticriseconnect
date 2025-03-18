@@ -19,16 +19,16 @@ const Index = () => {
 
   // Load user achievements when component mounts or user changes
   useEffect(() => {
-    console.log("Current ID param:", user?.id);
-    
     if (user) {
       const userAchievements = AchievementsManager.getUserAchievements(user.id);
       setAchievements(userAchievements);
 
-      // Check for profile achievement
-      const profileAchievement = AchievementsManager.checkProfileCompleted(user);
-      if (profileAchievement) {
-        setAchievementUnlocked(profileAchievement);
+      // Check for unlocked achievements that haven't been shown yet
+      const unlockedAchievements = AchievementsManager.getUnlockedAchievements(user.id);
+      const achievementToShow = AchievementsManager.checkForNewAchievements(user.id);
+      
+      if (achievementToShow) {
+        setAchievementUnlocked(achievementToShow);
         setShowAchievementPopup(true);
         // Update achievements list immediately
         setAchievements(AchievementsManager.getUserAchievements(user.id));
@@ -37,37 +37,6 @@ const Index = () => {
       // Store user name for later reference
       if (user.user_metadata?.name) {
         localStorage.setItem(`user_name_${user.id}`, user.user_metadata.name);
-      }
-
-      // Check for connections achievement if profile achievement wasn't unlocked
-      if (!profileAchievement) {
-        const connectionsAchievement = AchievementsManager.checkConnectionsAchievement(user.id);
-        if (connectionsAchievement) {
-          setAchievementUnlocked(connectionsAchievement);
-          setShowAchievementPopup(true);
-          // Update achievements list immediately
-          setAchievements(AchievementsManager.getUserAchievements(user.id));
-        }
-        // Check for first publication achievement if no other achievements were unlocked
-        else {
-          const publicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
-          if (publicationAchievement) {
-            setAchievementUnlocked(publicationAchievement);
-            setShowAchievementPopup(true);
-            // Update achievements list immediately
-            setAchievements(AchievementsManager.getUserAchievements(user.id));
-          }
-          // Check for technical article achievement
-          else {
-            const technicalArticleAchievement = AchievementsManager.checkTechnicalArticleAchievement(user.id);
-            if (technicalArticleAchievement) {
-              setAchievementUnlocked(technicalArticleAchievement);
-              setShowAchievementPopup(true);
-              // Update achievements list immediately
-              setAchievements(AchievementsManager.getUserAchievements(user.id));
-            }
-          }
-        }
       }
     }
   }, [user]);

@@ -13,6 +13,7 @@ export const ProfileHeader = () => {
   const [connections, setConnections] = useState(0);
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
+  const [avatarKey, setAvatarKey] = useState(Date.now()); // Use a key to force refresh of avatar
   
   useEffect(() => {
     if (!user) return;
@@ -31,9 +32,11 @@ export const ProfileHeader = () => {
         }
         
         // Also count incoming accepted requests
-        const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', user.id);
-        if (allUsers.data) {
-          for (const otherUser of allUsers.data) {
+        const allProfiles = await supabase.from('profiles').select('id');
+        if (allProfiles.data) {
+          for (const otherUser of allProfiles.data) {
+            if (otherUser.id === user.id) continue;
+            
             const connectionKey = `connection_requests_${otherUser.id}`;
             const existingRequests = localStorage.getItem(connectionKey);
             
@@ -60,12 +63,17 @@ export const ProfileHeader = () => {
       try {
         let followerCount = 0;
         // Check each user's following list to see if they follow the current user
-        const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', user.id);
-        if (allUsers.data) {
-          for (const potentialFollower of allUsers.data) {
+        const allProfiles = await supabase.from('profiles').select('id');
+        if (allProfiles.data) {
+          for (const potentialFollower of allProfiles.data) {
+            if (potentialFollower.id === user.id) continue;
+            
             const followingData = localStorage.getItem(`following_${potentialFollower.id}`);
-            if (followingData && JSON.parse(followingData).includes(user.id)) {
-              followerCount++;
+            if (followingData) {
+              const followingList = JSON.parse(followingData);
+              if (Array.isArray(followingList) && followingList.includes(user.id)) {
+                followerCount++;
+              }
             }
           }
         }
@@ -82,7 +90,7 @@ export const ProfileHeader = () => {
         const followingData = localStorage.getItem(`following_${user.id}`);
         if (followingData) {
           const followingList = JSON.parse(followingData);
-          setFollowing(followingList.length);
+          setFollowing(Array.isArray(followingList) ? followingList.length : 0);
         } else {
           setFollowing(0);
         }
@@ -94,6 +102,11 @@ export const ProfileHeader = () => {
     countConnections();
     countFollowers();
     countFollowing();
+    
+    // Force avatar refresh on user metadata change
+    if (user.user_metadata?.avatar_url) {
+      setAvatarKey(Date.now());
+    }
   }, [user]);
   
   return (
@@ -102,7 +115,7 @@ export const ProfileHeader = () => {
         <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
           {user?.user_metadata?.avatar_url ? (
             <img 
-              src={user.user_metadata.avatar_url} 
+              src={`${user.user_metadata.avatar_url}?v=${avatarKey}`} 
               alt="Foto de perfil" 
               className="w-full h-full object-cover"
             />

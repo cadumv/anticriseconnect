@@ -1,15 +1,18 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface Comment {
   id: string;
   text: string;
   author: string;
+  authorId?: string;
+  authorAvatar?: string;
   timestamp: string;
 }
 
@@ -19,18 +22,61 @@ interface CommentSectionProps {
   onCancel: () => void;
 }
 
-export function CommentSection({ comments, isLoading, onCancel }: CommentSectionProps) {
+export function CommentSection({ comments: initialComments, isLoading, onCancel }: CommentSectionProps) {
   const { user } = useAuth();
   const [comment, setComment] = useState("");
-  const [localComments, setLocalComments] = useState<Comment[]>(comments);
+  const [localComments, setLocalComments] = useState<Comment[]>(initialComments);
+  const [authorProfiles, setAuthorProfiles] = useState<Record<string, { avatar_url: string, name: string }>>({});
+  
+  // Fetch profile pictures for all authors in comments
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      try {
+        if (initialComments.length === 0) return;
+        
+        // Get unique author IDs
+        const authorIds = Array.from(new Set(initialComments
+          .filter(comment => comment.authorId)
+          .map(comment => comment.authorId)
+        ));
+        
+        if (authorIds.length === 0) return;
+        
+        // Fetch profiles for these authors
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, avatar_url, name')
+          .in('id', authorIds as string[]);
+        
+        if (error) throw error;
+        
+        // Create a lookup map of author ID to avatar URL
+        const profileMap: Record<string, { avatar_url: string, name: string }> = {};
+        data?.forEach(profile => {
+          profileMap[profile.id] = { 
+            avatar_url: profile.avatar_url || '', 
+            name: profile.name || 'Usuário' 
+          };
+        });
+        
+        setAuthorProfiles(profileMap);
+      } catch (error) {
+        console.error('Error fetching author profiles:', error);
+      }
+    };
+    
+    fetchProfiles();
+  }, [initialComments]);
   
   const postComment = () => {
     if (!comment.trim() || !user) return;
     
-    const newComment = {
+    const newComment: Comment = {
       id: `temp-${Date.now()}`,
       text: comment,
       author: user.user_metadata?.name || "Usuário",
+      authorId: user.id,
+      authorAvatar: user.user_metadata?.avatar_url,
       timestamp: new Date().toISOString()
     };
     
@@ -50,7 +96,10 @@ export function CommentSection({ comments, isLoading, onCancel }: CommentSection
       {user && (
         <div className="flex gap-3 mb-4">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.user_metadata?.avatar_url} />
+            <AvatarImage 
+              src={user.user_metadata?.avatar_url} 
+              alt={user.user_metadata?.name || "Usuário"}
+            />
             <AvatarFallback>{(user.user_metadata?.name?.[0] || "U").toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -87,29 +136,40 @@ export function CommentSection({ comments, isLoading, onCancel }: CommentSection
         </div>
       ) : (
         <div className="space-y-4">
-          {localComments.map((comment) => (
-            <div key={comment.id} className="flex gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{comment.author[0].toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="bg-gray-100 p-3 rounded-lg">
-                  <p className="font-medium text-sm">{comment.author}</p>
-                  <p className="text-sm">{comment.text}</p>
-                </div>
-                <div className="flex gap-4 mt-1 text-xs text-gray-500">
-                  <span>
-                    {new Date(comment.timestamp).toLocaleDateString('pt-BR', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                  <button className="hover:text-blue-600">Responder</button>
-                  <button className="hover:text-blue-600">Curtir</button>
+          {localComments.map((comment) => {
+            // Get profile info if available
+            const profileInfo = comment.authorId ? authorProfiles[comment.authorId] : null;
+            const avatarUrl = comment.authorAvatar || (profileInfo ? profileInfo.avatar_url : null);
+            const authorName = comment.author || (profileInfo ? profileInfo.name : 'Usuário');
+            
+            return (
+              <div key={comment.id} className="flex gap-3">
+                <Avatar className="h-8 w-8">
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt={authorName} />
+                  ) : (
+                    <AvatarFallback>{authorName[0].toUpperCase()}</AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="flex-1">
+                  <div className="bg-gray-100 p-3 rounded-lg">
+                    <p className="font-medium text-sm">{authorName}</p>
+                    <p className="text-sm">{comment.text}</p>
+                  </div>
+                  <div className="flex gap-4 mt-1 text-xs text-gray-500">
+                    <span>
+                      {new Date(comment.timestamp).toLocaleDateString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                    <button className="hover:text-blue-600">Responder</button>
+                    <button className="hover:text-blue-600">Curtir</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           
           {localComments.length === 0 && (
             <p className="text-gray-500 text-center py-2">Seja o primeiro a comentar.</p>

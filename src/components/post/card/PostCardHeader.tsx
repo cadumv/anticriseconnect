@@ -97,7 +97,10 @@ export function PostCardHeader({ post, compact = false, onDelete }: PostCardHead
       <div className="flex items-start justify-between">
         <div className="flex gap-3">
           <Avatar className={compact ? "h-10 w-10" : "h-12 w-12"}>
-            <AvatarImage src={userProfile?.avatar_url || "https://github.com/shadcn.png"} alt={post.author || userProfile?.name || "User"} />
+            <AvatarImage 
+              src={userProfile?.avatar_url || "https://github.com/shadcn.png"} 
+              alt={post.author || userProfile?.name || "User"} 
+            />
             <AvatarFallback>{(userProfile?.name?.[0] || post.author?.[0] || "U").toUpperCase()}</AvatarFallback>
           </Avatar>
           
@@ -113,15 +116,15 @@ export function PostCardHeader({ post, compact = false, onDelete }: PostCardHead
         </div>
         
         <div className="flex items-center gap-1">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className={compact ? "h-7 w-7" : "h-8 w-8"}>
-                <MoreHorizontal className={`${compact ? 'h-4 w-4' : 'h-5 w-5'} text-gray-500`} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-0" align="end">
-              <div className="flex flex-col">
-                {isPostCreator && (
+          {isPostCreator && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className={compact ? "h-7 w-7" : "h-8 w-8"}>
+                  <MoreHorizontal className={`${compact ? 'h-4 w-4' : 'h-5 w-5'} text-gray-500`} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-0" align="end">
+                <div className="flex flex-col">
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -131,18 +134,12 @@ export function PostCardHeader({ post, compact = false, onDelete }: PostCardHead
                     <Trash2 size={16} />
                     <span>Excluir publicação</span>
                   </Button>
-                )}
-                <Button variant="ghost" size="sm" className="justify-start rounded-none">
-                  Denunciar
-                </Button>
-                <Button variant="ghost" size="sm" className="justify-start rounded-none">
-                  Não quero ver isso
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
           
-          {!compact && (
+          {!compact && !isPostCreator && (
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <X className="h-5 w-5 text-gray-500" />
             </Button>

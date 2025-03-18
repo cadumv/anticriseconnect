@@ -1,3 +1,4 @@
+
 import { Achievement } from "@/types/profile";
 import { checkProfileCompleted } from "./achievements/profile-achievements";
 import { checkConnectionsAchievement } from "./achievements/connection-achievements";
@@ -35,6 +36,48 @@ export class AchievementsManager {
   }
 
   /**
+   * Checks for new achievements that need to be shown to the user
+   */
+  static checkForNewAchievements(userId: string): Achievement | null {
+    const shownAchievements = this.getUnlockedAchievements(userId);
+    
+    // Check for profile achievement
+    const profileAchievement = this.checkProfileCompleted({ id: userId });
+    if (profileAchievement && !shownAchievements.includes(profileAchievement.id)) {
+      // Mark as shown
+      shownAchievements.push(profileAchievement.id);
+      this.saveUnlockedAchievements(userId, shownAchievements);
+      return profileAchievement;
+    }
+    
+    // Check for connections achievement
+    const connectionsAchievement = this.checkConnectionsAchievement(userId);
+    if (connectionsAchievement && !shownAchievements.includes(connectionsAchievement.id)) {
+      shownAchievements.push(connectionsAchievement.id);
+      this.saveUnlockedAchievements(userId, shownAchievements);
+      return connectionsAchievement;
+    }
+    
+    // Check for first publication achievement
+    const publicationAchievement = this.checkFirstPublicationAchievement(userId);
+    if (publicationAchievement && !shownAchievements.includes(publicationAchievement.id)) {
+      shownAchievements.push(publicationAchievement.id);
+      this.saveUnlockedAchievements(userId, shownAchievements);
+      return publicationAchievement;
+    }
+    
+    // Check for technical article achievement
+    const technicalArticleAchievement = this.checkTechnicalArticleAchievement(userId);
+    if (technicalArticleAchievement && !shownAchievements.includes(technicalArticleAchievement.id)) {
+      shownAchievements.push(technicalArticleAchievement.id);
+      this.saveUnlockedAchievements(userId, shownAchievements);
+      return technicalArticleAchievement;
+    }
+    
+    return null;
+  }
+
+  /**
    * Checks if the user has completed their profile and awards an achievement if so
    */
   static checkProfileCompleted(user: any): Achievement | null {
@@ -64,7 +107,8 @@ export class AchievementsManager {
         content: `🏆 Desbloqueei a conquista: ${achievement.title} (${achievement.points} pontos)`,
         type: 'achievement',
         achievementId: achievement.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        user_id: userId
       });
 
       localStorage.setItem(postsKey, JSON.stringify(posts));

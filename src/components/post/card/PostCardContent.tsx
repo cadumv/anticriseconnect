@@ -29,10 +29,21 @@ export function PostCardContent({ post }: PostCardContentProps) {
   const [showArticleDialog, setShowArticleDialog] = useState(false);
   
   const maxContentLength = 280;
-  const contentIsTruncated = (post.excerpt || post.content || '').length > maxContentLength;
-  const displayContent = showFullContent 
-    ? (post.excerpt || post.content || '') 
-    : (post.excerpt || post.content || '').substring(0, maxContentLength);
+  let displayContent = '';
+  
+  // For technical articles, prioritize showing the summary if available
+  if (post.type === 'technical_article') {
+    displayContent = post.summary || post.excerpt || post.content || '';
+  } else {
+    displayContent = post.excerpt || post.content || '';
+  }
+  
+  const contentIsTruncated = displayContent.length > maxContentLength;
+  const truncatedContent = contentIsTruncated 
+    ? displayContent.substring(0, maxContentLength) 
+    : displayContent;
+  
+  const displayedContent = showFullContent ? displayContent : truncatedContent;
   
   return (
     <div className="p-4">
@@ -49,8 +60,15 @@ export function PostCardContent({ post }: PostCardContentProps) {
         <h3 className="font-medium text-lg mb-2">{post.title}</h3>
       )}
       
+      {post.author && post.type === 'technical_article' && (
+        <div className="text-sm text-gray-600 mb-2">
+          <span className="font-medium">Autor:</span> {post.author}
+          {post.company && ` • ${post.company}`}
+        </div>
+      )}
+      
       <div className="whitespace-pre-line text-gray-800">
-        {displayContent}
+        {displayedContent}
         
         {contentIsTruncated && !showFullContent && (
           <Button 

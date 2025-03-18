@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,8 +23,22 @@ const Search = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Real-time search as user types
+  useEffect(() => {
+    const handleSearchDebounced = setTimeout(() => {
+      if (searchTerm && searchTerm.length >= 2) {
+        handleSearch();
+      }
+    }, 300);
+
+    return () => clearTimeout(handleSearchDebounced);
+  }, [searchTerm]);
+
   const handleSearch = async () => {
-    if (!searchTerm.trim()) return;
+    if (!searchTerm.trim() || searchTerm.length < 2) {
+      setSearchResults([]);
+      return;
+    }
     
     setIsLoading(true);
     try {
@@ -91,7 +106,7 @@ const Search = () => {
           </div>
 
           <div className="space-y-4">
-            {searchResults.length === 0 && searchTerm && !isLoading ? (
+            {searchResults.length === 0 && searchTerm.length >= 2 && !isLoading ? (
               <p className="text-center py-4 text-muted-foreground">
                 Nenhum profissional encontrado com esse termo de busca.
               </p>

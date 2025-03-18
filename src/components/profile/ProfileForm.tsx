@@ -11,7 +11,6 @@ import { useUsernameAvailability } from "@/hooks/useUsernameAvailability";
 import { Label } from "@/components/ui/label";
 import { Achievement } from "@/types/profile";
 import { AchievementsManager } from "@/services/AchievementsManager";
-import { AchievementPopup } from "../achievements/AchievementPopup";
 import { Mission } from "../achievements/types/mission";
 
 interface ProfileFormProps {
@@ -40,10 +39,6 @@ export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }
   
   // Avatar
   const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || "");
-
-  // Achievement popup
-  const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
-  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
 
   // Username validation
   const { usernameError, usernameAvailable } = useUsernameAvailability({ 
@@ -148,7 +143,13 @@ export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }
       if (updatedUser) {
         const achievement = AchievementsManager.checkProfileCompleted(updatedUser);
         if (achievement) {
-          onAchievementUnlocked?.(achievement);
+          // Mark as shown to prevent duplicate showing
+          const shownAchievements = AchievementsManager.getUnlockedAchievements(user.id);
+          if (!shownAchievements.includes(achievement.id)) {
+            shownAchievements.push(achievement.id);
+            AchievementsManager.saveUnlockedAchievements(user.id, shownAchievements);
+            onAchievementUnlocked?.(achievement);
+          }
         }
       }
       
@@ -164,64 +165,44 @@ export const ProfileForm = ({ user, setIsEditingProfile, onAchievementUnlocked }
     }
   };
 
-  const handleShareAchievement = () => {
-    if (achievementUnlocked && user) {
-      AchievementsManager.shareAchievement(user.id, achievementUnlocked);
-      setShowAchievementPopup(false);
-    }
-  };
-
   return (
-    <>
-      <form onSubmit={updateProfile}>
-        <div className="grid gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="avatar">Foto de perfil</Label>
-            <ProfileAvatar 
-              userId={user.id} 
-              avatarUrl={avatarUrl} 
-              setAvatarUrl={setAvatarUrl} 
-            />
-          </div>
-
-          <PersonalInfoFields
-            user={user}
-            name={name}
-            setName={setName}
-            username={username}
-            setUsername={setUsername}
-            usernameError={usernameError}
-            phone={phone}
-            setPhone={setPhone}
-          />
-          
-          <ProfessionalInfoFields
-            engineeringType={engineeringType}
-            setEngineeringType={setEngineeringType}
-            areasOfExpertise={areasOfExpertise}
-            updateAreasOfExpertise={updateAreasOfExpertise}
-            professionalDescription={professionalDescription}
-            setProfessionalDescription={setProfessionalDescription}
-          />
-          
-          <ProfileFormActions
-            loading={loading}
-            isFormValid={usernameAvailable}
-            onCancel={() => setIsEditingProfile(false)}
+    <form onSubmit={updateProfile}>
+      <div className="grid gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="avatar">Foto de perfil</Label>
+          <ProfileAvatar 
+            userId={user.id} 
+            avatarUrl={avatarUrl} 
+            setAvatarUrl={setAvatarUrl} 
           />
         </div>
-      </form>
-      
-      {/* Achievement Popup */}
-      {achievementUnlocked && (
-        <AchievementPopup
-          isOpen={showAchievementPopup}
-          onClose={() => setShowAchievementPopup(false)}
-          userName={name || user.user_metadata?.name || ""}
-          achievementTitle={achievementUnlocked.title}
-          onShare={handleShareAchievement}
+
+        <PersonalInfoFields
+          user={user}
+          name={name}
+          setName={setName}
+          username={username}
+          setUsername={setUsername}
+          usernameError={usernameError}
+          phone={phone}
+          setPhone={setPhone}
         />
-      )}
-    </>
+        
+        <ProfessionalInfoFields
+          engineeringType={engineeringType}
+          setEngineeringType={setEngineeringType}
+          areasOfExpertise={areasOfExpertise}
+          updateAreasOfExpertise={updateAreasOfExpertise}
+          professionalDescription={professionalDescription}
+          setProfessionalDescription={setProfessionalDescription}
+        />
+        
+        <ProfileFormActions
+          loading={loading}
+          isFormValid={usernameAvailable}
+          onCancel={() => setIsEditingProfile(false)}
+        />
+      </div>
+    </form>
   );
 };
