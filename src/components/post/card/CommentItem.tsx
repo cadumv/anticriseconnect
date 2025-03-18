@@ -3,7 +3,7 @@ import React from "react";
 import { Comment } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, Reply } from "lucide-react";
-import { formatCommentText } from "./commentUtils";
+import { formatCommentText, processCommentImages } from "./commentUtils";
 import { useNavigate } from "react-router-dom";
 import CommentReplies from "./CommentReplies";
 
@@ -62,6 +62,10 @@ export function CommentItem({
     return `${Math.floor(diffInMonths / 12)}a`;
   };
 
+  // Process comment text to handle images properly
+  const processedCommentText = processCommentImages(comment.text);
+  const formattedCommentHtml = formatCommentText(processedCommentText);
+
   return (
     <div className="flex gap-2 mb-3">
       <Avatar className="h-8 w-8 flex-shrink-0 cursor-pointer" onClick={handleUserClick}>
@@ -77,7 +81,7 @@ export function CommentItem({
             <p className="font-bold text-sm cursor-pointer hover:underline" onClick={handleUserClick}>{authorName}</p>
             <div 
               className="text-sm" 
-              dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
+              dangerouslySetInnerHTML={{ __html: formattedCommentHtml }}
             />
           </div>
           <div className="absolute bottom-0 right-0 translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">

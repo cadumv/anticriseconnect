@@ -12,9 +12,9 @@ export const formatCommentText = (text: string): string => {
     '<span class="text-blue-600 font-medium">@$1</span>'
   );
   
-  // Handle image tags that may be in the comment text
+  // Handle image tags that may be in the comment text (improved regex to better match image tags)
   formattedText = formattedText.replace(
-    /<img src="([^"]+)" alt="([^"]+)" class="([^"]+)" \/>/g,
+    /<img[^>]*src="([^"]+)"[^>]*alt="([^"]*)"[^>]*class="([^"]*)"[^>]*\/?>/g,
     (match, src, alt, className) => {
       return `<div class="mt-2"><img src="${src}" alt="${alt}" class="max-h-60 max-w-full rounded-md object-contain ${className}" /></div>`;
     }
@@ -51,4 +51,26 @@ export const insertMentionAtCursor = (textAreaRef: HTMLTextAreaElement, username
  */
 export const generateShareableLink = (postId: string): string => {
   return `${window.location.origin}/post/${postId}`;
+};
+
+/**
+ * Process a comment text that contains base64 image data and convert it to a simpler img tag
+ * 
+ * @param text The comment text that may contain image data
+ * @returns Processed text with proper img tags
+ */
+export const processCommentImages = (text: string): string => {
+  // Check if there's an image tag in the text
+  if (!text.includes('<img')) {
+    return text;
+  }
+  
+  // Convert complex image tags to simpler ones that can be properly parsed
+  return text.replace(
+    /<img src="(data:image\/[^;]+;base64,[^"]+|https?:\/\/[^"]+)" alt="([^"]*)" class="([^"]*)" \/>/g,
+    (match, src, alt, className) => {
+      // Create a cleaner img tag for display
+      return `<img src="${src}" alt="${alt}" class="${className}" />`;
+    }
+  );
 };

@@ -30,7 +30,9 @@ export function CommentForm() {
     // Include the image markup in the comment if we have a preview
     let finalComment = comment;
     if (imagePreview) {
-      finalComment += `\n<img src="${imagePreview}" alt="Uploaded image" class="comment-image" />`;
+      // Make sure to add a line break if there's already comment text
+      const separator = finalComment.trim() ? '\n' : '';
+      finalComment += `${separator}<img src="${imagePreview}" alt="Uploaded image" class="comment-image" />`;
     }
     
     postComment(finalComment, replyTo?.id || null);
