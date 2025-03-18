@@ -21,6 +21,7 @@ interface PostCardContentProps {
     conclusions?: string;
     imageUrl?: string;
     timestamp?: string;
+    metadata?: any; // Add metadata field
   };
 }
 
@@ -31,9 +32,20 @@ export function PostCardContent({ post }: PostCardContentProps) {
   const maxContentLength = 280;
   let displayContent = '';
   
+  // Get content from either direct properties or metadata
+  const metadata = post.metadata || {};
+  const postType = post.type || metadata.type || 'post';
+  const postTitle = post.title || metadata.title;
+  const postAuthor = post.author || metadata.author;
+  const postCompany = post.company || metadata.company;
+  const postSummary = post.summary || metadata.summary;
+  const postMainContent = post.mainContent || metadata.mainContent;
+  const postConclusions = post.conclusions || metadata.conclusions;
+  const postTags = post.tags || metadata.tags || [];
+  
   // For technical articles, prioritize showing the summary if available
-  if (post.type === 'technical_article') {
-    displayContent = post.summary || post.excerpt || post.content || '';
+  if (postType === 'technical_article') {
+    displayContent = postSummary || post.excerpt || post.content || '';
   } else {
     displayContent = post.excerpt || post.content || '';
   }
@@ -47,38 +59,37 @@ export function PostCardContent({ post }: PostCardContentProps) {
 
   // Debug info - log when opening a technical article to check its fields
   const handleOpenFullArticle = () => {
-    if (post.type === 'technical_article') {
-      console.log("Opening technical article:", {
-        type: post.type,
-        title: post.title,
-        summary: post.summary,
-        mainContent: post.mainContent,
-        conclusions: post.conclusions,
-        content: post.content
-      });
-    }
+    console.log("Opening post:", {
+      type: postType,
+      title: postTitle,
+      summary: postSummary,
+      mainContent: postMainContent,
+      conclusions: postConclusions,
+      content: post.content,
+      metadata: post.metadata
+    });
     setShowArticleDialog(true);
   };
   
   return (
     <div className="p-4">
-      {post.type && post.type !== 'post' && post.type !== 'achievement' && (
+      {postType && postType !== 'post' && postType !== 'achievement' && (
         <div className="mb-2">
           <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200">
-            {post.type === 'service' ? 'Serviço/Área de Atuação' : 
-              post.type === 'technical_article' ? 'Artigo Técnico' : ''}
+            {postType === 'service' ? 'Serviço/Área de Atuação' : 
+              postType === 'technical_article' ? 'Artigo Técnico' : ''}
           </Badge>
         </div>
       )}
       
-      {post.title && (
-        <h3 className="font-medium text-lg mb-2">{post.title}</h3>
+      {postTitle && (
+        <h3 className="font-medium text-lg mb-2">{postTitle}</h3>
       )}
       
-      {post.author && post.type === 'technical_article' && (
+      {postAuthor && postType === 'technical_article' && (
         <div className="text-sm text-gray-600 mb-2">
-          <span className="font-medium">Autor:</span> {post.author}
-          {post.company && ` • ${post.company}`}
+          <span className="font-medium">Autor:</span> {postAuthor}
+          {postCompany && ` • ${postCompany}`}
         </div>
       )}
       
@@ -96,14 +107,14 @@ export function PostCardContent({ post }: PostCardContentProps) {
         )}
       </div>
       
-      {post.type === 'technical_article' && post.summary && (
+      {postType === 'technical_article' && postSummary && (
         <div className="bg-blue-50 p-3 rounded-md my-3">
           <p className="text-gray-700 font-medium">Resumo:</p>
-          <p className="text-gray-600">{post.summary}</p>
+          <p className="text-gray-600">{postSummary}</p>
         </div>
       )}
       
-      {post.type !== 'achievement' && (
+      {postType !== 'achievement' && (
         <Button 
           variant="outline" 
           size="sm" 
@@ -111,12 +122,12 @@ export function PostCardContent({ post }: PostCardContentProps) {
           onClick={handleOpenFullArticle}
         >
           <BookOpen size={16} />
-          {post.type === 'technical_article' ? 'Ler artigo completo' : 'Ver publicação completa'}
+          {postType === 'technical_article' ? 'Ler artigo completo' : 'Ver publicação completa'}
         </Button>
       )}
       
       <div className="flex flex-wrap gap-2 my-3">
-        {post.tags?.map((tag) => (
+        {postTags?.map((tag: string) => (
           <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
             #{tag}
           </span>
@@ -127,12 +138,22 @@ export function PostCardContent({ post }: PostCardContentProps) {
       <Dialog open={showArticleDialog} onOpenChange={setShowArticleDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">{post.title || "Publicação completa"}</DialogTitle>
+            <DialogTitle className="text-xl">{postTitle || "Publicação completa"}</DialogTitle>
             <DialogDescription>
               Visualize todos os detalhes desta publicação
             </DialogDescription>
           </DialogHeader>
-          <ArticleFullContent post={post as Post} />
+          <ArticleFullContent post={{
+            ...post,
+            type: postType,
+            title: postTitle,
+            author: postAuthor,
+            company: postCompany,
+            summary: postSummary,
+            mainContent: postMainContent,
+            conclusions: postConclusions,
+            tags: postTags
+          } as Post} />
         </DialogContent>
       </Dialog>
     </div>

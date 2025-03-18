@@ -19,6 +19,7 @@ export interface Post {
   saves?: number;
   shares?: number;
   user_id?: string;
+  metadata?: any; // Add metadata field
 }
 
 export interface AchievementPost {
@@ -47,4 +48,5 @@ export interface StandardPost {
   saves?: number;
   shares?: number;
   user_id?: string;
+  metadata?: any; // Add metadata field
 }

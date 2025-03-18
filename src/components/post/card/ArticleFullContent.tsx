@@ -51,25 +51,35 @@ const formatText = (text: string) => {
 };
 
 export function ArticleFullContent({ post }: ArticleFullContentProps) {
+  // Get content from either direct properties or metadata
+  const metadata = post.metadata || {};
+  const postType = post.type || metadata.type || 'post';
+  const postTitle = post.title || metadata.title;
+  const postAuthor = post.author || metadata.author;
+  const postCompany = post.company || metadata.company;
+  const postSummary = post.summary || metadata.summary;
+  const postMainContent = post.mainContent || metadata.mainContent;
+  const postConclusions = post.conclusions || metadata.conclusions;
+  const postTags = post.tags || metadata.tags || [];
+  
   const formattedDate = post.timestamp 
     ? new Date(post.timestamp).toLocaleDateString('pt-BR') 
     : '';
     
-  // For technical articles, we should ensure we're using all available content 
   return (
     <div className="mt-4 space-y-6">
       <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-        {post.author && <span className="font-medium">Autor: {post.author}</span>}
-        {post.company && (
-          <span className="font-medium">Empresa: {post.company}</span>
+        {postAuthor && <span className="font-medium">Autor: {postAuthor}</span>}
+        {postCompany && (
+          <span className="font-medium">Empresa: {postCompany}</span>
         )}
         {formattedDate && (
           <span>Data: {formattedDate}</span>
         )}
       </div>
       
-      {post.title && (
-        <h2 className="text-xl font-semibold">{post.title}</h2>
+      {postTitle && (
+        <h2 className="text-xl font-semibold">{postTitle}</h2>
       )}
       
       {post.imageUrl && (
@@ -77,38 +87,38 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
           <AspectRatio ratio={16 / 9}>
             <img 
               src={post.imageUrl} 
-              alt={post.title || "Imagem do artigo"} 
+              alt={postTitle || "Imagem do artigo"} 
               className="rounded-md object-cover w-full h-full"
             />
           </AspectRatio>
         </div>
       )}
       
-      {post.summary && (
+      {postSummary && (
         <div className="bg-blue-50 p-4 rounded-md">
           <h3 className="font-medium mb-1">Resumo</h3>
           <div 
             className="whitespace-pre-line"
             dangerouslySetInnerHTML={{ 
-              __html: formatText(post.summary) 
+              __html: formatText(postSummary) 
             }}
           />
         </div>
       )}
       
-      {post.mainContent && (
+      {postMainContent && (
         <div>
           <h3 className="font-medium mb-2 text-lg">Conteúdo Principal</h3>
           <div 
             className="article-content space-y-4" 
             dangerouslySetInnerHTML={{ 
-              __html: formatText(post.mainContent) 
+              __html: formatText(postMainContent) 
             }}
           />
         </div>
       )}
       
-      {!post.mainContent && post.content && (
+      {!postMainContent && post.content && (
         <div>
           <h3 className="font-medium mb-2 text-lg">Conteúdo</h3>
           <div 
@@ -120,23 +130,23 @@ export function ArticleFullContent({ post }: ArticleFullContentProps) {
         </div>
       )}
       
-      {post.conclusions && (
+      {postConclusions && (
         <div className="bg-gray-50 p-4 rounded-md mt-6">
           <h3 className="font-medium mb-1">Principais Conclusões</h3>
           <div 
             className="whitespace-pre-line"
             dangerouslySetInnerHTML={{ 
-              __html: formatText(post.conclusions) 
+              __html: formatText(postConclusions) 
             }}
           />
         </div>
       )}
       
-      {post.tags && post.tags.length > 0 && (
+      {postTags && postTags.length > 0 && (
         <div className="mt-4">
           <h3 className="font-medium mb-1">Tags</h3>
           <div className="flex flex-wrap gap-2">
-            {post.tags.map(tag => (
+            {postTags.map((tag: string) => (
               <span key={tag} className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
                 #{tag}
               </span>
