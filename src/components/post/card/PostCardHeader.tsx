@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Post } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MoreHorizontal } from "lucide-react";
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 interface PostCardHeaderProps {
   post: Post;
@@ -21,6 +22,30 @@ interface PostCardHeaderProps {
 
 export function PostCardHeader({ post, compact = false, onDelete, onUserClick }: PostCardHeaderProps) {
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState<{ name: string; avatar_url: string | null } | null>(null);
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (post.user_id) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('name, avatar_url')
+            .eq('id', post.user_id)
+            .single();
+          
+          if (error) throw error;
+          if (data) {
+            setProfileData(data);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    };
+    
+    fetchUserProfile();
+  }, [post.user_id]);
   
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -46,6 +71,12 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
     }
   };
   
+  // Get display name: prioritize profile data, then post author, then fallback
+  const displayName = profileData?.name || post.author || "Usuário";
+  
+  // Get avatar URL: prioritize profile data, then post metadata, then fallback to initial
+  const avatarUrl = profileData?.avatar_url || post.metadata?.avatarUrl;
+  
   const engineeringType = post.metadata?.engineeringType || post.company || "";
   
   return (
@@ -53,10 +84,10 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
       <div className="flex items-center space-x-3">
         <div onClick={handleUserProfileClick} className="cursor-pointer">
           <Avatar className={compact ? "h-8 w-8" : "h-10 w-10"}>
-            {post.metadata?.avatarUrl ? (
-              <AvatarImage src={post.metadata.avatarUrl} alt={post.author || "Autor"} />
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt={displayName} />
             ) : (
-              <AvatarFallback>{post.author ? post.author[0].toUpperCase() : "U"}</AvatarFallback>
+              <AvatarFallback>{displayName[0].toUpperCase()}</AvatarFallback>
             )}
           </Avatar>
         </div>
@@ -66,7 +97,7 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
             className="font-semibold text-sm line-clamp-1 cursor-pointer hover:underline" 
             onClick={handleUserProfileClick}
           >
-            {post.author || "Usuário"}
+            {displayName}
           </div>
           
           <div className="text-xs text-gray-500 flex items-center">
