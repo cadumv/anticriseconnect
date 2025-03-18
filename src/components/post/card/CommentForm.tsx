@@ -7,13 +7,17 @@ import { useCommentContext } from "./CommentContext";
 import { SmilePlus, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { EmojiPicker } from "./EmojiPicker";
 
 export function CommentForm() {
   const { user } = useAuth();
   const { replyTo, authorProfiles, setReplyTo, mentionUsers, postComment } = useCommentContext();
   const [comment, setComment] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!user) {
     return null;
@@ -40,29 +44,80 @@ export function CommentForm() {
   };
 
   const handleEmojiClick = () => {
-    // In a real implementation, this would open an emoji picker
-    // For now, we'll add a simple emoji to demonstrate
-    setComment(prev => prev + " 😊");
-    toast.info("Emoji picker would open here");
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setComment(prev => prev + emoji);
+    if (commentInputRef.current) {
+      commentInputRef.current.focus();
+    }
   };
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        toast.success(`Selected image: ${file.name}`);
-        // In a real implementation, you would upload the image and add it to the comment
-        // For now, we'll just mention the image name in the comment
-        setComment(prev => prev + ` [Image: ${file.name}]`);
-      } else {
-        toast.error("Please select an image file");
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione um arquivo de imagem");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      // In a real implementation, you would upload the image to a server
+      // and get back a URL to insert into the comment
+      
+      // Simulate a file upload delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // For demo purposes, we'll create an object URL
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Add an image placeholder to the comment
+      setComment(prev => 
+        prev + ` [Imagem: ${file.name}] `
+      );
+      
+      toast.success(`Imagem "${file.name}" anexada ao comentário`);
+      
+      // In a real implementation, you'd store the URL and associate it with the comment
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Erro ao carregar a imagem. Tente novamente.");
+    } finally {
+      setIsUploading(false);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     }
   };
+
+  // Close emoji picker when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showEmojiPicker &&
+        emojiButtonRef.current && 
+        !emojiButtonRef.current.contains(event.target as Node)
+      ) {
+        const emojiPickerElement = document.querySelector('[data-emoji-picker]');
+        if (emojiPickerElement && !emojiPickerElement.contains(event.target as Node)) {
+          setShowEmojiPicker(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   return (
     <div className="flex gap-2 w-full">
@@ -106,20 +161,34 @@ export function CommentForm() {
             />
             
             <div className="flex justify-between items-center border-t border-gray-200 px-2 py-1">
-              <div className="flex gap-1">
+              <div className="flex gap-1 relative">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="p-1 h-8 w-8 rounded-full text-gray-500 hover:bg-gray-100"
                   onClick={handleEmojiClick}
+                  ref={emojiButtonRef}
+                  aria-label="Inserir emoji"
                 >
                   <SmilePlus size={18} />
                 </Button>
+                
+                {showEmojiPicker && (
+                  <div data-emoji-picker>
+                    <EmojiPicker 
+                      onEmojiSelect={handleEmojiSelect} 
+                      onClose={() => setShowEmojiPicker(false)} 
+                    />
+                  </div>
+                )}
+                
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="p-1 h-8 w-8 rounded-full text-gray-500 hover:bg-gray-100"
                   onClick={handleImageClick}
+                  disabled={isUploading}
+                  aria-label="Anexar imagem"
                 >
                   <Image size={18} />
                 </Button>
@@ -129,6 +198,7 @@ export function CommentForm() {
                   className="hidden" 
                   accept="image/*"
                   onChange={handleFileChange}
+                  disabled={isUploading}
                 />
               </div>
               
@@ -136,10 +206,10 @@ export function CommentForm() {
                 size="sm"
                 variant="ghost"
                 className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 h-8"
-                disabled={!comment.trim()}
+                disabled={!comment.trim() || isUploading}
                 onClick={handlePostComment}
               >
-                Publicar
+                {isUploading ? "Carregando..." : "Publicar"}
               </Button>
             </div>
           </div>

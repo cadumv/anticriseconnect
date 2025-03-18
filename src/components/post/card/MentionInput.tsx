@@ -68,9 +68,17 @@ export const MentionInput = forwardRef<HTMLTextAreaElement, MentionInputProps>(
     };
     
     // Filter users based on search term
-    const filteredUsers = users.filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 5); // Limit to 5 suggestions
+    const filteredUsers = users
+      .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      .slice(0, 5); // Limit to 5 suggestions
+    
+    // Auto-adjust text area height
+    React.useEffect(() => {
+      if (textAreaRef.current) {
+        textAreaRef.current.style.height = 'auto';
+        textAreaRef.current.style.height = `${Math.max(38, textAreaRef.current.scrollHeight)}px`;
+      }
+    }, [value]);
     
     return (
       <div className="relative w-full">
@@ -87,8 +95,12 @@ export const MentionInput = forwardRef<HTMLTextAreaElement, MentionInputProps>(
           }}
           value={value}
           onChange={handleChange}
-          className="w-full min-h-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-          style={{ resize: 'none', overflow: 'auto' }}
+          rows={1}
+          className="w-full min-h-[38px] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-3 py-2"
+          style={{ 
+            resize: 'none', 
+            overflow: 'hidden'
+          }}
         />
         
         {showSuggestions && filteredUsers.length > 0 && (
