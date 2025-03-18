@@ -98,7 +98,8 @@ export const CommentProvider: React.FC<{
           user_id,
           created_at,
           parent_id,
-          post_id
+          post_id,
+          likes
         `)
         .eq('post_id', postId)
         .order('created_at', { ascending: false });
@@ -113,7 +114,7 @@ export const CommentProvider: React.FC<{
         authorId: comment.user_id,
         timestamp: comment.created_at,
         parentId: comment.parent_id,
-        likes: 0,
+        likes: comment.likes || 0,
         post_id: comment.post_id
       }));
       
@@ -189,7 +190,7 @@ export const CommentProvider: React.FC<{
               authorId: newComment.user_id,
               timestamp: newComment.created_at,
               parentId: newComment.parent_id,
-              likes: 0,
+              likes: newComment.likes || 0,
               post_id: newComment.post_id
             };
             
@@ -321,7 +322,8 @@ export const CommentProvider: React.FC<{
         post_id: postId,
         user_id: user.id,
         text: text,
-        parent_id: parentId
+        parent_id: parentId,
+        likes: 0
       };
       
       const { data, error } = await supabase

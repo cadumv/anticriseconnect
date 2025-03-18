@@ -13,6 +13,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          likes: number | null
+          parent_id: string | null
           post_id: string
           text: string
           updated_at: string
@@ -21,6 +23,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          likes?: number | null
+          parent_id?: string | null
           post_id: string
           text: string
           updated_at?: string
@@ -29,6 +33,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          likes?: number | null
+          parent_id?: string | null
           post_id?: string
           text?: string
           updated_at?: string

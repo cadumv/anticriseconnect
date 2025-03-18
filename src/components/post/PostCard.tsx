@@ -63,7 +63,8 @@ export function PostCard({
             user_id,
             created_at,
             parent_id,
-            post_id
+            post_id,
+            likes
           `)
           .eq('post_id', post.id)
           .order('created_at', { ascending: false });
@@ -78,7 +79,7 @@ export function PostCard({
           authorId: comment.user_id,
           timestamp: comment.created_at,
           parentId: comment.parent_id,
-          likes: 0,
+          likes: comment.likes || 0,
           post_id: comment.post_id
         }));
         
