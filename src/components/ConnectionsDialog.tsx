@@ -16,9 +16,10 @@ import { useConnectionUsers } from "@/hooks/useConnectionUsers";
 interface ConnectionsDialogProps {
   type: ConnectionType;
   count: number;
+  trigger?: React.ReactNode;
 }
 
-export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
+export const ConnectionsDialog = ({ type, count, trigger }: ConnectionsDialogProps) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const { users, loading } = useConnectionUsers({ 
@@ -32,13 +33,15 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
-          <div className="flex items-center gap-1">
-            <ConnectionTypeIcon type={type} />
-            <span className="font-bold text-base">{users.length > 0 ? users.length : count}</span>
+        {trigger || (
+          <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-1">
+              <ConnectionTypeIcon type={type} />
+              <span className="font-bold text-base">{users.length > 0 ? users.length : count}</span>
+            </div>
+            <span className="text-gray-700 font-medium">{title.toLowerCase()}</span>
           </div>
-          <span className="text-gray-700 font-medium">{title.toLowerCase()}</span>
-        </div>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
