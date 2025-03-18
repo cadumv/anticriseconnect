@@ -1,17 +1,26 @@
 
 /**
- * Format the comment text to highlight mentions
+ * Format the comment text to highlight mentions and render images
  * 
  * @param text The comment text
- * @returns Formatted HTML string with highlighted mentions
+ * @returns Formatted HTML string with highlighted mentions and images
  */
 export const formatCommentText = (text: string): string => {
   // Replace mentions (@username) with a styled span
-  const mentionRegex = /@(\w+)/g;
-  return text.replace(
-    mentionRegex, 
+  let formattedText = text.replace(
+    /@(\w+)/g, 
     '<span class="text-blue-600 font-medium">@$1</span>'
   );
+  
+  // Handle image tags that may be in the comment text
+  formattedText = formattedText.replace(
+    /<img src="([^"]+)" alt="([^"]+)" class="([^"]+)" \/>/g,
+    (match, src, alt, className) => {
+      return `<div class="mt-2"><img src="${src}" alt="${alt}" class="max-h-60 max-w-full rounded-md object-contain ${className}" /></div>`;
+    }
+  );
+  
+  return formattedText;
 };
 
 /**

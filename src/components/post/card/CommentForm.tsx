@@ -15,6 +15,7 @@ export function CommentForm() {
   const [comment, setComment] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
@@ -24,20 +25,28 @@ export function CommentForm() {
   }
 
   const handlePostComment = () => {
-    if (!comment.trim()) return;
+    if (!comment.trim() && !imagePreview) return;
     
-    postComment(comment, replyTo?.id || null);
+    // Include the image markup in the comment if we have a preview
+    let finalComment = comment;
+    if (imagePreview) {
+      finalComment += `\n<img src="${imagePreview}" alt="Uploaded image" class="comment-image" />`;
+    }
+    
+    postComment(finalComment, replyTo?.id || null);
     setComment("");
+    setImagePreview(null);
     setReplyTo(null);
   };
 
   const handleCancelReply = () => {
     setReplyTo(null);
     setComment("");
+    setImagePreview(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && comment.trim()) {
+    if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || imagePreview)) {
       e.preventDefault();
       handlePostComment();
     }
@@ -72,20 +81,11 @@ export function CommentForm() {
       // In a real implementation, you would upload the image to a server
       // and get back a URL to insert into the comment
       
-      // Simulate a file upload delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, we'll create an object URL
+      // Create an object URL for the image preview
       const imageUrl = URL.createObjectURL(file);
-      
-      // Add an image placeholder to the comment
-      setComment(prev => 
-        prev + ` [Imagem: ${file.name}] `
-      );
+      setImagePreview(imageUrl);
       
       toast.success(`Imagem "${file.name}" anexada ao comentário`);
-      
-      // In a real implementation, you'd store the URL and associate it with the comment
     } catch (error) {
       console.error("Error uploading image:", error);
       toast.error("Erro ao carregar a imagem. Tente novamente.");
@@ -160,6 +160,24 @@ export function CommentForm() {
               ref={commentInputRef}
             />
             
+            {imagePreview && (
+              <div className="px-3 py-2 border-t border-gray-200">
+                <div className="relative inline-block">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="max-h-60 max-w-full rounded-md object-contain" 
+                  />
+                  <button 
+                    className="absolute top-1 right-1 bg-gray-800 bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-opacity-70"
+                    onClick={() => setImagePreview(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
+            
             <div className="flex justify-between items-center border-t border-gray-200 px-2 py-1">
               <div className="flex gap-1 relative">
                 <Button 
@@ -206,7 +224,7 @@ export function CommentForm() {
                 size="sm"
                 variant="ghost"
                 className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 h-8"
-                disabled={!comment.trim() || isUploading}
+                disabled={(!comment.trim() && !imagePreview) || isUploading}
                 onClick={handlePostComment}
               >
                 {isUploading ? "Carregando..." : "Publicar"}
