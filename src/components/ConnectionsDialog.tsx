@@ -62,7 +62,15 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
         // Get users the current user is following
         const followingData = localStorage.getItem(`following_${user.id}`);
         if (followingData) {
-          userIds = JSON.parse(followingData);
+          try {
+            userIds = JSON.parse(followingData);
+            if (!Array.isArray(userIds)) {
+              userIds = [];
+            }
+          } catch (error) {
+            console.error("Error parsing following data:", error);
+            userIds = [];
+          }
         }
       } else if (type === "followers") {
         // Find users who follow the current user
@@ -71,9 +79,13 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
           for (const potentialFollower of allUsers.data) {
             const followingData = localStorage.getItem(`following_${potentialFollower.id}`);
             if (followingData) {
-              const followingList = JSON.parse(followingData);
-              if (Array.isArray(followingList) && followingList.includes(user.id)) {
-                userIds.push(potentialFollower.id);
+              try {
+                const followingList = JSON.parse(followingData);
+                if (Array.isArray(followingList) && followingList.includes(user.id)) {
+                  userIds.push(potentialFollower.id);
+                }
+              } catch (error) {
+                console.error("Error parsing follower data:", error);
               }
             }
           }
@@ -84,12 +96,16 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
         const userRequests = localStorage.getItem(userConnectionKey);
         
         if (userRequests) {
-          const parsedUserRequests = JSON.parse(userRequests);
-          // Get IDs of users with accepted connection requests
-          for (const request of parsedUserRequests) {
-            if (request.status === 'accepted') {
-              userIds.push(request.targetId);
+          try {
+            const parsedUserRequests = JSON.parse(userRequests);
+            // Get IDs of users with accepted connection requests
+            for (const request of parsedUserRequests) {
+              if (request.status === 'accepted') {
+                userIds.push(request.targetId);
+              }
             }
+          } catch (error) {
+            console.error("Error parsing connection requests:", error);
           }
         }
         
@@ -101,13 +117,17 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
             const existingRequests = localStorage.getItem(connectionKey);
             
             if (existingRequests) {
-              const requests = JSON.parse(existingRequests);
-              const acceptedRequest = requests.find((req: any) => 
-                req.targetId === user.id && req.status === 'accepted'
-              );
-              
-              if (acceptedRequest && !userIds.includes(otherUser.id)) {
-                userIds.push(otherUser.id);
+              try {
+                const requests = JSON.parse(existingRequests);
+                const acceptedRequest = requests.find((req: any) => 
+                  req.targetId === user.id && req.status === 'accepted'
+                );
+                
+                if (acceptedRequest && !userIds.includes(otherUser.id)) {
+                  userIds.push(otherUser.id);
+                }
+              } catch (error) {
+                console.error("Error parsing connection data:", error);
               }
             }
           }
@@ -123,6 +143,7 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
         
         if (error) {
           console.error('Error fetching users:', error);
+          setUsers([]);
           return;
         }
         
@@ -132,6 +153,7 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
       }
     } catch (error) {
       console.error('Error loading users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -149,7 +171,7 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
         <div className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity">
           <div className="flex items-center gap-1">
             {getIcon()}
-            <span className="font-bold text-base">{count}</span>
+            <span className="font-bold text-base">{users.length > 0 ? users.length : count}</span>
           </div>
           <span className="text-gray-700 font-medium">{getTitle().toLowerCase()}</span>
         </div>
@@ -157,7 +179,7 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {getIcon()} {getTitle()} ({count})
+            {getIcon()} {getTitle()} ({users.length > 0 ? users.length : count})
           </DialogTitle>
           <DialogDescription>
             {type === "connections" && "Pessoas que se conectaram com você para trocas anticrise."}
