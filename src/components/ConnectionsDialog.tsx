@@ -70,8 +70,11 @@ export const ConnectionsDialog = ({ type, count }: ConnectionsDialogProps) => {
         if (allUsers.data) {
           for (const potentialFollower of allUsers.data) {
             const followingData = localStorage.getItem(`following_${potentialFollower.id}`);
-            if (followingData && JSON.parse(followingData).includes(user.id)) {
-              userIds.push(potentialFollower.id);
+            if (followingData) {
+              const followingList = JSON.parse(followingData);
+              if (Array.isArray(followingList) && followingList.includes(user.id)) {
+                userIds.push(potentialFollower.id);
+              }
             }
           }
         }
