@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PostCardHeader } from "./card/PostCardHeader";
 import { PostCardContent } from "./card/PostCardContent";
 import { PostCardMedia } from "./card/PostCardMedia";
 import { PostCardActions } from "./card/PostCardActions";
 import { CommentSection } from "./card/CommentSection";
 import { Post } from "@/types/post";
+import { supabase } from "@/lib/supabase";
 
 interface PostCardProps {
   post: Post;
@@ -31,6 +32,29 @@ export function PostCard({
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
+
+  // Get comment count when the post is loaded
+  useEffect(() => {
+    const fetchCommentCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('comments')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', post.id);
+        
+        if (error) throw error;
+        
+        setCommentCount(count || 0);
+      } catch (error) {
+        console.error("Error fetching comment count:", error);
+      }
+    };
+    
+    if (post.id) {
+      fetchCommentCount();
+    }
+  }, [post.id]);
 
   const loadComments = async () => {
     if (showComments) {
@@ -39,18 +63,8 @@ export function PostCard({
       return;
     }
     
-    try {
-      setIsLoadingComments(true);
-      setShowComments(true);
-      
-      // In a real implementation, you would fetch comments from the database here
-      // For now, we're just setting an empty array since we want real comments only
-      setComments([]);
-      setIsLoadingComments(false);
-    } catch (error) {
-      console.error("Error loading comments:", error);
-      setIsLoadingComments(false);
-    }
+    // Show the comments section without waiting for the fetch to complete
+    setShowComments(true);
   };
   
   // Create a shortened content preview for compact mode
@@ -84,7 +98,7 @@ export function PostCard({
         postId={post.id}
         likes={post.likes}
         shares={post.shares}
-        comments={comments.length}
+        comments={commentCount}
         liked={liked}
         saved={saved}
         onLike={onLike}
@@ -96,9 +110,10 @@ export function PostCard({
       
       {showComments && !compact && (
         <CommentSection 
-          comments={comments} 
+          comments={comments}
           isLoading={isLoadingComments}
           onCancel={() => setShowComments(false)}
+          postId={post.id}
         />
       )}
     </div>

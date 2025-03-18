@@ -20,73 +20,174 @@ interface CommentSectionProps {
   comments: Comment[];
   isLoading: boolean;
   onCancel: () => void;
+  postId: string; // Add postId to know which post the comments belong to
 }
 
-export function CommentSection({ comments: initialComments, isLoading, onCancel }: CommentSectionProps) {
+export function CommentSection({ comments: initialComments, isLoading: initialLoading, onCancel, postId }: CommentSectionProps) {
   const { user } = useAuth();
   const [comment, setComment] = useState("");
   const [localComments, setLocalComments] = useState<Comment[]>(initialComments);
+  const [isLoading, setIsLoading] = useState(initialLoading);
   const [authorProfiles, setAuthorProfiles] = useState<Record<string, { avatar_url: string, name: string }>>({});
   
-  // Fetch profile pictures for all authors in comments
+  // Fetch comments from the database
   useEffect(() => {
-    const fetchProfiles = async () => {
+    const fetchComments = async () => {
+      if (!postId) return;
+      
       try {
-        if (initialComments.length === 0) return;
+        setIsLoading(true);
         
-        // Get unique author IDs
-        const authorIds = Array.from(new Set(initialComments
-          .filter(comment => comment.authorId)
-          .map(comment => comment.authorId)
-        ));
-        
-        if (authorIds.length === 0) return;
-        
-        // Fetch profiles for these authors
         const { data, error } = await supabase
-          .from('profiles')
-          .select('id, avatar_url, name')
-          .in('id', authorIds as string[]);
+          .from('comments')
+          .select(`
+            id,
+            text,
+            user_id,
+            created_at
+          `)
+          .eq('post_id', postId)
+          .order('created_at', { ascending: false });
         
         if (error) throw error;
         
-        // Create a lookup map of author ID to avatar URL
-        const profileMap: Record<string, { avatar_url: string, name: string }> = {};
-        data?.forEach(profile => {
-          profileMap[profile.id] = { 
-            avatar_url: profile.avatar_url || '', 
-            name: profile.name || 'Usuário' 
-          };
-        });
+        // Transform the data to match our Comment interface
+        const formattedComments: Comment[] = data.map(comment => ({
+          id: comment.id,
+          text: comment.text,
+          author: 'Loading...', // Will be replaced when we fetch profiles
+          authorId: comment.user_id,
+          timestamp: comment.created_at
+        }));
         
-        setAuthorProfiles(profileMap);
+        setLocalComments(formattedComments);
+        
+        // Fetch user profiles for the comments
+        const userIds = Array.from(new Set(formattedComments.map(c => c.authorId)));
+        if (userIds.length > 0) {
+          await fetchUserProfiles(userIds as string[]);
+        }
       } catch (error) {
-        console.error('Error fetching author profiles:', error);
+        console.error('Error fetching comments:', error);
+        toast({
+          title: "Erro ao carregar comentários",
+          description: "Não foi possível carregar os comentários deste post.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    fetchProfiles();
-  }, [initialComments]);
-  
-  const postComment = () => {
-    if (!comment.trim() || !user) return;
+    fetchComments();
     
-    const newComment: Comment = {
-      id: `temp-${Date.now()}`,
-      text: comment,
-      author: user.user_metadata?.name || "Usuário",
-      authorId: user.id,
-      authorAvatar: user.user_metadata?.avatar_url,
-      timestamp: new Date().toISOString()
+    // Set up realtime subscription for new comments
+    const channel = supabase
+      .channel('public:comments')
+      .on('postgres_changes', 
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'comments',
+          filter: `post_id=eq.${postId}`
+        }, 
+        (payload) => {
+          console.log('New comment:', payload);
+          const newComment = payload.new as any;
+          
+          // Only add the comment if it's not from the current user (we've already added it locally)
+          if (newComment.user_id !== user?.id) {
+            const commentData: Comment = {
+              id: newComment.id,
+              text: newComment.text,
+              author: 'Loading...', // Will be replaced when we fetch the profile
+              authorId: newComment.user_id,
+              timestamp: newComment.created_at
+            };
+            
+            setLocalComments(prev => [commentData, ...prev]);
+            
+            // Fetch the user profile for this comment
+            fetchUserProfiles([newComment.user_id]);
+          }
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
     };
+  }, [postId]);
+  
+  // Fetch profile pictures for all authors in comments
+  const fetchUserProfiles = async (userIds: string[]) => {
+    try {
+      if (userIds.length === 0) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, avatar_url, name')
+        .in('id', userIds);
+      
+      if (error) throw error;
+      
+      // Create a lookup map of author ID to avatar URL and name
+      const profileMap: Record<string, { avatar_url: string, name: string }> = {};
+      data?.forEach(profile => {
+        profileMap[profile.id] = { 
+          avatar_url: profile.avatar_url || '', 
+          name: profile.name || 'Usuário' 
+        };
+      });
+      
+      setAuthorProfiles(prev => ({...prev, ...profileMap}));
+    } catch (error) {
+      console.error('Error fetching author profiles:', error);
+    }
+  };
+  
+  const postComment = async () => {
+    if (!comment.trim() || !user || !postId) return;
     
-    setLocalComments(prev => [newComment, ...prev]);
-    setComment("");
-    
-    toast({
-      title: "Comentário adicionado",
-      description: "Seu comentário foi publicado com sucesso."
-    });
+    try {
+      // Save the comment to the database
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          post_id: postId,
+          user_id: user.id,
+          text: comment
+        })
+        .select('id, created_at')
+        .single();
+      
+      if (error) throw error;
+      
+      // Add the comment to the local state
+      const newComment: Comment = {
+        id: data.id,
+        text: comment,
+        author: user.user_metadata?.name || "Usuário",
+        authorId: user.id,
+        authorAvatar: user.user_metadata?.avatar_url,
+        timestamp: data.created_at
+      };
+      
+      setLocalComments(prev => [newComment, ...prev]);
+      setComment("");
+      
+      toast({
+        title: "Comentário adicionado",
+        description: "Seu comentário foi publicado com sucesso."
+      });
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      toast({
+        title: "Erro ao adicionar comentário",
+        description: "Não foi possível publicar seu comentário. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
   
   return (
@@ -140,7 +241,7 @@ export function CommentSection({ comments: initialComments, isLoading, onCancel 
             // Get profile info if available
             const profileInfo = comment.authorId ? authorProfiles[comment.authorId] : null;
             const avatarUrl = comment.authorAvatar || (profileInfo ? profileInfo.avatar_url : null);
-            const authorName = comment.author || (profileInfo ? profileInfo.name : 'Usuário');
+            const authorName = comment.author !== 'Loading...' ? comment.author : (profileInfo ? profileInfo.name : 'Usuário');
             
             return (
               <div key={comment.id} className="flex gap-3">
