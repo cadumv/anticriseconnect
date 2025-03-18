@@ -21,7 +21,7 @@ interface PostCardContentProps {
     conclusions?: string;
     imageUrl?: string;
     timestamp?: string;
-    metadata?: any; // Add metadata field
+    metadata?: any;
   };
 }
 
@@ -43,9 +43,10 @@ export function PostCardContent({ post }: PostCardContentProps) {
   const postConclusions = post.conclusions || metadata.conclusions;
   const postTags = post.tags || metadata.tags || [];
   
-  // For technical articles, prioritize showing the summary if available
+  // For technical articles, show the content or mainContent, but not the summary in the regular display
+  // as we'll show the summary in the blue box
   if (postType === 'technical_article') {
-    displayContent = postSummary || post.excerpt || post.content || '';
+    displayContent = post.content || postMainContent || '';
   } else {
     displayContent = post.excerpt || post.content || '';
   }
@@ -93,19 +94,21 @@ export function PostCardContent({ post }: PostCardContentProps) {
         </div>
       )}
       
-      <div className="whitespace-pre-line text-gray-800">
-        {displayedContent}
-        
-        {contentIsTruncated && !showFullContent && (
-          <Button 
-            variant="link" 
-            className="p-0 h-auto text-blue-600" 
-            onClick={() => setShowFullContent(true)}
-          >
-            ...ver mais
-          </Button>
-        )}
-      </div>
+      {displayedContent && (
+        <div className="whitespace-pre-line text-gray-800">
+          {displayedContent}
+          
+          {contentIsTruncated && !showFullContent && (
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-blue-600" 
+              onClick={() => setShowFullContent(true)}
+            >
+              ...ver mais
+            </Button>
+          )}
+        </div>
+      )}
       
       {postType === 'technical_article' && postSummary && (
         <div className="bg-blue-50 p-3 rounded-md my-3">
