@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, Reply } from "lucide-react";
 import { formatCommentText } from "./commentUtils";
 import { useNavigate } from "react-router-dom";
+import CommentReplies from "./CommentReplies";
 
 interface CommentItemProps {
   comment: Comment;
@@ -35,65 +36,10 @@ export function CommentItem({
 }: CommentItemProps) {
   const navigate = useNavigate();
   
-  // Maximum nesting level allowed
-  const MAX_DEPTH = 3;
-  
   const handleUserClick = () => {
     if (comment.authorId) {
       navigate(`/profile/${comment.authorId}`);
     }
-  };
-  
-  const renderReplies = () => {
-    if (!comment.replies || comment.replies.length === 0) return null;
-    
-    return (
-      <div className={`ml-8 mt-2 space-y-3 ${depth >= MAX_DEPTH ? 'pl-2 border-l-2 border-gray-200' : ''}`}>
-        {comment.replies.map(reply => {
-          const profileInfo = reply.authorId ? authorProfiles[reply.authorId] : null;
-          const replyAvatarUrl = reply.authorAvatar || (profileInfo ? profileInfo.avatar_url : null);
-          const replyAuthorName = reply.author !== 'Loading...' ? reply.author : (profileInfo ? profileInfo.name : 'Usuário');
-          const isReplyLiked = likedState[reply.id] || false;
-          
-          // If we've reached max depth, we'll flatten the replies
-          if (depth >= MAX_DEPTH) {
-            return (
-              <CommentItem
-                key={reply.id}
-                comment={{...reply, replies: []}}
-                avatarUrl={replyAvatarUrl}
-                authorName={replyAuthorName}
-                liked={isReplyLiked}
-                onLike={() => onLikeReply(reply.id)}
-                onReply={() => onReplyToReply(reply)}
-                depth={depth + 1}
-                authorProfiles={authorProfiles}
-                likedState={likedState}
-                onLikeReply={onLikeReply}
-                onReplyToReply={onReplyToReply}
-              />
-            );
-          } else {
-            return (
-              <CommentItem
-                key={reply.id}
-                comment={reply}
-                avatarUrl={replyAvatarUrl}
-                authorName={replyAuthorName}
-                liked={isReplyLiked}
-                onLike={() => onLikeReply(reply.id)}
-                onReply={() => onReplyToReply(reply)}
-                depth={depth + 1}
-                authorProfiles={authorProfiles}
-                likedState={likedState}
-                onLikeReply={onLikeReply}
-                onReplyToReply={onReplyToReply}
-              />
-            );
-          }
-        })}
-      </div>
-    );
   };
 
   const timeAgo = (timestamp: string) => {
@@ -161,7 +107,14 @@ export function CommentItem({
           <span className="text-gray-500">{timeAgo(comment.timestamp)}</span>
         </div>
         
-        {renderReplies()}
+        <CommentReplies
+          replies={comment.replies}
+          depth={depth}
+          authorProfiles={authorProfiles}
+          likedState={likedState}
+          onLikeReply={onLikeReply}
+          onReplyToReply={onReplyToReply}
+        />
       </div>
     </div>
   );
