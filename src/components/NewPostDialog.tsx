@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -35,6 +34,7 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Additional fields for technical article
+  const [author, setAuthor] = useState(""); // Add author state
   const [summary, setSummary] = useState("");
   const [mainContent, setMainContent] = useState("");
   const [conclusions, setConclusions] = useState("");
@@ -78,6 +78,7 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
     setServiceArea("");
     setServiceDescription("");
     setSelectedTab("post");
+    setAuthor("");
   };
   
   const uploadImage = async (file: File): Promise<string> => {
@@ -128,7 +129,7 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
         postData.mainContent = mainContent;
         postData.conclusions = conclusions;
         postData.tags = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-        postData.author = user.user_metadata?.name || "Anônimo";
+        postData.author = author.trim() || user.user_metadata?.name || "Anônimo";
         postData.company = user.user_metadata?.engineering_type || "Engenheiro";
       } else if (selectedTab === "service") {
         postData.type = "service";
@@ -345,6 +346,16 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
                   placeholder="Ex: Impactos da NR10 na segurança elétrica" 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="article-author">Autor</Label>
+                <Input 
+                  id="article-author" 
+                  placeholder={user?.user_metadata?.name || "Seu nome"} 
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
                 />
               </div>
               
