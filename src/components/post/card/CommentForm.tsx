@@ -65,28 +65,30 @@ export function CommentForm() {
           </div>
         )}
         
-        <div className="flex items-center rounded-full bg-gray-100 pr-2">
-          <MentionInput
-            users={mentionUsers}
-            value={comment}
-            onChange={setComment}
-            onKeyDown={handleKeyDown}
-            placeholder={replyTo ? "Escreva uma resposta..." : "Adicionar comentário..."}
-            className="w-full rounded-full px-3 py-2 bg-gray-100 border-none focus:ring-0 min-h-[38px] text-sm resize-none"
-            ref={commentInputRef}
-          />
-          
-          <div className="flex gap-1">
-            <button 
-              className="p-1 rounded-full text-gray-500 hover:bg-gray-200"
-              disabled={!comment.trim()}
-              onClick={handlePostComment}
-            >
-              <SmilePlus size={18} />
-            </button>
-            <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
-              <Image size={18} />
-            </button>
+        <div className="rounded-full border border-gray-300 bg-gray-100 hover:border-gray-400 focus-within:border-gray-400 transition-colors">
+          <div className="flex items-center pr-2">
+            <MentionInput
+              users={mentionUsers}
+              value={comment}
+              onChange={setComment}
+              onKeyDown={handleKeyDown}
+              placeholder={replyTo ? "Escreva uma resposta..." : "Adicionar comentário..."}
+              className="w-full rounded-full px-3 py-2 bg-transparent border-none focus:ring-0 min-h-[38px] text-sm resize-none"
+              ref={commentInputRef}
+            />
+            
+            <div className="flex gap-1">
+              <button 
+                className="p-1 rounded-full text-gray-500 hover:bg-gray-200"
+                disabled={!comment.trim()}
+                onClick={handlePostComment}
+              >
+                <SmilePlus size={18} />
+              </button>
+              <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
+                <Image size={18} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
