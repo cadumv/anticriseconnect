@@ -1,10 +1,10 @@
 
 import React, { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { MentionInput } from "./MentionInput";
 import { useCommentContext } from "./CommentContext";
+import { SmilePlus, Image } from "lucide-react";
 
 export function CommentForm() {
   const { user } = useAuth();
@@ -27,16 +27,24 @@ export function CommentForm() {
     setComment("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey && comment.trim()) {
+      e.preventDefault();
+      handlePostComment();
+    }
+  };
+
   return (
-    <div className="flex gap-3 mb-4">
-      <Avatar className="h-8 w-8">
+    <div className="flex gap-2">
+      <Avatar className="h-8 w-8 flex-shrink-0">
         <AvatarImage 
           src={user.user_metadata?.avatar_url} 
           alt={user.user_metadata?.name || "Usuário"}
         />
         <AvatarFallback>{(user.user_metadata?.name?.[0] || "U").toUpperCase()}</AvatarFallback>
       </Avatar>
-      <div className="flex-1">
+      
+      <div className="flex-1 relative">
         {replyTo && (
           <div className="bg-gray-100 p-2 mb-2 rounded-md flex justify-between items-center">
             <span className="text-sm text-gray-600">
@@ -46,34 +54,34 @@ export function CommentForm() {
                   : replyTo.author
               }</span>
             </span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <button 
+              className="text-gray-500 hover:text-gray-700"
               onClick={handleCancelReply}
-              className="h-7 px-2"
             >
-              Cancelar
-            </Button>
+              ✕
+            </button>
           </div>
         )}
         
-        <MentionInput
-          users={mentionUsers}
-          value={comment}
-          onChange={setComment}
-          placeholder={replyTo ? "Escreva uma resposta..." : "Adicione um comentário..."}
-          className="w-full mb-2 min-h-[60px]"
-          ref={commentInputRef}
-        />
-        
-        <div className="flex justify-end">
-          <Button 
-            size="sm"
-            onClick={handlePostComment}
-            disabled={!comment.trim()}
-          >
-            Publicar
-          </Button>
+        <div className="flex items-center rounded-full bg-gray-100 pr-2">
+          <MentionInput
+            users={mentionUsers}
+            value={comment}
+            onChange={setComment}
+            onKeyDown={handleKeyDown}
+            placeholder={replyTo ? "Escreva uma resposta..." : "Adicionar comentário..."}
+            className="w-full rounded-full px-3 py-2 bg-gray-100 border-none focus:ring-0 min-h-[38px] text-sm"
+            ref={commentInputRef}
+          />
+          
+          <div className="flex gap-1">
+            <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
+              <SmilePlus size={18} />
+            </button>
+            <button className="p-1 rounded-full text-gray-500 hover:bg-gray-200">
+              <Image size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

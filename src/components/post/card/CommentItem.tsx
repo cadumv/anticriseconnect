@@ -86,9 +86,29 @@ export function CommentItem({
       </div>
     );
   };
-  
+
+  const timeAgo = (timestamp: string) => {
+    const now = new Date();
+    const commentDate = new Date(timestamp);
+    const diffInMinutes = Math.floor((now.getTime() - commentDate.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'agora';
+    if (diffInMinutes < 60) return `${diffInMinutes}m`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) return `${diffInDays}d`;
+    
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) return `${diffInMonths}m`;
+    
+    return `${Math.floor(diffInMonths / 12)}a`;
+  };
+
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2 mb-3">
       <Avatar className="h-8 w-8 flex-shrink-0">
         {avatarUrl ? (
           <AvatarImage src={avatarUrl} alt={authorName} />
@@ -97,36 +117,39 @@ export function CommentItem({
         )}
       </Avatar>
       <div className="flex-1">
-        <div className="bg-gray-100 p-3 rounded-lg">
-          <p className="font-medium text-sm">{authorName}</p>
-          <div 
-            className="text-sm" 
-            dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
-          />
+        <div className="relative group">
+          <div className="bg-gray-100 p-2 rounded-lg">
+            <p className="font-medium text-sm">{authorName}</p>
+            <div 
+              className="text-sm" 
+              dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
+            />
+          </div>
+          <div className="absolute bottom-0 right-0 translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+            {liked ? (
+              <div className="bg-red-100 text-red-500 rounded-full p-1 shadow-sm">
+                <Heart size={12} fill="currentColor" />
+              </div>
+            ) : null}
+          </div>
         </div>
-        <div className="flex gap-4 mt-1 text-xs text-gray-500">
-          <span>
-            {new Date(comment.timestamp).toLocaleDateString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </span>
+        
+        <div className="flex gap-3 mt-1 text-xs px-2">
+          <button 
+            className={`font-medium ${liked ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'}`}
+            onClick={onLike}
+          >
+            Gostei
+          </button>
           
           <button 
-            className="flex items-center gap-1 hover:text-blue-600"
+            className="font-medium text-gray-500 hover:text-blue-600"
             onClick={onReply}
           >
-            <Reply size={14} />
             Responder
           </button>
           
-          <button 
-            className={`flex items-center gap-1 ${liked ? 'text-red-500' : 'hover:text-red-500'}`}
-            onClick={onLike}
-          >
-            <Heart size={14} fill={liked ? "currentColor" : "none"} />
-            {comment.likes && comment.likes > 0 ? comment.likes : ""} Curtir
-          </button>
+          <span className="text-gray-500">{timeAgo(comment.timestamp)}</span>
         </div>
         
         {renderReplies()}

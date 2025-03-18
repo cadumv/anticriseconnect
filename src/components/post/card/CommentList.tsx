@@ -9,7 +9,7 @@ export function CommentList() {
 
   if (comments.length === 0) {
     return (
-      <p className="text-gray-500 text-center py-2">Seja o primeiro a comentar.</p>
+      <p className="text-gray-500 text-center py-2 text-sm">Seja o primeiro a comentar.</p>
     );
   }
   
@@ -39,7 +39,7 @@ export function CommentList() {
     });
   };
 
-  return <div className="space-y-4">{renderComments(comments)}</div>;
+  return <div className="space-y-1">{renderComments(comments)}</div>;
 }
 
 export default CommentList;

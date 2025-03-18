@@ -34,6 +34,7 @@ export function PostCard({
   const [commentCount, setCommentCount] = useState(0);
   const [likedByUsers, setLikedByUsers] = useState<Array<{id: string, name: string}>>([]);
   const [localLikes, setLocalLikes] = useState(post.likes || 0);
+  const [showComments, setShowComments] = useState(false);
 
   // Get comment count and likes when the post is loaded
   useEffect(() => {
@@ -169,16 +170,25 @@ export function PostCard({
     
     setLocalLikes(newLikesCount);
   };
+
+  // Toggle comments visibility
+  const toggleComments = () => {
+    setShowComments(prev => !prev);
+  };
   
   return (
-    <div className={`rounded-md border bg-white shadow-sm ${compact ? 'text-sm' : ''}`}>
+    <div className="rounded-md border bg-white shadow-sm">
       <PostCardHeader 
         post={post} 
         compact={compact}
         onDelete={onDelete}
       />
       
-      <PostCardContent post={post} />
+      {!compact && post.content && (
+        <div className="px-4 py-2">
+          <p className="text-gray-800">{post.content}</p>
+        </div>
+      )}
       
       <PostCardMedia 
         imageUrl={post.imageUrl} 
@@ -192,6 +202,30 @@ export function PostCard({
         </div>
       )}
       
+      {/* People who engaged with the post */}
+      {likedByUsers.length > 0 && (
+        <div className="px-4 py-1 text-xs text-gray-500 flex items-center border-t">
+          <div className="flex -space-x-1 mr-2">
+            {likedByUsers.slice(0, 3).map((user, index) => (
+              <div key={index} className="w-5 h-5 rounded-full bg-blue-100 border border-white flex items-center justify-center overflow-hidden">
+                <span className="text-[9px] font-bold">{user.name[0].toUpperCase()}</span>
+              </div>
+            ))}
+          </div>
+          <span>
+            {likedByUsers.length === 1 
+              ? `${likedByUsers[0].name}`
+              : `${likedByUsers[0].name} e mais ${likedByUsers.length - 1} ${likedByUsers.length - 1 > 1 ? 'pessoas' : 'pessoa'}`}
+          </span>
+          {commentCount > 0 && (
+            <>
+              <span className="mx-1">•</span>
+              <span>{commentCount} {commentCount === 1 ? 'comentário' : 'comentários'}</span>
+            </>
+          )}
+        </div>
+      )}
+      
       <PostCardActions 
         postId={post.id}
         likes={localLikes}
@@ -202,12 +236,12 @@ export function PostCard({
         onLike={handlePostLike}
         onSave={onSave}
         onShare={onShare}
-        onComment={() => {}} // Empty function since comments are always visible now
+        onComment={toggleComments}
         compact={compact}
         likedByUsers={likedByUsers}
       />
       
-      {!compact && (
+      {(!compact && showComments) && (
         <CommentSection 
           comments={comments}
           isLoading={isLoadingComments}

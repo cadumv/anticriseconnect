@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Heart, Share2, MessageSquare } from "lucide-react";
+import { Heart, Share2, MessageSquare, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Tooltip,
@@ -38,13 +38,6 @@ export function PostCardActions({
 }: PostCardActionsProps) {
   const isLiked = liked[postId] || false;
   
-  const buttonClasses = compact 
-    ? "h-8 gap-1 px-2 text-xs"
-    : "h-9 gap-2 px-3";
-    
-  const iconSize = compact ? 14 : 18;
-  
-  // Format the list of users who liked the post
   const formatLikedByList = () => {
     if (likedByUsers.length === 0) return "Ninguém curtiu ainda";
     
@@ -57,8 +50,8 @@ export function PostCardActions({
   };
   
   return (
-    <div className={`flex items-center justify-between px-4 py-1 ${compact ? 'text-xs' : 'text-sm'}`}>
-      <div className="flex items-center gap-1">
+    <div className="border-t border-gray-200">
+      <div className="grid grid-cols-4 px-1 py-1">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -66,14 +59,16 @@ export function PostCardActions({
                 onClick={() => onLike(postId)} 
                 variant="ghost"
                 size="sm"
-                className={buttonClasses}
+                className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
               >
-                <Heart 
-                  size={iconSize}
-                  fill={isLiked ? "currentColor" : "none"} 
-                  className={isLiked ? "text-red-500" : "text-gray-500"} 
-                />
-                <span>{likes > 0 ? likes : ''}</span>
+                <div className="flex items-center justify-center gap-2 w-full text-gray-600">
+                  <Heart 
+                    size={18}
+                    fill={isLiked ? "currentColor" : "none"} 
+                    className={isLiked ? "text-red-500" : "text-gray-500"} 
+                  />
+                  <span className={`text-sm font-medium ${isLiked ? "text-red-500" : ""}`}>Gostei</span>
+                </div>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -85,21 +80,36 @@ export function PostCardActions({
         <Button
           onClick={onComment}
           variant="ghost"
-          size="sm"
-          className={buttonClasses}
+          size="sm" 
+          className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
         >
-          <MessageSquare size={iconSize} className="text-gray-500" />
-          <span>{comments > 0 ? comments : ''}</span>
+          <div className="flex items-center justify-center gap-2 w-full text-gray-600">
+            <MessageSquare size={18} className="text-gray-500" />
+            <span className="text-sm font-medium">Comentar</span>
+          </div>
         </Button>
         
         <Button
           onClick={() => onShare(postId)}
           variant="ghost"
           size="sm"
-          className={buttonClasses}
+          className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
         >
-          <Share2 size={iconSize} className="text-gray-500" />
-          <span>{shares > 0 ? shares : ''}</span>
+          <div className="flex items-center justify-center gap-2 w-full text-gray-600">
+            <Share2 size={18} className="text-gray-500" />
+            <span className="text-sm font-medium">Compartilhar</span>
+          </div>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
+        >
+          <div className="flex items-center justify-center gap-2 w-full text-gray-600">
+            <Send size={18} className="text-gray-500" />
+            <span className="text-sm font-medium">Enviar</span>
+          </div>
         </Button>
       </div>
     </div>
