@@ -13,11 +13,11 @@ export function PostCardMedia({ imageUrl, title, compact = false }: PostCardMedi
   
   return (
     <div className={`${compact ? 'mb-2' : 'mb-3'}`}>
-      <AspectRatio ratio={compact ? 3/1 : 16/9}>
+      <AspectRatio ratio={compact ? 3/1 : 4/3}>
         <img 
           src={imageUrl} 
           alt={title || "Imagem da publicação"} 
-          className="object-cover w-full h-full rounded-sm"
+          className="object-contain w-full h-full rounded-sm"
         />
       </AspectRatio>
     </div>
