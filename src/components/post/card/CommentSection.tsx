@@ -2,13 +2,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Comment } from "@/types/post";
-import { Heart, MessageSquare, Reply } from "lucide-react";
-import { CommentItem } from "./CommentItem";
 import { MentionInput } from "./MentionInput";
 
 interface CommentSectionProps {
@@ -197,10 +194,11 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
   };
   
   const updateCommentsWithNewComment = (newComment: Comment) => {
+    // Fixed: Now returning the updated array
     setLocalComments(prevComments => {
       // If it's a reply to another comment
       if (newComment.parentId) {
-        return prevComments.map(comment => {
+        const updatedComments = prevComments.map(comment => {
           if (comment.id === newComment.parentId) {
             return {
               ...comment,
@@ -217,6 +215,7 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
           
           return comment;
         });
+        return updatedComments;
       } else {
         // It's a top-level comment
         return [newComment, ...prevComments];
@@ -386,15 +385,8 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
         post_id: postId
       };
       
-      // If it's a reply to a comment, find that comment and add this as a reply
-      if (parentId) {
-        setLocalComments(prevComments => {
-          return updateCommentsWithNewComment(newComment);
-        });
-      } else {
-        // It's a top-level comment
-        setLocalComments(prev => [newComment, ...prev]);
-      }
+      // Update the comments state
+      updateCommentsWithNewComment(newComment);
       
       // Clear the comment input
       setComment("");
@@ -428,6 +420,9 @@ export function CommentSection({ comments: initialComments, isLoading: initialLo
     setReplyTo(null);
     setComment("");
   };
+  
+  // Import CommentItem component to render comments
+  const { CommentItem } = require('./CommentItem');
   
   const renderComments = (comments: Comment[]) => {
     return comments.map(comment => {

@@ -5,7 +5,7 @@ import { PostCardContent } from "./card/PostCardContent";
 import { PostCardMedia } from "./card/PostCardMedia";
 import { PostCardActions } from "./card/PostCardActions";
 import { CommentSection } from "./card/CommentSection";
-import { Post } from "@/types/post";
+import { Post, Comment } from "@/types/post";
 import { supabase } from "@/lib/supabase";
 
 interface PostCardProps {
@@ -29,7 +29,7 @@ export function PostCard({
   onDelete,
   compact = false 
 }: PostCardProps) {
-  const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [likedByUsers, setLikedByUsers] = useState<Array<{id: string, name: string}>>([]);
