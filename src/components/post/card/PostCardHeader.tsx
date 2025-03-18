@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 interface PostCardHeaderProps {
   post: Post;
@@ -20,6 +20,8 @@ interface PostCardHeaderProps {
 }
 
 export function PostCardHeader({ post, compact = false, onDelete, onUserClick }: PostCardHeaderProps) {
+  const navigate = useNavigate();
+  
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -36,10 +38,20 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
   // Format the date string to a more readable format
   const formattedDate = post.timestamp ? formatTimeAgo(post.timestamp) : '';
   
+  const handleUserProfileClick = () => {
+    if (onUserClick) {
+      onUserClick();
+    } else if (post.user_id) {
+      navigate(`/profile/${post.user_id}`);
+    }
+  };
+  
+  const engineeringType = post.metadata?.engineeringType || post.company || "";
+  
   return (
     <div className={`flex items-center justify-between px-4 ${compact ? 'py-2' : 'py-3'}`}>
-      <div className="flex items-center space-x-2">
-        <div onClick={onUserClick} className="cursor-pointer">
+      <div className="flex items-center space-x-3">
+        <div onClick={handleUserProfileClick} className="cursor-pointer">
           <Avatar className={compact ? "h-8 w-8" : "h-10 w-10"}>
             {post.metadata?.avatarUrl ? (
               <AvatarImage src={post.metadata.avatarUrl} alt={post.author || "Autor"} />
@@ -51,8 +63,8 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
         
         <div>
           <div 
-            className="font-medium text-sm line-clamp-1 cursor-pointer hover:underline" 
-            onClick={onUserClick}
+            className="font-semibold text-sm line-clamp-1 cursor-pointer hover:underline" 
+            onClick={handleUserProfileClick}
           >
             {post.author || "Usuário"}
           </div>
@@ -60,10 +72,10 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
           <div className="text-xs text-gray-500 flex items-center">
             <span>{formattedDate}</span>
             
-            {post.company && (
+            {engineeringType && (
               <>
                 <span className="mx-1">•</span>
-                <span>{post.company}</span>
+                <span>Engenharia {engineeringType}</span>
               </>
             )}
             
