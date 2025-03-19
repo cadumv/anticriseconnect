@@ -126,4 +126,3 @@ export function OpportunityCard({
     </Card>
   );
 }
-</lov-add-dependency>uuid@latest</lov-add-dependency>
