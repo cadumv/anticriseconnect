@@ -17,7 +17,7 @@ export function PostCardMedia({ imageUrl, title, compact = false }: PostCardMedi
         <img 
           src={imageUrl} 
           alt={title || "Imagem da publicação"} 
-          className="object-contain w-full h-full rounded-sm"
+          className="object-cover w-full h-full rounded-sm"
         />
       </AspectRatio>
     </div>
