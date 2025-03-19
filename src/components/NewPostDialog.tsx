@@ -1,24 +1,15 @@
 
-import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus, Upload, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/hooks/use-toast";
-import { AchievementsManager } from "@/services/AchievementsManager";
-import { Post } from "@/types/post";
-import { ImageUploader } from "@/components/post/ImageUploader";
-
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ServicePostForm } from "@/components/post/ServicePostForm";
+import { TechnicalArticleForm } from "@/components/post/TechnicalArticleForm";
+import { RegularPostForm } from "@/components/post/RegularPostForm";
+import { PostDialogFooter } from "@/components/post/PostDialogFooter";
+import { usePostCreation } from "@/hooks/usePostCreation";
 
 interface NewPostDialogProps {
   onPostCreated: () => void;
@@ -27,7 +18,6 @@ interface NewPostDialogProps {
 export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTab, setSelectedTab] = useState("post");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -46,6 +36,8 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   // Service fields
   const [serviceArea, setServiceArea] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
+  
+  const { isSubmitting, uploadImages, createPost } = usePostCreation(user, onPostCreated);
   
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -69,39 +61,9 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
     setSelectedTab("post");
     setAuthor("");
   };
-  
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    try {
-      const imageUrls: string[] = [];
-      
-      for (const file of files) {
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('post_images')
-          .upload(filePath, file);
-        
-        if (uploadError) throw uploadError;
-        
-        const { data } = supabase.storage
-          .from('post_images')
-          .getPublicUrl(filePath);
-        
-        imageUrls.push(data.publicUrl);
-      }
-      
-      return imageUrls;
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      throw error;
-    }
-  };
 
-  const createPost = async () => {
+  const handleCreatePost = async () => {
     if (!user) return;
-    
-    setIsSubmitting(true);
     
     try {
       let imageUrls: string[] = [];
@@ -153,66 +115,20 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
         };
       }
       
-      console.log("Saving post data:", postData); // Debug log
-      
-      // Save to Supabase
-      const { data, error } = await supabase
-        .from('posts')
-        .insert(postData)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      // Check for achievements
-      const firstPublicationAchievement = AchievementsManager.checkFirstPublicationAchievement(user.id);
-      if (firstPublicationAchievement) {
-        // Mark as shown to prevent duplicate popups
-        const shownAchievements = AchievementsManager.getUnlockedAchievements(user.id);
-        if (!shownAchievements.includes(firstPublicationAchievement.id)) {
-          shownAchievements.push(firstPublicationAchievement.id);
-          AchievementsManager.saveUnlockedAchievements(user.id, shownAchievements);
-        }
+      const success = await createPost(postData);
+      if (success) {
+        setOpen(false);
+        resetForm();
       }
-      
-      if (selectedTab === "technical_article") {
-        const technicalArticleAchievement = AchievementsManager.checkTechnicalArticleAchievement(user.id);
-        if (technicalArticleAchievement) {
-          // Mark as shown to prevent duplicate popups
-          const shownAchievements = AchievementsManager.getUnlockedAchievements(user.id);
-          if (!shownAchievements.includes(technicalArticleAchievement.id)) {
-            shownAchievements.push(technicalArticleAchievement.id);
-            AchievementsManager.saveUnlockedAchievements(user.id, shownAchievements);
-          }
-        }
-      }
-      
-      // Load user posts to localStorage for quicker access
-      const postsKey = `user_posts_${user.id}`;
-      const savedPosts = localStorage.getItem(postsKey);
-      const posts = savedPosts ? JSON.parse(savedPosts) : [];
-      posts.unshift(data);
-      localStorage.setItem(postsKey, JSON.stringify(posts));
-      
-      toast({
-        title: "Publicação criada com sucesso",
-        description: "Sua publicação já está disponível para visualização."
-      });
-      
-      onPostCreated();
-      setOpen(false);
-      resetForm();
     } catch (error: any) {
-      console.error('Error creating post:', error);
-      toast({
-        title: "Erro ao criar publicação",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error in handleCreatePost:', error);
     }
   };
+
+  const isSubmitDisabled = 
+    (selectedTab === "post" && !content.trim()) ||
+    (selectedTab === "service" && (!serviceArea.trim() || !serviceDescription.trim())) ||
+    (selectedTab === "technical_article" && (!title.trim() || !mainContent.trim()));
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -235,156 +151,69 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
           </TabsList>
           
           <TabsContent value="post" className="space-y-4">
-            <div className="space-y-4">
-              <Textarea 
-                placeholder="Compartilhe informações, dicas ou atualizações com outros engenheiros..." 
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[120px]"
-              />
-              
-              <ImageUploader
-                imageFiles={imageFiles}
-                imagePreviews={imagePreviews}
-                setImageFiles={setImageFiles}
-                setImagePreviews={setImagePreviews}
-                multiple={true}
-                maxImages={5}
-              />
-            </div>
+            <RegularPostForm
+              content={content}
+              setContent={setContent}
+              imageFiles={imageFiles}
+              imagePreviews={imagePreviews}
+              setImageFiles={setImageFiles}
+              setImagePreviews={setImagePreviews}
+            />
           </TabsContent>
           
           <TabsContent value="service" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="service-area">Área de atuação/Serviço</Label>
-                <Input 
-                  id="service-area" 
-                  placeholder="Ex: Projetos elétricos residenciais" 
-                  value={serviceArea}
-                  onChange={(e) => setServiceArea(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="service-description">Descrição detalhada</Label>
-                <Textarea 
-                  id="service-description"
-                  placeholder="Descreva sua área de atuação, serviços oferecidos e diferenciais..." 
-                  value={serviceDescription}
-                  onChange={(e) => setServiceDescription(e.target.value)}
-                  className="min-h-[120px]"
-                />
-              </div>
-              
-              <ImageUploader
-                imageFiles={imageFiles}
-                imagePreviews={imagePreviews}
-                setImageFiles={setImageFiles}
-                setImagePreviews={setImagePreviews}
-                multiple={true}
-                maxImages={5}
-              />
-            </div>
+            <ServicePostForm
+              title={serviceArea}
+              setTitle={setServiceArea}
+              content={serviceDescription}
+              setContent={setServiceDescription}
+            />
+            
+            <ImageUploader
+              imageFiles={imageFiles}
+              imagePreviews={imagePreviews}
+              setImageFiles={setImageFiles}
+              setImagePreviews={setImagePreviews}
+              multiple={true}
+              maxImages={5}
+            />
           </TabsContent>
           
           <TabsContent value="technical_article" className="space-y-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="article-title">Título do artigo</Label>
-                <Input 
-                  id="article-title" 
-                  placeholder="Ex: Impactos da NR10 na segurança elétrica" 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="article-author">Autor</Label>
-                <Input 
-                  id="article-author" 
-                  placeholder={user?.user_metadata?.name || "Seu nome"} 
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="article-summary">Resumo</Label>
-                <Textarea 
-                  id="article-summary"
-                  placeholder="Breve resumo do conteúdo do artigo" 
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="article-content">Conteúdo principal</Label>
-                <Textarea 
-                  id="article-content"
-                  placeholder="Conteúdo detalhado do artigo..." 
-                  value={mainContent}
-                  onChange={(e) => setMainContent(e.target.value)}
-                  className="min-h-[120px]"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="article-conclusions">Conclusões</Label>
-                <Textarea 
-                  id="article-conclusions"
-                  placeholder="Principais conclusões e considerações finais" 
-                  value={conclusions}
-                  onChange={(e) => setConclusions(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="article-tags">Tags (separadas por vírgula)</Label>
-                <Input 
-                  id="article-tags" 
-                  placeholder="Ex: energia solar, sustentabilidade" 
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                />
-              </div>
-              
-              <ImageUploader
-                imageFiles={imageFiles}
-                imagePreviews={imagePreviews}
-                setImageFiles={setImageFiles}
-                setImagePreviews={setImagePreviews}
-                multiple={true}
-                maxImages={5}
-              />
-            </div>
+            <TechnicalArticleForm
+              title={title}
+              setTitle={setTitle}
+              author={author}
+              setAuthor={setAuthor}
+              company={user?.user_metadata?.engineering_type || ""}
+              setCompany={() => {}} // This is determined by user profile
+              summary={summary}
+              setSummary={setSummary}
+              mainContent={mainContent}
+              setMainContent={setMainContent}
+              conclusions={conclusions}
+              setConclusions={setConclusions}
+              content={content}
+              setContent={setContent}
+              userName={user?.user_metadata?.name}
+            />
+            
+            <ImageUploader
+              imageFiles={imageFiles}
+              imagePreviews={imagePreviews}
+              setImageFiles={setImageFiles}
+              setImagePreviews={setImagePreviews}
+              multiple={true}
+              maxImages={5}
+            />
           </TabsContent>
         </Tabs>
         
-        <DialogFooter>
-          <Button 
-            type="button" 
-            onClick={createPost} 
-            disabled={isSubmitting || 
-              (selectedTab === "post" && !content.trim()) ||
-              (selectedTab === "service" && (!serviceArea.trim() || !serviceDescription.trim())) ||
-              (selectedTab === "technical_article" && (!title.trim() || !mainContent.trim()))}
-            className="w-full"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Publicando...
-              </>
-            ) : (
-              "Publicar"
-            )}
-          </Button>
-        </DialogFooter>
+        <PostDialogFooter
+          isSubmitting={isSubmitting}
+          isDisabled={isSubmitDisabled}
+          onSubmit={handleCreatePost}
+        />
       </DialogContent>
     </Dialog>
   );
