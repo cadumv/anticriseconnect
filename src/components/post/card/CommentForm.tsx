@@ -4,9 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { MentionInput } from "./MentionInput";
 import { useCommentContext } from "./CommentContext";
-import { toast } from "sonner";
 import { ReplyHeader } from "./comment/ReplyHeader";
-import { ImagePreview } from "./comment/ImagePreview";
 import { CommentFormToolbar } from "./comment/CommentFormToolbar";
 
 export function CommentForm() {
@@ -15,9 +13,7 @@ export function CommentForm() {
   const [comment, setComment] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const commentInputRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!user) {
@@ -25,31 +21,20 @@ export function CommentForm() {
   }
 
   const handlePostComment = () => {
-    if (!comment.trim() && !imagePreview) return;
+    if (!comment.trim()) return;
     
-    // Include the image markup in the comment if we have a preview
-    let finalComment = comment;
-    if (imagePreview) {
-      // Make sure to add a line break if there's already comment text
-      const separator = finalComment.trim() ? '\n' : '';
-      // Use a consistent format for the image tag that will be properly rendered
-      finalComment += `${separator}<img src="${imagePreview}" alt="Uploaded image" class="comment-image" />`;
-    }
-    
-    postComment(finalComment, replyTo?.id || null);
+    postComment(comment, replyTo?.id || null);
     setComment("");
-    setImagePreview(null);
     setReplyTo(null);
   };
 
   const handleCancelReply = () => {
     setReplyTo(null);
     setComment("");
-    setImagePreview(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || imagePreview)) {
+    if (e.key === 'Enter' && !e.shiftKey && comment.trim()) {
       e.preventDefault();
       handlePostComment();
     }
@@ -63,41 +48,6 @@ export function CommentForm() {
     setComment(prev => prev + emoji);
     if (commentInputRef.current) {
       commentInputRef.current.focus();
-    }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error("Por favor, selecione um arquivo de imagem");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      // In a real implementation, you would upload the image to a server
-      // and get back a URL to insert into the comment
-      
-      // Create an object URL for the image preview
-      const imageUrl = URL.createObjectURL(file);
-      setImagePreview(imageUrl);
-      
-      toast.success(`Imagem "${file.name}" anexada ao comentário`);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Erro ao carregar a imagem. Tente novamente.");
-    } finally {
-      setIsUploading(false);
-      // Reset the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 
@@ -159,33 +109,15 @@ export function CommentForm() {
               ref={commentInputRef}
             />
             
-            {imagePreview && (
-              <ImagePreview
-                imageUrl={imagePreview}
-                onRemove={() => setImagePreview(null)}
-              />
-            )}
-            
             <CommentFormToolbar
               showEmojiPicker={showEmojiPicker}
               isUploading={isUploading}
               comment={comment}
-              imagePreview={imagePreview}
               emojiButtonRef={emojiButtonRef}
               onEmojiClick={handleEmojiClick}
               onEmojiSelect={handleEmojiSelect}
               onCloseEmojiPicker={() => setShowEmojiPicker(false)}
-              onImageClick={handleImageClick}
               onPostComment={handlePostComment}
-            />
-            
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleFileChange}
-              disabled={isUploading}
             />
           </div>
         </div>

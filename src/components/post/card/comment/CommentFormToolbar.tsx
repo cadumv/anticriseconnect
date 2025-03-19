@@ -1,19 +1,17 @@
 
 import React, { RefObject } from "react";
 import { Button } from "@/components/ui/button";
-import { SmilePlus, Image } from "lucide-react";
+import { SmilePlus } from "lucide-react";
 import { EmojiPicker } from "../EmojiPicker";
 
 interface CommentFormToolbarProps {
   showEmojiPicker: boolean;
   isUploading: boolean;
   comment: string;
-  imagePreview: string | null;
   emojiButtonRef: RefObject<HTMLButtonElement>;
   onEmojiClick: () => void;
   onEmojiSelect: (emoji: string) => void;
   onCloseEmojiPicker: () => void;
-  onImageClick: () => void;
   onPostComment: () => void;
 }
 
@@ -21,12 +19,10 @@ export function CommentFormToolbar({
   showEmojiPicker,
   isUploading,
   comment,
-  imagePreview,
   emojiButtonRef,
   onEmojiClick,
   onEmojiSelect,
   onCloseEmojiPicker,
-  onImageClick,
   onPostComment
 }: CommentFormToolbarProps) {
   return (
@@ -51,24 +47,13 @@ export function CommentFormToolbar({
             />
           </div>
         )}
-        
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="p-1 h-8 w-8 rounded-full text-gray-500 hover:bg-gray-100"
-          onClick={onImageClick}
-          disabled={isUploading}
-          aria-label="Anexar imagem"
-        >
-          <Image size={18} />
-        </Button>
       </div>
       
       <Button
         size="sm"
         variant="ghost"
         className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 h-8"
-        disabled={(!comment.trim() && !imagePreview) || isUploading}
+        disabled={!comment.trim() || isUploading}
         onClick={onPostComment}
       >
         {isUploading ? "Carregando..." : "Publicar"}

@@ -3,7 +3,7 @@ import React from "react";
 import { Comment } from "@/types/post";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart } from "lucide-react";
-import { formatCommentText, processCommentImages } from "./commentUtils";
+import { formatCommentText } from "./commentUtils";
 import { useNavigate } from "react-router-dom";
 import CommentReplies from "./CommentReplies";
 
@@ -62,9 +62,7 @@ export function CommentItem({
     return `${Math.floor(diffInMonths / 12)}a`;
   };
 
-  // Process the comment text to properly handle images
-  const processedCommentText = processCommentImages(comment.text);
-  const formattedCommentHtml = formatCommentText(processedCommentText);
+  const formattedCommentHtml = formatCommentText(comment.text);
 
   return (
     <div className="flex gap-2 mb-3">
