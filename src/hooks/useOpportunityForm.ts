@@ -3,6 +3,7 @@ import { useState, FormEvent } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 interface UseOpportunityFormProps {
   onOpportunityCreated: () => void;
@@ -56,6 +57,30 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
     setIsSubmitting(true);
     
     try {
+      let finalImageUrl = null;
+      
+      // Upload image if there's an image file
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
+        const filePath = `opportunity-images/${fileName}`;
+        
+        const { error: uploadError, data: uploadData } = await supabase.storage
+          .from('posts')
+          .upload(filePath, imageFile);
+        
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('posts')
+          .getPublicUrl(filePath);
+        
+        finalImageUrl = publicUrlData.publicUrl;
+      }
+      
       // Create skills array from comma-separated string
       const skillsArray = skills
         .split(",")
@@ -67,7 +92,7 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
         .from("posts")
         .insert({
           content: description,
-          image_url: imageUrl,
+          image_url: finalImageUrl,
           user_id: user.id,
           metadata: {
             type: "opportunity",

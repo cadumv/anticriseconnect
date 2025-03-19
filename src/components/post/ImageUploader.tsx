@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImagePlus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { resizeImageToStandard } from "./imageUtils";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 

@@ -6,7 +6,9 @@ import { PostCardHeader } from "@/components/post/card/PostCardHeader";
 import { PostCardMedia } from "@/components/post/card/PostCardMedia";
 import { PostCardActions } from "@/components/post/card/PostCardActions";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Users, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MapPin, Users, Calendar, HandshakeIcon } from "lucide-react";
+import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Post;
@@ -32,6 +34,11 @@ export function OpportunityCard({
   const location = metadata.location;
   const partnerCount = metadata.partnerCount || "Não especificado";
   const deadline = metadata.deadline;
+  
+  const handleRequestPartnership = () => {
+    toast.success("Solicitação de parceria enviada com sucesso!");
+    // In a real application, this would send a request to the backend
+  };
   
   return (
     <Card className="overflow-hidden">
@@ -87,10 +94,23 @@ export function OpportunityCard({
             {deadline && (
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>Prazo: {deadline}</span>
+                <span>Prazo: {new Date(deadline).toLocaleDateString('pt-BR')}</span>
               </div>
             )}
           </div>
+          
+          {!isOwner && (
+            <div className="mt-4">
+              <Button 
+                onClick={handleRequestPartnership} 
+                className="w-full"
+                variant="outline"
+              >
+                <HandshakeIcon className="mr-2 h-4 w-4" />
+                Solicitar parceria
+              </Button>
+            </div>
+          )}
         </div>
         
         <PostCardActions
@@ -106,3 +126,4 @@ export function OpportunityCard({
     </Card>
   );
 }
+</lov-add-dependency>uuid@latest</lov-add-dependency>
