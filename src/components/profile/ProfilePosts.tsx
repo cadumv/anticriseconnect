@@ -80,28 +80,14 @@ export const ProfilePosts = ({ user }: ProfilePostsProps) => {
 
   // Delete post handler
   const onDeletePost = async (postId: string) => {
-    if (!user) return;
+    if (!user) return false;
     
-    if (window.confirm("Tem certeza que deseja excluir esta publicação?")) {
-      try {
-        handleDeletePost(postId);
-        
-        // Update the local state immediately
-        setUserPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-        
-        toast({
-          title: "Publicação excluída",
-          description: "Sua publicação foi excluída com sucesso.",
-        });
-      } catch (error) {
-        console.error("Error deleting post:", error);
-        toast({
-          title: "Erro ao excluir publicação",
-          description: "Não foi possível excluir sua publicação. Tente novamente.",
-          variant: "destructive",
-        });
-      }
+    const success = await handleDeletePost(postId);
+    if (success) {
+      // Update the local state immediately
+      setUserPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
     }
+    return success;
   };
   
   // Edit post handler

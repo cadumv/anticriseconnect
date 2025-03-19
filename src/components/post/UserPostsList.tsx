@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { PostCard } from "./PostCard";
 import { AchievementCard } from "./AchievementCard";
 import { Post } from "@/types/post";
@@ -29,6 +29,8 @@ export function UserPostsList({
   onEdit,
   compact = false
 }: UserPostsListProps) {
+  const [deletedPostIds, setDeletedPostIds] = useState<string[]>([]);
+  
   if (!posts || posts.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500">
@@ -36,10 +38,30 @@ export function UserPostsList({
       </div>
     );
   }
+  
+  // Filter out deleted posts
+  const visiblePosts = posts.filter(post => !deletedPostIds.includes(post.id));
+  
+  if (visiblePosts.length === 0) {
+    return (
+      <div className="text-center py-6 text-gray-500">
+        Nenhuma publicação encontrada
+      </div>
+    );
+  }
+
+  const handleDeletePost = async (postId: string) => {
+    if (onDelete) {
+      const deleted = await onDelete(postId);
+      if (deleted) {
+        setDeletedPostIds(prev => [...prev, postId]);
+      }
+    }
+  };
 
   return (
     <>
-      {posts.map((post) => (
+      {visiblePosts.map((post) => (
         <div key={post.id} className={`mb-3 rounded-lg overflow-hidden shadow-sm ${compact ? 'border border-gray-100' : ''}`}>
           {post.type === 'achievement' ? (
             <AchievementCard 
@@ -55,7 +77,7 @@ export function UserPostsList({
                 onLike={onLike} 
                 onSave={onSave} 
                 onShare={onShare}
-                onDelete={onDelete ? () => onDelete(post.id) : undefined}
+                onDelete={onDelete ? () => handleDeletePost(post.id) : undefined}
                 onEdit={onEdit ? () => onEdit(post.id) : undefined}
                 compact={compact}
               />

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { PencilLine, Plus } from "lucide-react";
+import { PencilLine } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogHeader, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -175,8 +175,10 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
         title: "Publicação excluída com sucesso",
       });
       
-      fetchUserPosts();
+      // Update local state by removing the deleted post
+      setUserPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
       
+      return true; // Return true to indicate successful deletion
     } catch (error: any) {
       console.error("Error deleting post:", error);
       toast({
@@ -184,6 +186,7 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
         description: error.message,
         variant: "destructive",
       });
+      return false; // Return false to indicate failed deletion
     }
   };
   

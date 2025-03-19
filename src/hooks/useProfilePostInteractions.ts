@@ -123,7 +123,7 @@ export const useProfilePostInteractions = (user: User | null) => {
   };
   
   const handleDeletePost = async (postId: string) => {
-    if (!user) return;
+    if (!user) return false;
     
     try {
       const { error } = await supabase
@@ -139,6 +139,8 @@ export const useProfilePostInteractions = (user: User | null) => {
         description: "Sua publicação foi excluída com sucesso",
         variant: "default",
       });
+      
+      return true; // Return true to indicate successful deletion
     } catch (error) {
       console.error("Error deleting post:", error);
       toast({
@@ -146,6 +148,7 @@ export const useProfilePostInteractions = (user: User | null) => {
         description: "Não foi possível excluir sua publicação. Tente novamente.",
         variant: "destructive",
       });
+      return false; // Return false to indicate failed deletion
     }
   };
 

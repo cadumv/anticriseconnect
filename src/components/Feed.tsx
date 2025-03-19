@@ -35,6 +35,7 @@ export const Feed = () => {
     handleLike,
     handleSave,
     handleShare,
+    handleDelete,
     completeShareAction
   } = usePostInteractions(
     user,
@@ -55,9 +56,13 @@ export const Feed = () => {
     completeShareAction(currentPostId, userIds);
   };
   
-  const handleDeletePost = (postId: string) => {
-    // After deleting the post in PostCardHeader component, we need to refresh the feed
-    fetchPosts();
+  const onDeletePost = async (postId: string) => {
+    const success = await handleDelete(postId);
+    if (success) {
+      // After successful deletion, refresh the feed
+      fetchPosts();
+    }
+    return success;
   };
 
   return (
@@ -94,7 +99,7 @@ export const Feed = () => {
                 onLike={handleLike}
                 onSave={handleSave}
                 onShare={onShare}
-                onDelete={handleDeletePost}
+                onDelete={onDeletePost}
               />
               
               {userPosts.length === 0 && (
