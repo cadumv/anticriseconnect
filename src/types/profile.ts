@@ -1,3 +1,25 @@
+
+export interface Education {
+  institution: string;
+  degree: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  description: string;
+}
+
+export interface Experience {
+  company: string;
+  position: string;
+  location: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  current: boolean;
+  description: string;
+}
+
 export interface ProfileData {
   id: string;
   name: string;
