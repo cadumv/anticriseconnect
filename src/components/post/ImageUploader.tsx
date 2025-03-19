@@ -42,11 +42,7 @@ export function ImageUploader({
         reader.readAsDataURL(resizedFile);
       } catch (error) {
         console.error("Erro ao processar imagem:", error);
-        toast({
-          title: "Erro no processamento",
-          description: "Não foi possível processar a imagem. Tente outra imagem.",
-          variant: "destructive",
-        });
+        toast.error("Não foi possível processar a imagem. Tente outra imagem.");
         setIsProcessing(false);
       }
     }
