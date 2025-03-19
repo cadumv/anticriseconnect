@@ -16,6 +16,27 @@ interface ProfileFormContainerProps {
   onAchievementUnlocked?: (achievement: Achievement) => void;
 }
 
+interface Education {
+  institution: string;
+  degree: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  description: string;
+}
+
+interface Experience {
+  company: string;
+  position: string;
+  location: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  current: boolean;
+  description: string;
+}
+
 export const ProfileFormContainer = ({ 
   user, 
   setIsEditingProfile, 
@@ -33,6 +54,17 @@ export const ProfileFormContainer = ({
   );
   const [areasOfExpertise, setAreasOfExpertise] = useState<string[]>(
     user?.user_metadata?.areas_of_expertise || ["", "", ""]
+  );
+
+  // Education, Experience and Interests
+  const [education, setEducation] = useState<Education[]>(
+    user?.user_metadata?.education || []
+  );
+  const [experiences, setExperiences] = useState<Experience[]>(
+    user?.user_metadata?.experiences || []
+  );
+  const [interests, setInterests] = useState<string[]>(
+    user?.user_metadata?.interests || []
   );
   
   // Avatar
@@ -58,6 +90,9 @@ export const ProfileFormContainer = ({
     engineeringType,
     professionalDescription,
     areasOfExpertise,
+    education,
+    experiences,
+    interests,
     avatarUrl,
     setIsEditingProfile,
     usernameAvailable,
@@ -94,6 +129,12 @@ export const ProfileFormContainer = ({
           updateAreasOfExpertise={updateAreasOfExpertise}
           professionalDescription={professionalDescription}
           setProfessionalDescription={setProfessionalDescription}
+          education={education}
+          setEducation={setEducation}
+          experiences={experiences}
+          setExperiences={setExperiences}
+          interests={interests}
+          setInterests={setInterests}
         />
         
         <ProfileFormActions

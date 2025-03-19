@@ -5,16 +5,6 @@ import { ProfessionalDescriptionField } from "./form/ProfessionalDescriptionFiel
 import { EducationField } from "./form/EducationField";
 import { ExperienceField } from "./form/ExperienceField";
 import { InterestsField } from "./form/InterestsField";
-import { useState } from "react";
-
-interface ProfessionalInfoFieldsProps {
-  engineeringType: string;
-  setEngineeringType: (engineeringType: string) => void;
-  areasOfExpertise: string[];
-  updateAreasOfExpertise: (index: number, value: string) => void;
-  professionalDescription: string;
-  setProfessionalDescription: (description: string) => void;
-}
 
 interface Education {
   institution: string;
@@ -37,19 +27,35 @@ interface Experience {
   description: string;
 }
 
+interface ProfessionalInfoFieldsProps {
+  engineeringType: string;
+  setEngineeringType: (engineeringType: string) => void;
+  areasOfExpertise: string[];
+  updateAreasOfExpertise: (index: number, value: string) => void;
+  professionalDescription: string;
+  setProfessionalDescription: (description: string) => void;
+  education: Education[];
+  setEducation: (education: Education[]) => void;
+  experiences: Experience[];
+  setExperiences: (experiences: Experience[]) => void;
+  interests: string[];
+  setInterests: (interests: string[]) => void;
+}
+
 export const ProfessionalInfoFields = ({
   engineeringType,
   setEngineeringType,
   areasOfExpertise,
   updateAreasOfExpertise,
   professionalDescription,
-  setProfessionalDescription
+  setProfessionalDescription,
+  education,
+  setEducation,
+  experiences,
+  setExperiences,
+  interests,
+  setInterests
 }: ProfessionalInfoFieldsProps) => {
-  // Additional state for new LinkedIn-like sections
-  const [education, setEducation] = useState<Education[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
-
   return (
     <div className="space-y-6">
       <ProfessionalDescriptionField

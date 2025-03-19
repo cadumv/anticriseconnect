@@ -7,6 +7,27 @@ import { Achievement } from "@/types/profile";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Mission } from "@/components/achievements/types/mission";
 
+interface Education {
+  institution: string;
+  degree: string;
+  fieldOfStudy: string;
+  startYear: string;
+  endYear: string;
+  description: string;
+}
+
+interface Experience {
+  company: string;
+  position: string;
+  location: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  current: boolean;
+  description: string;
+}
+
 interface UseProfileFormSubmitProps {
   user: User;
   name: string;
@@ -15,6 +36,9 @@ interface UseProfileFormSubmitProps {
   engineeringType: string;
   professionalDescription: string;
   areasOfExpertise: string[];
+  education: Education[];
+  experiences: Experience[];
+  interests: string[];
   avatarUrl: string;
   setIsEditingProfile: (isEditing: boolean) => void;
   usernameAvailable: boolean;
@@ -29,6 +53,9 @@ export const useProfileFormSubmit = ({
   engineeringType,
   professionalDescription,
   areasOfExpertise,
+  education,
+  experiences,
+  interests,
   avatarUrl,
   setIsEditingProfile,
   usernameAvailable,
@@ -84,6 +111,8 @@ export const useProfileFormSubmit = ({
     try {
       // Filtrar áreas de expertise vazias
       const filteredAreas = areasOfExpertise.filter(area => area.trim() !== "");
+      // Filtrar interesses vazios
+      const filteredInterests = interests.filter(interest => interest.trim() !== "");
       
       const { error } = await supabase.auth.updateUser({
         data: { 
@@ -93,6 +122,9 @@ export const useProfileFormSubmit = ({
           engineering_type: engineeringType,
           professional_description: professionalDescription,
           areas_of_expertise: filteredAreas,
+          education,
+          experiences,
+          interests: filteredInterests,
           avatar_url: avatarUrl
         }
       });
@@ -108,6 +140,9 @@ export const useProfileFormSubmit = ({
           engineering_type: engineeringType,
           professional_description: professionalDescription,
           areas_of_expertise: filteredAreas,
+          education,
+          experiences,
+          interests: filteredInterests,
           avatar_url: avatarUrl,
           phone
         })
