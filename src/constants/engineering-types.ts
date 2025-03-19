@@ -1,6 +1,7 @@
 
 // Lista de tipos de engenharia
 export const engineeringTypes = [
+  "Engenharia civil",
   "Engenharia elétrica",
   "Engenharia mecânica",
   "Engenharia mecatrônica",
