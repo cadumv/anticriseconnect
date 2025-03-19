@@ -35,10 +35,16 @@ export function NewOpportunityDialog({
   const [skills, setSkills] = useState("");
   const [engineeringType, setEngineeringType] = useState("");
   
+  // For the image uploader
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
   const resetForm = () => {
     setTitle("");
     setDescription("");
     setImageUrl(null);
+    setImageFile(null);
+    setImagePreview(null);
     setLocation("");
     setPartnerCount("");
     setDeadline("");
@@ -138,8 +144,8 @@ export function NewOpportunityDialog({
           <div className="space-y-2">
             <Label htmlFor="engineeringType">Área de Engenharia</Label>
             <EngineeringTypeSelect
-              value={engineeringType}
-              onChange={setEngineeringType}
+              engineeringType={engineeringType}
+              setEngineeringType={setEngineeringType}
             />
           </div>
           
@@ -188,8 +194,10 @@ export function NewOpportunityDialog({
           <div className="space-y-2">
             <Label>Imagem (opcional)</Label>
             <ImageUploader
-              imageUrl={imageUrl}
-              onImageUploaded={setImageUrl}
+              imageFile={imageFile}
+              imagePreview={imagePreview}
+              setImageFile={setImageFile}
+              setImagePreview={setImagePreview}
             />
           </div>
           
