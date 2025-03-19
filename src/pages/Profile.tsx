@@ -13,6 +13,10 @@ import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
 import { Achievements } from "@/components/Achievements";
+import { UserPostsList } from "@/components/post/UserPostsList";
+import { Post } from "@/types/post";
+import { supabase } from "@/lib/supabase";
+import { usePostInteractions } from "@/hooks/usePostInteractions";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
@@ -21,6 +25,18 @@ const Profile = () => {
   const [achievementUnlocked, setAchievementUnlocked] = useState<Achievement | null>(null);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [userPosts, setUserPosts] = useState<Post[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  
+  // Post interactions
+  const { 
+    liked, 
+    saved, 
+    handleLikePost, 
+    handleSavePost, 
+    handleSharePost,
+    handleDeletePost 
+  } = usePostInteractions();
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -36,6 +52,67 @@ const Profile = () => {
     if (achievementUnlocked && user) {
       AchievementsManager.shareAchievement(user.id, achievementUnlocked);
       setShowAchievementPopup(false);
+    }
+  };
+
+  // Fetch user posts
+  const fetchUserPosts = async () => {
+    if (!user) return;
+    
+    setIsLoadingPosts(true);
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Transform posts to match Post interface
+      const formattedPosts = data.map(post => {
+        const metadata = post.metadata || {};
+        
+        return {
+          id: post.id,
+          content: post.content,
+          timestamp: post.created_at,
+          imageUrl: post.image_url,
+          likes: post.likes || 0,
+          saves: post.saves || 0,
+          shares: post.shares || 0,
+          user_id: post.user_id,
+          metadata: post.metadata,
+          type: metadata.type || 'post',
+          title: metadata.title,
+          author: metadata.author || user.user_metadata?.name || "Usuário",
+          date: new Date(post.created_at).toLocaleDateString('pt-BR')
+        };
+      });
+      
+      setUserPosts(formattedPosts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  };
+
+  // Delete post handler
+  const onDeletePost = async (postId: string) => {
+    if (!user) return;
+    
+    if (window.confirm("Tem certeza que deseja excluir esta publicação?")) {
+      try {
+        handleDeletePost(postId);
+        
+        // Update the local state immediately
+        setUserPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      } catch (error) {
+        console.error("Error deleting post:", error);
+      }
     }
   };
 
@@ -67,6 +144,9 @@ const Profile = () => {
         // Update achievements list immediately
         setAchievements(AchievementsManager.getUserAchievements(user.id));
       }
+      
+      // Fetch user posts
+      fetchUserPosts();
     }
   }, [user]);
 
@@ -130,6 +210,40 @@ const Profile = () => {
         <CardFooter className="flex justify-between">
           <DeleteAccountDialog deleteAccount={deleteAccount} />
         </CardFooter>
+      </Card>
+
+      {/* User Posts Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Minhas Publicações</CardTitle>
+          <CardDescription>Publicações que você compartilhou</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoadingPosts ? (
+            <div className="text-center py-10">
+              <div className="animate-pulse text-lg">Carregando publicações...</div>
+            </div>
+          ) : userPosts.length > 0 ? (
+            <UserPostsList
+              posts={userPosts}
+              userName={user.user_metadata?.name || "Usuário"}
+              liked={liked}
+              saved={saved}
+              onLike={handleLikePost}
+              onSave={handleSavePost}
+              onShare={handleSharePost}
+              onDelete={onDeletePost}
+            />
+          ) : (
+            <div className="text-center py-10 border rounded-lg border-dashed">
+              <p className="text-gray-500 mb-2">Você ainda não fez nenhuma publicação</p>
+              <p className="text-sm text-gray-400">As publicações que você compartilhar aparecerão aqui</p>
+              <Button className="mt-4" variant="outline" onClick={() => window.location.href = "/"}>
+                Ir para o Feed
+              </Button>
+            </div>
+          )}
+        </CardContent>
       </Card>
 
       {/* Achievements component */}
