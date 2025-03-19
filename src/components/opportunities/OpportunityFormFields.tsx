@@ -73,7 +73,7 @@ export function OpportunityFormFields({
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="engineeringType">Área de Engenharia</Label>
+        <Label>Área de Engenharia</Label>
         <EngineeringTypeSelect
           engineeringType={engineeringType}
           setEngineeringType={setEngineeringType}
