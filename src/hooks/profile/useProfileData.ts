@@ -39,7 +39,7 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
         // Primeiro tenta buscar o perfil existente
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
           .eq('id', id)
           .maybeSingle();
         
@@ -74,9 +74,11 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
                 name: name,
                 username: username,
                 professional_description: "",
-                areas_of_expertise: []
+                areas_of_expertise: [],
+                education: [],
+                experiences: []
               })
-              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
               .single();
             
             if (insertError) {

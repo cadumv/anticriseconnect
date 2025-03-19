@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileDetails } from "./ProfileDetails";
 import { ProfileContact } from "./ProfileContact";
+import { ProfileEducation } from "./ProfileEducation";
+import { ProfileExperience } from "./ProfileExperience";
 import { ProfileData } from "@/types/profile";
 
 interface ProfileContainerProps {
@@ -42,6 +44,16 @@ export const ProfileContainer = ({
             description={profile.professional_description || ''}
             areasOfExpertise={profile.areas_of_expertise || []}
           />
+          
+          {/* Education Section */}
+          {profile.education && profile.education.length > 0 && (
+            <ProfileEducation education={profile.education} />
+          )}
+          
+          {/* Experience Section */}
+          {profile.experiences && profile.experiences.length > 0 && (
+            <ProfileExperience experience={profile.experiences} />
+          )}
           
           <ProfileContact 
             profileId={profile.id}
