@@ -39,6 +39,8 @@ export const ProfileSuggestions = () => {
 
       if (error) throw error;
 
+      console.log('Suggested users fetched:', data);
+
       if (data) {
         const formattedUsers = data.map(user => ({
           id: user.id,
@@ -61,7 +63,7 @@ export const ProfileSuggestions = () => {
         
         // Also set a small subset for connection suggestions
         if (formattedUsers.length > 0) {
-          setConnectionSuggestions([formattedUsers[0]]);
+          setConnectionSuggestions(formattedUsers.slice(0, 2));
         }
         
         // Then check following status

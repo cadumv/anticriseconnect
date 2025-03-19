@@ -34,9 +34,18 @@ export async function fetchConnectionUserIds(
       }
     } else if (type === "followers") {
       // Find users who follow the current user
-      const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', userId);
-      if (allUsers.data) {
-        for (const potentialFollower of allUsers.data) {
+      const { data: allUsers, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .not('id', 'eq', userId);
+      
+      if (error) {
+        console.error("Error fetching potential followers:", error);
+        return [];
+      }
+      
+      if (allUsers) {
+        for (const potentialFollower of allUsers) {
           const followingData = localStorage.getItem(`following_${potentialFollower.id}`);
           if (followingData) {
             try {
@@ -70,9 +79,18 @@ export async function fetchConnectionUserIds(
       }
       
       // Also check for requests made to the current user that were accepted
-      const allUsers = await supabase.from('profiles').select('id').not('id', 'eq', userId);
-      if (allUsers.data) {
-        for (const otherUser of allUsers.data) {
+      const { data: allUsers, error } = await supabase
+        .from('profiles')
+        .select('id')
+        .not('id', 'eq', userId);
+      
+      if (error) {
+        console.error("Error fetching potential connections:", error);
+        return userIds;
+      }
+      
+      if (allUsers) {
+        for (const otherUser of allUsers) {
           const connectionKey = `connection_requests_${otherUser.id}`;
           const existingRequests = localStorage.getItem(connectionKey);
           
@@ -94,6 +112,7 @@ export async function fetchConnectionUserIds(
       }
     }
     
+    console.log(`Fetched ${type} user IDs:`, userIds);
     return userIds;
   } catch (error) {
     console.error(`Error fetching ${type} user IDs:`, error);
@@ -118,6 +137,7 @@ export async function fetchUserProfiles(userIds: string[]): Promise<ConnectionUs
       return [];
     }
     
+    console.log('Fetched user profiles:', data);
     return data || [];
   } catch (error) {
     console.error('Error fetching user profiles:', error);

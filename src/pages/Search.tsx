@@ -21,13 +21,43 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<Engineer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [initialUsers, setInitialUsers] = useState<Engineer[]>([]);
   const navigate = useNavigate();
+
+  // Load initial users when component mounts
+  useEffect(() => {
+    fetchInitialUsers();
+  }, []);
+
+  // Fetch some initial users to display
+  const fetchInitialUsers = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, username, engineering_type, professional_description, avatar_url')
+        .not('name', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      
+      if (error) throw error;
+      
+      console.log('Initial users loaded:', data);
+      setInitialUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching initial users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Real-time search as user types
   useEffect(() => {
     const handleSearchDebounced = setTimeout(() => {
       if (searchTerm && searchTerm.length >= 2) {
         handleSearch();
+      } else if (searchTerm.length === 0) {
+        setSearchResults([]);
       }
     }, 300);
 
@@ -64,11 +94,8 @@ const Search = () => {
       
       if (error) throw error;
       
-      // Filter out null name entries for safety
-      const validProfiles = data?.filter(profile => profile.name) || [];
-      console.log('Search results:', validProfiles);
-      
-      setSearchResults(validProfiles);
+      console.log('Search results:', data);
+      setSearchResults(data || []);
     } catch (error) {
       console.error("Erro na busca:", error);
     } finally {
@@ -84,6 +111,9 @@ const Search = () => {
   const handleProfileClick = (id: string) => {
     navigate(`/profile/${id}`);
   };
+
+  // Determine which users to display
+  const usersToDisplay = searchTerm.length >= 2 ? searchResults : initialUsers;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -111,12 +141,16 @@ const Search = () => {
           </div>
 
           <div className="space-y-4">
-            {searchResults.length === 0 && searchTerm.length >= 2 && !isLoading ? (
+            {isLoading ? (
+              <p className="text-center py-4 text-muted-foreground">Carregando usuários...</p>
+            ) : usersToDisplay.length === 0 ? (
               <p className="text-center py-4 text-muted-foreground">
-                Nenhum profissional encontrado com esse termo de busca.
+                {searchTerm.length >= 2 
+                  ? "Nenhum profissional encontrado com esse termo de busca." 
+                  : "Nenhum profissional encontrado. Comece a digitar para buscar."}
               </p>
             ) : (
-              searchResults.map((engineer) => (
+              usersToDisplay.map((engineer) => (
                 <Card 
                   key={engineer.id} 
                   className="cursor-pointer hover:bg-gray-50 transition-colors" 
