@@ -7,7 +7,7 @@ import { PostCardMedia } from "@/components/post/card/PostCardMedia";
 import { PostCardActions } from "@/components/post/card/PostCardActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, Calendar, HandshakeIcon } from "lucide-react";
+import { MapPin, Users, Calendar, HandshakeIcon, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 
 interface OpportunityCardProps {
@@ -67,19 +67,29 @@ export function OpportunityCard({
             </div>
           )}
           
-          <div className="flex flex-wrap gap-2 my-2">
-            {metadata.skills && metadata.skills.map((skill: string, index: number) => (
-              <Badge key={index} variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
-                {skill}
-              </Badge>
-            ))}
-            
-            {metadata.engineeringType && (
+          {metadata.skills && metadata.skills.length > 0 && (
+            <div className="bg-blue-50 p-3 rounded-md mb-3 border border-blue-100">
+              <div className="flex items-center gap-2 mb-2 text-blue-700 font-medium">
+                <GraduationCap className="h-5 w-5" />
+                <h4>Habilidades Necessárias:</h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {metadata.skills.map((skill: string, index: number) => (
+                  <Badge key={index} variant="outline" className="bg-white text-blue-600 border-blue-200">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {metadata.engineeringType && (
+            <div className="mb-3">
               <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
                 {metadata.engineeringType}
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
           
           <div className="space-y-1 text-sm text-gray-600 mt-3">
             {location && (
