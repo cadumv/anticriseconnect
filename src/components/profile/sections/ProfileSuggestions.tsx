@@ -239,15 +239,17 @@ export const ProfileSuggestions = () => {
           ) : (
             <p className="text-sm text-gray-500 py-4 text-center">Nenhuma sugestão disponível no momento.</p>
           )}
-          <Button 
-            variant="link" 
-            className="w-full mt-2 text-blue-600" 
-            size="sm"
-            as={Link}
-            to="/search"
-          >
-            Exibir tudo
-          </Button>
+          <div className="w-full mt-2">
+            <Link to="/search" className="w-full">
+              <Button 
+                variant="link" 
+                className="w-full text-blue-600" 
+                size="sm"
+              >
+                Exibir tudo
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
 
