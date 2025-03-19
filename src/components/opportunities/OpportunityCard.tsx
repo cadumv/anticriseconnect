@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Post } from "@/types/post";
 import { PostCardHeader } from "@/components/post/card/PostCardHeader";
@@ -7,8 +7,9 @@ import { PostCardMedia } from "@/components/post/card/PostCardMedia";
 import { PostCardActions } from "@/components/post/card/PostCardActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Users, Calendar, HandshakeIcon, GraduationCap } from "lucide-react";
+import { MapPin, Users, Calendar, HandshakeIcon, GraduationCap, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { ConnectionRequestDialog } from "@/components/ConnectionRequestDialog";
 
 interface OpportunityCardProps {
   opportunity: Post;
@@ -29,6 +30,8 @@ export function OpportunityCard({
   onShare,
   isOwner = false
 }: OpportunityCardProps) {
+  const [isConnectionDialogOpen, setIsConnectionDialogOpen] = useState(false);
+  
   const metadata = opportunity.metadata || {};
   const title = opportunity.title || metadata.title || "Oportunidade de parceria";
   const location = metadata.location;
@@ -41,6 +44,17 @@ export function OpportunityCard({
   const handleRequestPartnership = () => {
     toast.success("Solicitação de parceria enviada com sucesso!");
     // In a real application, this would send a request to the backend
+  };
+
+  // Check if current user is connected with post owner
+  const isConnected = () => {
+    // In a real implementation, this would check if users are connected
+    // For now, we'll return a random value for demo purposes
+    return Math.random() > 0.5;
+  };
+
+  const handleConnectRequest = () => {
+    setIsConnectionDialogOpen(true);
   };
   
   return (
@@ -113,7 +127,17 @@ export function OpportunityCard({
           </div>
           
           {!isOwner && (
-            <div className="mt-4">
+            <div className="mt-4 space-y-2">
+              {!isConnected() && (
+                <Button 
+                  onClick={handleConnectRequest} 
+                  className="w-full mb-2"
+                  variant="outline"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Conectar com o autor
+                </Button>
+              )}
               <Button 
                 onClick={handleRequestPartnership} 
                 className="w-full"
@@ -136,6 +160,17 @@ export function OpportunityCard({
           onComment={() => {}}
         />
       </CardContent>
+
+      {/* Connection Request Dialog */}
+      {opportunity.user_id && (
+        <ConnectionRequestDialog
+          isOpen={isConnectionDialogOpen}
+          onClose={() => setIsConnectionDialogOpen(false)}
+          targetProfileName={opportunity.author || "Autor da oportunidade"}
+          targetProfileId={opportunity.user_id}
+          currentUserId={localStorage.getItem("currentUser") || ""}
+        />
+      )}
     </Card>
   );
 }
