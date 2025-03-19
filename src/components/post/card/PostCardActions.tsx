@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Heart, Share2, MessageSquare, Send } from "lucide-react";
+import { Heart, Share2, MessageSquare, Send, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Tooltip,
@@ -36,13 +36,16 @@ export function PostCardActions({
   shares = 0,
   comments = 0,
   liked,
+  saved,
   onLike,
+  onSave,
   onShare,
   onComment,
   compact = false,
   likedByUsers = []
 }: PostCardActionsProps) {
   const isLiked = liked[postId] || false;
+  const isSaved = saved[postId] || false;
   
   const formatLikedByList = () => {
     if (likedByUsers.length === 0) return "Ninguém curtiu ainda";
@@ -67,6 +70,14 @@ export function PostCardActions({
       .catch(() => {
         toast.error("Não foi possível copiar o link");
       });
+  };
+
+  const handleSaveClick = () => {
+    if (onSave) {
+      onSave(postId);
+    } else {
+      toast.error("Não foi possível salvar a publicação");
+    }
   };
   
   return (
@@ -148,13 +159,18 @@ export function PostCardActions({
         </Popover>
 
         <Button
+          onClick={handleSaveClick}
           variant="ghost"
           size="sm"
           className="flex-1 rounded-md hover:bg-gray-100 py-2 h-9"
         >
           <div className="flex items-center justify-center gap-2 w-full text-gray-600">
-            <Send size={18} className="text-gray-500" />
-            <span className="text-sm font-medium">Enviar</span>
+            <Bookmark 
+              size={18}
+              fill={isSaved ? "currentColor" : "none"} 
+              className={isSaved ? "text-blue-500" : "text-gray-500"} 
+            />
+            <span className={`text-sm font-medium ${isSaved ? "text-blue-500" : ""}`}>Salvar</span>
           </div>
         </Button>
       </div>

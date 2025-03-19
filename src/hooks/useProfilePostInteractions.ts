@@ -152,12 +152,43 @@ export const useProfilePostInteractions = (user: User | null) => {
     }
   };
 
+  const handleEditPost = async (postId: string, updatedContent: string) => {
+    if (!user) return false;
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ content: updatedContent })
+        .eq('id', postId)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Publicação atualizada",
+        description: "Sua publicação foi atualizada com sucesso",
+        variant: "default",
+      });
+      
+      return true; // Return true to indicate successful update
+    } catch (error) {
+      console.error("Error updating post:", error);
+      toast({
+        title: "Erro ao atualizar publicação",
+        description: "Não foi possível atualizar sua publicação. Tente novamente.",
+        variant: "destructive",
+      });
+      return false; // Return false to indicate failed update
+    }
+  };
+
   return {
     liked,
     saved,
     handleLikePost,
     handleSavePost,
     handleSharePost,
-    handleDeletePost
+    handleDeletePost,
+    handleEditPost
   };
 };

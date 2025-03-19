@@ -72,7 +72,7 @@ export const Feed = () => {
           <CardTitle className="text-xl">Feed de publicações</CardTitle>
           <div className="flex items-center gap-2">
             {user && savedPosts.length > 0 && (
-              <Drawer>
+              <Drawer open={showSavedDrawer} onOpenChange={setShowSavedDrawer}>
                 <DrawerTrigger asChild onClick={() => setShowSavedDrawer(true)}>
                   <Button variant="outline" size="sm" className="flex items-center gap-2">
                     <Bookmark size={16} />
