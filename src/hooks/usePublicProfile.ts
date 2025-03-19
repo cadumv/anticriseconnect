@@ -47,50 +47,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
         
         console.log("Fetching profile with ID:", id);
         
-        // First check if profile exists
-        const { data: profileExists, error: existsError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', id)
-          .maybeSingle();
-        
-        if (existsError) {
-          console.error("Error checking if profile exists:", existsError);
-        }
-        
-        // If profile doesn't exist, create a basic one
-        if (!profileExists) {
-          console.log("Profile doesn't exist, creating a basic one");
-          
-          // Get user data from auth if possible
-          const { data: userData } = await supabase.auth.admin.getUserById(id);
-          
-          let name = "Usuário";
-          let email = "";
-          
-          if (userData?.user) {
-            name = userData.user.user_metadata?.name || userData.user.email?.split('@')[0] || "Usuário";
-            email = userData.user.email || "";
-          }
-          
-          // Create basic profile
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: id,
-              name: name,
-              username: email ? email.split('@')[0] : null,
-              professional_description: "",
-              areas_of_expertise: []
-            });
-          
-          if (insertError) {
-            console.error("Error creating basic profile:", insertError);
-            throw new Error("Não foi possível criar perfil básico");
-          }
-        }
-        
-        // Now fetch the profile (either existing or newly created)
+        // Primeiro tenta buscar o perfil existente
         const { data, error } = await supabase
           .from('profiles')
           .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
@@ -102,11 +59,51 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
           throw error;
         }
         
+        // Se o perfil não existe, tenta criar um básico
         if (!data) {
-          throw new Error("Perfil não encontrado");
+          console.log("Profile not found, creating a basic one");
+          
+          // Obtém informações do usuário da autenticação se possível
+          let name = "Usuário";
+          let email = "";
+          let username = null;
+          
+          try {
+            // Use only the session claims or admin API depending on permissions
+            if (user && user.id === id) {
+              // If fetching own profile, use current user data
+              name = user.user_metadata?.name || user.email?.split('@')[0] || "Usuário";
+              email = user.email || "";
+              username = email ? email.split('@')[0] : null;
+            }
+            
+            // Cria o perfil básico
+            const { data: newProfile, error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: id,
+                name: name,
+                username: username,
+                professional_description: "",
+                areas_of_expertise: []
+              })
+              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+              .single();
+            
+            if (insertError) {
+              console.error("Error creating basic profile:", insertError);
+              throw new Error("Não foi possível criar perfil básico");
+            }
+            
+            setProfile(newProfile);
+          } catch (createError) {
+            console.error("Error in profile creation process:", createError);
+            throw new Error("Falha ao criar perfil básico");
+          }
+        } else {
+          setProfile(data);
         }
         
-        setProfile(data);
         setPublications([]);
       } catch (err: any) {
         console.error("Erro ao buscar perfil:", err);
