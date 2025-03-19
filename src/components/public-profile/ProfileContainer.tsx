@@ -26,6 +26,9 @@ export const ProfileContainer = ({
   onFollowToggle,
   onConnectionRequest
 }: ProfileContainerProps) => {
+  // Check if this is a demo profile
+  const isDemoProfile = profile.id === "demo-profile-123";
+
   return (
     <Card>
       <CardHeader className="pb-0">
@@ -45,13 +48,13 @@ export const ProfileContainer = ({
             areasOfExpertise={profile.areas_of_expertise || []}
           />
           
-          {/* Education Section */}
-          {profile.education && profile.education.length > 0 && (
+          {/* Education Section - only show for demo profiles */}
+          {isDemoProfile && profile.education && profile.education.length > 0 && (
             <ProfileEducation education={profile.education} />
           )}
           
-          {/* Experience Section */}
-          {profile.experiences && profile.experiences.length > 0 && (
+          {/* Experience Section - only show for demo profiles */}
+          {isDemoProfile && profile.experiences && profile.experiences.length > 0 && (
             <ProfileExperience experience={profile.experiences} />
           )}
           

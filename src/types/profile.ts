@@ -1,4 +1,3 @@
-
 export interface ProfileData {
   id: string;
   name: string;
@@ -8,6 +7,8 @@ export interface ProfileData {
   areas_of_expertise: string[];
   avatar_url: string | null;
   phone: string;
+  education?: Education[];
+  experiences?: Experience[];
 }
 
 export interface Publication {
@@ -36,7 +37,30 @@ export const DEMO_PROFILE: ProfileData = {
   professional_description: "Engenheiro civil com experiência em projetos estruturais e gerenciamento de obras residenciais e comerciais. Especialista em cálculos estruturais e soluções sustentáveis para construções.",
   areas_of_expertise: ["Projetos Estruturais", "Gerenciamento de Obras", "Construção Sustentável", "Consultoria Técnica"],
   avatar_url: null,
-  phone: "(11) 98765-4321"
+  phone: "(11) 98765-4321",
+  education: [
+    {
+      institution: "Universidade de São Paulo",
+      degree: "Bacharelado",
+      fieldOfStudy: "Engenharia Civil",
+      startYear: "2012",
+      endYear: "2017",
+      description: "Foco em estruturas e construções sustentáveis"
+    }
+  ],
+  experiences: [
+    {
+      company: "Construtora ABC",
+      position: "Engenheiro Civil Sênior",
+      location: "São Paulo, SP",
+      startMonth: "Janeiro",
+      startYear: "2018",
+      endMonth: "",
+      endYear: "",
+      current: true,
+      description: "Responsável por projetos estruturais e supervisão de obras residenciais"
+    }
+  ]
 };
 
 export const DEMO_PUBLICATIONS: Publication[] = [
