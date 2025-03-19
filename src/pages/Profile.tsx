@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +15,7 @@ import { Achievements } from "@/components/Achievements";
 import { UserPostsList } from "@/components/post/UserPostsList";
 import { Post } from "@/types/post";
 import { supabase } from "@/lib/supabase";
-import { usePostInteractions } from "@/hooks/usePostInteractions";
+import { useProfilePostInteractions } from "@/hooks/useProfilePostInteractions";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
@@ -28,7 +27,7 @@ const Profile = () => {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   
-  // Post interactions
+  // Post interactions using our new custom hook
   const { 
     liked, 
     saved, 
@@ -36,7 +35,7 @@ const Profile = () => {
     handleSavePost, 
     handleSharePost,
     handleDeletePost 
-  } = usePostInteractions();
+  } = useProfilePostInteractions(user);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -150,7 +149,6 @@ const Profile = () => {
     }
   }, [user]);
 
-  // Loading and auth states
   if (loading) {
     return (
       <div className="container mx-auto py-10 flex justify-center items-center">
