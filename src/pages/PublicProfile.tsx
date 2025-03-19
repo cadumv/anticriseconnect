@@ -56,23 +56,25 @@ const PublicProfile = () => {
         <BackToSearchButton />
       </div>
 
-      <ProfileContainer 
-        profile={profile}
-        currentUser={user}
-        isFollowing={isFollowing}
-        followLoading={followLoading}
-        isConnectionAccepted={isConnectionAccepted || id === "demo"}
-        onFollowToggle={handleSuccessfulFollowToggle}
-        onConnectionRequest={handleConnectionRequest}
-      />
+      <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-6">
+          <ProfileContainer 
+            profile={profile}
+            currentUser={user}
+            isFollowing={isFollowing}
+            followLoading={followLoading}
+            isConnectionAccepted={isConnectionAccepted || id === "demo"}
+            onFollowToggle={handleSuccessfulFollowToggle}
+            onConnectionRequest={handleConnectionRequest}
+          />
+        </div>
+      </div>
 
       <Achievements 
         showProfileSpecific={true} 
         profileId={profile.id} 
         isDemoProfile={id === "demo"} 
       />
-      
-      <PublicationsList publications={publications} />
 
       {user && profile && (
         <ConnectionRequestDialog
