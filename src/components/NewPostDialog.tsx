@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const [serviceArea, setServiceArea] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
   
-  const { isSubmitting, uploadImages, createPost } = usePostCreation(user, onPostCreated);
+  const { isSubmitting, createPost } = usePostCreation(user, onPostCreated);
   
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
@@ -66,52 +67,36 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
     if (!user) return;
     
     try {
-      let imageUrls: string[] = [];
-      if (imageFiles.length > 0) {
-        imageUrls = await uploadImages(imageFiles);
-      }
+      let postData: Record<string, any> = {};
       
-      // Basic post data
-      const postData: any = {
-        content: content,
-        image_url: imageUrls.length > 0 ? imageUrls[0] : null, // First image as the main image for backward compatibility
-        user_id: user.id,
-        metadata: {
-          image_urls: imageUrls // Store all image URLs in metadata
-        } // Initialize metadata as empty object
-      };
-      
-      // Add additional data based on post type
+      // Add data based on post type
       if (selectedTab === "technical_article") {
-        // For technical articles, we'll store the additional fields in the metadata JSON field
-        postData.metadata = {
-          ...postData.metadata,
-          type: "technical_article",
-          title: title,
-          summary: summary,
-          mainContent: mainContent,
-          conclusions: conclusions,
-          tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        postData = {
+          postType: "technical_article",
+          content,
+          title,
+          summary,
+          mainContent,
+          conclusions,
+          tags,
           author: author.trim() || user.user_metadata?.name || "Anônimo",
           company: user.user_metadata?.engineering_type || "Engenheiro",
-          image_urls: imageUrls
+          imageFiles
         };
       } else if (selectedTab === "service") {
-        // For services, we'll store the additional fields in the metadata JSON field
-        postData.metadata = {
-          ...postData.metadata,
-          title: serviceArea,
-          type: "service",
+        postData = {
+          postType: "service",
           content: serviceDescription,
-          author: user.user_metadata?.name || "Anônimo",
-          company: user.user_metadata?.engineering_type || "Engenheiro",
-          image_urls: imageUrls
+          serviceArea,
+          serviceDescription,
+          imageFiles
         };
       } else {
         // Regular post
-        postData.metadata = {
-          ...postData.metadata,
-          type: "post"
+        postData = {
+          postType: "post",
+          content,
+          imageFiles
         };
       }
       
