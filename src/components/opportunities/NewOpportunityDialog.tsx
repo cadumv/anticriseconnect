@@ -31,10 +31,10 @@ export function NewOpportunityDialog({
     setSkills,
     engineeringType,
     setEngineeringType,
-    imageFile,
-    setImageFile,
-    imagePreview,
-    setImagePreview,
+    imageFiles,
+    setImageFiles,
+    imagePreviews,
+    setImagePreviews,
     isSubmitting,
     handleSubmit
   } = useOpportunityForm({
@@ -68,10 +68,10 @@ export function NewOpportunityDialog({
             setSkills={setSkills}
             engineeringType={engineeringType}
             setEngineeringType={setEngineeringType}
-            imageFile={imageFile}
-            imagePreview={imagePreview}
-            setImageFile={setImageFile}
-            setImagePreview={setImagePreview}
+            imageFiles={imageFiles}
+            imagePreviews={imagePreviews}
+            setImageFiles={setImageFiles}
+            setImagePreviews={setImagePreviews}
           />
           
           <DialogFooter>
