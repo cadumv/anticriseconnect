@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, Search, MessageSquare, Bell, User, Trophy } from "lucide-react";
+import { Home, Search, MessageSquare, Bell, User, Briefcase } from "lucide-react";
 
 interface SidebarNavigationProps {
   collapsed: boolean;
@@ -18,7 +18,7 @@ export function SidebarNavigation({
     { path: "/search", label: "Pesquisar", icon: Search },
     { path: "/messages", label: "Mensagens", icon: MessageSquare },
     { path: "/notifications", label: "Notificações", icon: Bell },
-    { path: "/achievements", label: "Conquistas", icon: Trophy },
+    { path: "/opportunities", label: "Oportunidades", icon: Briefcase },
   ];
 
   return (

@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Achievement } from "@/types/profile";
 import { ProfilePosts } from "./ProfilePosts";
 import { ProfileInfoTab } from "./ProfileInfoTab";
-import { Achievements } from "@/components/Achievements";
 import { ProfileAccountTab } from "./ProfileAccountTab";
 
 interface ProfileTabsProps {
@@ -26,9 +25,6 @@ export const ProfileTabs = ({ user, achievements, onAchievementUnlocked }: Profi
         <TabsTrigger value="info" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
           Informações
         </TabsTrigger>
-        <TabsTrigger value="achievements" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
-          Conquistas
-        </TabsTrigger>
         <TabsTrigger value="account" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
           Conta
         </TabsTrigger>
@@ -45,10 +41,6 @@ export const ProfileTabs = ({ user, achievements, onAchievementUnlocked }: Profi
           setIsEditingProfile={setIsEditingProfile}
           onAchievementUnlocked={onAchievementUnlocked}
         />
-      </TabsContent>
-      
-      <TabsContent value="achievements" className="pt-4">
-        <Achievements achievements={achievements} />
       </TabsContent>
       
       <TabsContent value="account" className="pt-4">
