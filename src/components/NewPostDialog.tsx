@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Post } from "@/types/post";
+import { ImageUploader } from "@/components/post/ImageUploader";
 
 import {
   Tabs,
@@ -30,9 +31,10 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const [selectedTab, setSelectedTab] = useState("post");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Changed from single image to multiple images
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   // Additional fields for technical article
   const [author, setAuthor] = useState(""); // Add author state
@@ -45,20 +47,6 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const [serviceArea, setServiceArea] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      
-      // Create a preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       // Reset form when closing
@@ -70,8 +58,8 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const resetForm = () => {
     setTitle("");
     setContent("");
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     setSummary("");
     setMainContent("");
     setConclusions("");
@@ -82,24 +70,30 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
     setAuthor("");
   };
   
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadImages = async (files: File[]): Promise<string[]> => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const imageUrls: string[] = [];
       
-      const { error: uploadError } = await supabase.storage
-        .from('post_images')
-        .upload(filePath, file);
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('post_images')
+          .upload(filePath, file);
+        
+        if (uploadError) throw uploadError;
+        
+        const { data } = supabase.storage
+          .from('post_images')
+          .getPublicUrl(filePath);
+        
+        imageUrls.push(data.publicUrl);
+      }
       
-      if (uploadError) throw uploadError;
-      
-      const { data } = supabase.storage
-        .from('post_images')
-        .getPublicUrl(filePath);
-      
-      return data.publicUrl;
+      return imageUrls;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading images:', error);
       throw error;
     }
   };
@@ -110,44 +104,51 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
     setIsSubmitting(true);
     
     try {
-      let imageUrl = null;
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile);
+      let imageUrls: string[] = [];
+      if (imageFiles.length > 0) {
+        imageUrls = await uploadImages(imageFiles);
       }
       
       // Basic post data
       const postData: any = {
         content: content,
-        image_url: imageUrl,
+        image_url: imageUrls.length > 0 ? imageUrls[0] : null, // First image as the main image for backward compatibility
         user_id: user.id,
-        metadata: {} // Initialize metadata as empty object
+        metadata: {
+          image_urls: imageUrls // Store all image URLs in metadata
+        } // Initialize metadata as empty object
       };
       
       // Add additional data based on post type
       if (selectedTab === "technical_article") {
         // For technical articles, we'll store the additional fields in the metadata JSON field
         postData.metadata = {
-          title: title,
+          ...postData.metadata,
           type: "technical_article",
+          title: title,
           summary: summary,
           mainContent: mainContent,
           conclusions: conclusions,
           tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
           author: author.trim() || user.user_metadata?.name || "Anônimo",
-          company: user.user_metadata?.engineering_type || "Engenheiro"
+          company: user.user_metadata?.engineering_type || "Engenheiro",
+          image_urls: imageUrls
         };
       } else if (selectedTab === "service") {
         // For services, we'll store the additional fields in the metadata JSON field
         postData.metadata = {
+          ...postData.metadata,
           title: serviceArea,
           type: "service",
           content: serviceDescription,
           author: user.user_metadata?.name || "Anônimo",
-          company: user.user_metadata?.engineering_type || "Engenheiro"
+          company: user.user_metadata?.engineering_type || "Engenheiro",
+          image_urls: imageUrls
         };
       } else {
         // Regular post
         postData.metadata = {
+          ...postData.metadata,
           type: "post"
         };
       }
@@ -242,45 +243,14 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
                 className="min-h-[120px]"
               />
               
-              {imagePreview && (
-                <div className="relative mt-2">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="max-h-40 rounded-md object-contain mx-auto"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="absolute top-2 right-2"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                  >
-                    Remover
-                  </Button>
-                </div>
-              )}
-              
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Adicionar imagem
-                </Button>
-              </div>
+              <ImageUploader
+                imageFiles={imageFiles}
+                imagePreviews={imagePreviews}
+                setImageFiles={setImageFiles}
+                setImagePreviews={setImagePreviews}
+                multiple={true}
+                maxImages={5}
+              />
             </div>
           </TabsContent>
           
@@ -307,45 +277,14 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
                 />
               </div>
               
-              {imagePreview && (
-                <div className="relative mt-2">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="max-h-40 rounded-md object-contain mx-auto"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="absolute top-2 right-2"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                  >
-                    Remover
-                  </Button>
-                </div>
-              )}
-              
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Adicionar imagem
-                </Button>
-              </div>
+              <ImageUploader
+                imageFiles={imageFiles}
+                imagePreviews={imagePreviews}
+                setImageFiles={setImageFiles}
+                setImagePreviews={setImagePreviews}
+                multiple={true}
+                maxImages={5}
+              />
             </div>
           </TabsContent>
           
@@ -414,45 +353,14 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
                 />
               </div>
               
-              {imagePreview && (
-                <div className="relative mt-2">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="max-h-40 rounded-md object-contain mx-auto"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="absolute top-2 right-2"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                  >
-                    Remover
-                  </Button>
-                </div>
-              )}
-              
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Adicionar imagem
-                </Button>
-              </div>
+              <ImageUploader
+                imageFiles={imageFiles}
+                imagePreviews={imagePreviews}
+                setImageFiles={setImageFiles}
+                setImagePreviews={setImagePreviews}
+                multiple={true}
+                maxImages={5}
+              />
             </div>
           </TabsContent>
         </Tabs>

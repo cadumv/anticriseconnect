@@ -15,31 +15,38 @@ export function PostCardMedia({ imageUrl, imageUrls, title, compact = false }: P
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Handle both single imageUrl and multiple imageUrls
-  const images = imageUrls?.length ? imageUrls : (imageUrl ? [imageUrl] : []);
+  // First check metadata.image_urls, then fallback to the imageUrls prop, and finally fallback to the single imageUrl
+  let allImages: string[] = [];
   
-  if (images.length === 0) return null;
+  if (imageUrls?.length) {
+    allImages = imageUrls;
+  } else if (imageUrl) {
+    allImages = [imageUrl];
+  }
+  
+  if (allImages.length === 0) return null;
   
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentImageIndex(prev => (prev === 0 ? allImages.length - 1 : prev - 1));
   };
   
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex(prev => (prev === allImages.length - 1 ? 0 : prev + 1));
   };
   
   return (
     <div className={`${compact ? 'mb-2' : 'mb-3'} relative`}>
       <AspectRatio ratio={compact ? 3/1 : 4/3}>
         <img 
-          src={images[currentImageIndex]} 
+          src={allImages[currentImageIndex]} 
           alt={title || "Imagem da publicação"} 
           className="object-cover w-full h-full rounded-sm"
         />
       </AspectRatio>
       
-      {images.length > 1 && (
+      {allImages.length > 1 && (
         <>
           <Button 
             onClick={handlePrevImage} 
@@ -61,7 +68,7 @@ export function PostCardMedia({ imageUrl, imageUrls, title, compact = false }: P
           
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
             <div className="flex gap-1.5">
-              {images.map((_, index) => (
+              {allImages.map((_, index) => (
                 <div 
                   key={index} 
                   className={`h-1.5 w-1.5 rounded-full ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
