@@ -1,6 +1,5 @@
 
 import { useAuth } from "@/hooks/useAuth";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { SidebarHeader } from "./sidebar/SidebarHeader";
 import { SidebarNavigation } from "./sidebar/SidebarNavigation";
