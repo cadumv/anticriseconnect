@@ -4,12 +4,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Post } from "@/types/post";
 import { PostCardHeader } from "@/components/post/card/PostCardHeader";
 import { PostCardMedia } from "@/components/post/card/PostCardMedia";
-import { PostCardActions } from "@/components/post/card/PostCardActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Users, Calendar, HandshakeIcon, GraduationCap, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { ConnectionRequestDialog } from "@/components/ConnectionRequestDialog";
+import { LikeButton } from "@/components/post/card/actions/LikeButton";
+import { ShareButton } from "@/components/post/card/actions/ShareButton";
+import { SaveButton } from "@/components/post/card/actions/SaveButton";
 
 interface OpportunityCardProps {
   opportunity: Post;
@@ -150,15 +152,25 @@ export function OpportunityCard({
           )}
         </div>
         
-        <PostCardActions
-          postId={opportunity.id}
-          liked={liked}
-          saved={saved}
-          onLike={onLike}
-          onSave={onSave}
-          onShare={onShare}
-          onComment={() => {}}
-        />
+        {/* Custom action buttons without comment functionality */}
+        <div className="border-t border-gray-200">
+          <div className="grid grid-cols-3 px-1 py-1">
+            <LikeButton 
+              postId={opportunity.id} 
+              isLiked={liked[opportunity.id] || false} 
+              onLike={onLike} 
+              likedByUsers={opportunity.liked_by || []} 
+            />
+            
+            <ShareButton postId={opportunity.id} onShare={onShare} />
+
+            <SaveButton 
+              postId={opportunity.id} 
+              isSaved={saved[opportunity.id] || false} 
+              onSave={onSave} 
+            />
+          </div>
+        </div>
       </CardContent>
 
       {/* Connection Request Dialog */}
