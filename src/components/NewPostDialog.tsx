@@ -1,16 +1,10 @@
 
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ServicePostForm } from "@/components/post/ServicePostForm";
-import { TechnicalArticleForm } from "@/components/post/TechnicalArticleForm";
-import { RegularPostForm } from "@/components/post/RegularPostForm";
-import { PostDialogFooter } from "@/components/post/PostDialogFooter";
-import { usePostCreation } from "@/hooks/usePostCreation";
-import { ImageUploader } from "@/components/post/ImageUploader";
+import { usePostForm } from "@/hooks/usePostForm";
+import { NewPostDialogContent } from "@/components/post/NewPostDialogContent";
 
 interface NewPostDialogProps {
   onPostCreated: () => void;
@@ -18,102 +12,35 @@ interface NewPostDialogProps {
 
 export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("post");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  
-  // Changed from single image to multiple images
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  
-  // Additional fields for technical article
-  const [author, setAuthor] = useState(""); // Add author state
-  const [summary, setSummary] = useState("");
-  const [mainContent, setMainContent] = useState("");
-  const [conclusions, setConclusions] = useState("");
-  const [tags, setTags] = useState("");
-  
-  // Service fields
-  const [serviceArea, setServiceArea] = useState("");
-  const [serviceDescription, setServiceDescription] = useState("");
-  
-  const { isSubmitting, createPost } = usePostCreation(user, onPostCreated);
-  
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      // Reset form when closing
-      resetForm();
-    }
-    setOpen(newOpen);
-  };
-  
-  const resetForm = () => {
-    setTitle("");
-    setContent("");
-    setImageFiles([]);
-    setImagePreviews([]);
-    setSummary("");
-    setMainContent("");
-    setConclusions("");
-    setTags("");
-    setServiceArea("");
-    setServiceDescription("");
-    setSelectedTab("post");
-    setAuthor("");
-  };
-
-  const handleCreatePost = async () => {
-    if (!user) return;
-    
-    try {
-      let postData: Record<string, any> = {};
-      
-      // Add data based on post type
-      if (selectedTab === "technical_article") {
-        postData = {
-          postType: "technical_article",
-          content,
-          title,
-          summary,
-          mainContent,
-          conclusions,
-          tags,
-          author: author.trim() || user.user_metadata?.name || "Anônimo",
-          company: user.user_metadata?.engineering_type || "Engenheiro",
-          imageFiles
-        };
-      } else if (selectedTab === "service") {
-        postData = {
-          postType: "service",
-          content: serviceDescription,
-          serviceArea,
-          serviceDescription,
-          imageFiles
-        };
-      } else {
-        // Regular post
-        postData = {
-          postType: "post",
-          content,
-          imageFiles
-        };
-      }
-      
-      const success = await createPost(postData);
-      if (success) {
-        setOpen(false);
-        resetForm();
-      }
-    } catch (error: any) {
-      console.error('Error in handleCreatePost:', error);
-    }
-  };
-
-  const isSubmitDisabled = 
-    (selectedTab === "post" && !content.trim()) ||
-    (selectedTab === "service" && (!serviceArea.trim() || !serviceDescription.trim())) ||
-    (selectedTab === "technical_article" && (!title.trim() || !mainContent.trim()));
+  const { 
+    open, 
+    handleOpenChange, 
+    selectedTab,
+    setSelectedTab,
+    title,
+    setTitle,
+    content,
+    setContent,
+    imageFiles,
+    setImageFiles,
+    imagePreviews,
+    setImagePreviews,
+    author,
+    setAuthor,
+    summary,
+    setSummary,
+    mainContent,
+    setMainContent,
+    conclusions,
+    setConclusions,
+    serviceArea,
+    setServiceArea,
+    serviceDescription,
+    setServiceDescription,
+    isSubmitting,
+    isSubmitDisabled,
+    handleCreatePost
+  } = usePostForm(user, onPostCreated);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -123,83 +50,34 @@ export function NewPostDialog({ onPostCreated }: NewPostDialogProps) {
           <span>Publicar</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle>Nova Publicação</DialogTitle>
-        </DialogHeader>
-        
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="post">Publicação</TabsTrigger>
-            <TabsTrigger value="service">Serviço/Área</TabsTrigger>
-            <TabsTrigger value="technical_article">Artigo Técnico</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="post" className="space-y-4">
-            <RegularPostForm
-              content={content}
-              setContent={setContent}
-              imageFiles={imageFiles}
-              imagePreviews={imagePreviews}
-              setImageFiles={setImageFiles}
-              setImagePreviews={setImagePreviews}
-            />
-          </TabsContent>
-          
-          <TabsContent value="service" className="space-y-4">
-            <ServicePostForm
-              title={serviceArea}
-              setTitle={setServiceArea}
-              content={serviceDescription}
-              setContent={setServiceDescription}
-            />
-            
-            <ImageUploader
-              imageFiles={imageFiles}
-              imagePreviews={imagePreviews}
-              setImageFiles={setImageFiles}
-              setImagePreviews={setImagePreviews}
-              multiple={true}
-              maxImages={5}
-            />
-          </TabsContent>
-          
-          <TabsContent value="technical_article" className="space-y-4">
-            <TechnicalArticleForm
-              title={title}
-              setTitle={setTitle}
-              author={author}
-              setAuthor={setAuthor}
-              company={user?.user_metadata?.engineering_type || ""}
-              setCompany={() => {}} // This is determined by user profile
-              summary={summary}
-              setSummary={setSummary}
-              mainContent={mainContent}
-              setMainContent={setMainContent}
-              conclusions={conclusions}
-              setConclusions={setConclusions}
-              content={content}
-              setContent={setContent}
-              userName={user?.user_metadata?.name}
-            />
-            
-            <ImageUploader
-              imageFiles={imageFiles}
-              imagePreviews={imagePreviews}
-              setImageFiles={setImageFiles}
-              setImagePreviews={setImagePreviews}
-              multiple={true}
-              maxImages={5}
-            />
-          </TabsContent>
-        </Tabs>
-        
-        <PostDialogFooter
-          isSubmitting={isSubmitting}
-          isDisabled={isSubmitDisabled}
-          onSubmit={handleCreatePost}
-        />
-      </DialogContent>
+      <NewPostDialogContent
+        isSubmitting={isSubmitting}
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        title={title}
+        setTitle={setTitle}
+        content={content}
+        setContent={setContent}
+        imageFiles={imageFiles}
+        setImageFiles={setImageFiles}
+        imagePreviews={imagePreviews}
+        setImagePreviews={setImagePreviews}
+        author={author}
+        setAuthor={setAuthor}
+        summary={summary}
+        setSummary={setSummary}
+        mainContent={mainContent}
+        setMainContent={setMainContent}
+        conclusions={conclusions}
+        setConclusions={setConclusions}
+        serviceArea={serviceArea}
+        setServiceArea={setServiceArea}
+        serviceDescription={serviceDescription}
+        setServiceDescription={setServiceDescription}
+        user={user}
+        isSubmitDisabled={isSubmitDisabled}
+        handleCreatePost={handleCreatePost}
+      />
     </Dialog>
   );
 }
