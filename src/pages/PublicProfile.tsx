@@ -78,8 +78,8 @@ const PublicProfile = () => {
         <CardContent className="pt-6">
           <div className="space-y-6">
             <ProfileDetails 
-              description={profile.professional_description}
-              areasOfExpertise={profile.areas_of_expertise}
+              description={profile.professional_description || ''}
+              areasOfExpertise={profile.areas_of_expertise || []}
             />
             
             <ProfileContact 

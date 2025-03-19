@@ -44,9 +44,10 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
         }
         
         console.log("Fetching profile with ID:", id);
+        // Modificar a consulta para buscar apenas as colunas que existem na tabela
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, experiences, education, interests')
+          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
           .eq('id', id)
           .single();
         
