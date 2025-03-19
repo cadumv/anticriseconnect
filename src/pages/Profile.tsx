@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, BarChart3, Edit3, Plus, MessageSquare } from "lucide-react";
 import { AchievementsManager } from "@/services/AchievementsManager";
 import { Achievement } from "@/types/profile";
 import { AchievementPopup } from "@/components/achievements/AchievementPopup";
@@ -16,6 +17,9 @@ import { UserPostsList } from "@/components/post/UserPostsList";
 import { Post } from "@/types/post";
 import { supabase } from "@/lib/supabase";
 import { useProfilePostInteractions } from "@/hooks/useProfilePostInteractions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { ChatDrawer } from "@/components/chat/ChatDrawer";
 
 const Profile = () => {
   const { user, signOut, deleteAccount, loading } = useAuth();
@@ -26,8 +30,9 @@ const Profile = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
-  // Post interactions using our new custom hook
+  // Post interactions using our custom hook
   const { 
     liked, 
     saved, 
@@ -162,90 +167,233 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center gap-2">
-        <Link to="/">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <h1 className="text-2xl font-bold">Meu Perfil</h1>
+    <div className="container mx-auto py-4 space-y-6">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Link to="/">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">Meu Perfil</h1>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="flex items-center gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span className="hidden sm:inline">Mensagens</span>
+        </Button>
       </div>
       
-      <ProfileHeader />
-      
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Minha Conta</CardTitle>
-              <CardDescription>Gerencie suas informações de conta</CardDescription>
+      {/* Novo estilo de perfil inspirado no LinkedIn */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="h-36 bg-gradient-to-r from-blue-50 to-indigo-100 relative">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-2 right-2 bg-white/80 hover:bg-white/90"
+          >
+            <Edit3 className="h-4 w-4 mr-2" />
+            Editar capa
+          </Button>
+        </div>
+        <div className="px-6 pb-6 relative">
+          <div className="flex flex-col sm:flex-row">
+            <div className="relative -top-16 mb-2 sm:-top-16 sm:mb-0 sm:mr-4">
+              <div className="w-32 h-32 rounded-full bg-white p-1 shadow-lg">
+                <div className="w-full h-full rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                  {user?.user_metadata?.avatar_url ? (
+                    <img 
+                      src={user.user_metadata.avatar_url} 
+                      alt="Foto de perfil" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-4xl font-bold text-blue-500">
+                      {user?.user_metadata?.name?.[0]?.toUpperCase() || "U"}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <Button 
-              onClick={handleSignOut} 
-              disabled={isSigningOut}
-            >
-              {isSigningOut ? "Saindo..." : "Sair"}
-            </Button>
+            
+            <div className="sm:pt-4 sm:flex-1">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                <div className="-mt-12 sm:mt-0">
+                  <h2 className="text-2xl font-bold">{user?.user_metadata?.name || "Usuário"}</h2>
+                  {user?.user_metadata?.professional_description && (
+                    <p className="text-gray-600 mt-1">{user.user_metadata.professional_description}</p>
+                  )}
+                  <p className="text-gray-500 mt-1">
+                    {user?.user_metadata?.engineering_type || "Engenharia"} • {" "}
+                    <button className="text-blue-600 hover:underline">Informações de contato</button>
+                  </p>
+                </div>
+                
+                <div className="mt-4 sm:mt-0 flex gap-2 flex-wrap">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar seção
+                  </Button>
+                  {!isEditingProfile ? (
+                    <Button onClick={() => setIsEditingProfile(true)} variant="outline">
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Editar perfil
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+              
+              <div className="mt-4 flex items-center gap-8">
+                <div className="flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">4 visualizações do perfil</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-600">{userPosts.length} publicações</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {isEditingProfile ? (
-            <ProfileForm 
-              user={user} 
-              setIsEditingProfile={setIsEditingProfile}
-              onAchievementUnlocked={(achievement) => {
-                setAchievementUnlocked(achievement);
-                setShowAchievementPopup(true);
-                // Update achievements list when a new one is unlocked
-                setAchievements(AchievementsManager.getUserAchievements(user.id));
-              }}
-            />
-          ) : (
-            <ProfileInfo user={user} setIsEditingProfile={setIsEditingProfile} />
-          )}
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <DeleteAccountDialog deleteAccount={deleteAccount} />
-        </CardFooter>
-      </Card>
-
-      {/* User Posts Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Minhas Publicações</CardTitle>
-          <CardDescription>Publicações que você compartilhou</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoadingPosts ? (
-            <div className="text-center py-10">
-              <div className="animate-pulse text-lg">Carregando publicações...</div>
-            </div>
-          ) : userPosts.length > 0 ? (
-            <UserPostsList
-              posts={userPosts}
-              userName={user.user_metadata?.name || "Usuário"}
-              liked={liked}
-              saved={saved}
-              onLike={handleLikePost}
-              onSave={handleSavePost}
-              onShare={handleSharePost}
-              onDelete={onDeletePost}
-            />
-          ) : (
-            <div className="text-center py-10 border rounded-lg border-dashed">
-              <p className="text-gray-500 mb-2">Você ainda não fez nenhuma publicação</p>
-              <p className="text-sm text-gray-400">As publicações que você compartilhar aparecerão aqui</p>
-              <Button className="mt-4" variant="outline" onClick={() => window.location.href = "/"}>
-                Ir para o Feed
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Achievements component */}
-      <Achievements achievements={achievements} />
+        </div>
+      </div>
+      
+      <Tabs defaultValue="posts" className="w-full">
+        <TabsList className="w-full justify-start border-b rounded-none px-0 h-auto">
+          <TabsTrigger value="posts" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+            Publicações
+          </TabsTrigger>
+          <TabsTrigger value="info" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+            Informações
+          </TabsTrigger>
+          <TabsTrigger value="achievements" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+            Conquistas
+          </TabsTrigger>
+          <TabsTrigger value="account" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+            Conta
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="posts" className="pt-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Minhas Publicações</CardTitle>
+              <CardDescription>Publicações que você compartilhou</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingPosts ? (
+                <div className="text-center py-10">
+                  <div className="animate-pulse text-lg">Carregando publicações...</div>
+                </div>
+              ) : userPosts.length > 0 ? (
+                <UserPostsList
+                  posts={userPosts}
+                  userName={user.user_metadata?.name || "Usuário"}
+                  liked={liked}
+                  saved={saved}
+                  onLike={handleLikePost}
+                  onSave={handleSavePost}
+                  onShare={handleSharePost}
+                  onDelete={onDeletePost}
+                />
+              ) : (
+                <div className="text-center py-10 border rounded-lg border-dashed">
+                  <p className="text-gray-500 mb-2">Você ainda não fez nenhuma publicação</p>
+                  <p className="text-sm text-gray-400">As publicações que você compartilhar aparecerão aqui</p>
+                  <Button className="mt-4" variant="outline" onClick={() => window.location.href = "/"}>
+                    Ir para o Feed
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="info" className="pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações do Perfil</CardTitle>
+              <CardDescription>Seus dados profissionais</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isEditingProfile ? (
+                <ProfileForm 
+                  user={user} 
+                  setIsEditingProfile={setIsEditingProfile}
+                  onAchievementUnlocked={(achievement) => {
+                    setAchievementUnlocked(achievement);
+                    setShowAchievementPopup(true);
+                    setAchievements(AchievementsManager.getUserAchievements(user.id));
+                  }}
+                />
+              ) : (
+                <ProfileInfo user={user} setIsEditingProfile={setIsEditingProfile} />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="achievements" className="pt-4">
+          <Achievements achievements={achievements} />
+        </TabsContent>
+        
+        <TabsContent value="account" className="pt-4">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Minha Conta</CardTitle>
+                  <CardDescription>Gerencie suas informações de conta</CardDescription>
+                </div>
+                <Button 
+                  onClick={handleSignOut} 
+                  disabled={isSigningOut}
+                >
+                  {isSigningOut ? "Saindo..." : "Sair"}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">Email</h3>
+                  <p className="text-base bg-gray-50 p-3 rounded-md shadow-sm border border-gray-100">
+                    {user.email}
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">Idioma do perfil</h3>
+                  <p className="text-base bg-gray-50 p-3 rounded-md shadow-sm border border-gray-100">
+                    Português
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">Perfil público e URL</h3>
+                  <div className="text-base bg-gray-50 p-3 rounded-md shadow-sm border border-gray-100 flex justify-between items-center">
+                    <span className="text-blue-600">
+                      {user?.user_metadata?.username ? 
+                        `app.engenhariaconecta.com.br/${user.user_metadata.username}` : 
+                        "Defina um nome de usuário para ter uma URL personalizada"}
+                    </span>
+                    <Button variant="ghost" size="sm">
+                      <Edit3 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+              <DeleteAccountDialog deleteAccount={deleteAccount} />
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Achievement Popup */}
       {achievementUnlocked && showAchievementPopup && (
@@ -257,6 +405,9 @@ const Profile = () => {
           onShare={handleShareAchievement}
         />
       )}
+      
+      {/* Chat Drawer Component */}
+      <ChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} userId={user.id} />
     </div>
   );
 };
