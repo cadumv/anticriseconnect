@@ -14,6 +14,8 @@ import { ProfileActivities } from "./sections/ProfileActivities";
 import { ProfileExperience } from "./sections/ProfileExperience";
 import { ProfileEducation } from "./sections/ProfileEducation";
 import { AchievementPopupWrapper } from "./sections/AchievementPopupWrapper";
+import { ProfileSuggestions } from "./sections/ProfileSuggestions";
+import { AchievementsSidebar } from "@/components/achievements/AchievementsSidebar";
 
 const ProfilePage = () => {
   const { user, loading } = useAuth();
@@ -72,25 +74,43 @@ const ProfilePage = () => {
     return <Navigate to="/login" replace />;
   }
 
+  // Calculate total points for the achievements sidebar
+  const totalPoints = achievements.reduce((total, achievement) => {
+    return total + (achievement.completed ? achievement.points || 0 : 0);
+  }, 0);
+
   return (
-    <div className="container mx-auto py-4 space-y-6">
+    <div className="container mx-auto py-4">
       <ProfileNavbar onOpenChat={() => setIsChatOpen(!isChatOpen)} />
-      <ProfileHeader user={user} />
-      <ProfileAnalytics />
-      <ProfileAbout user={user} />
-      <ProfileActivities />
-      <ProfileExperience user={user} />
-      <ProfileEducation user={user} />
       
-      <ProfileTabs 
-        user={user} 
-        achievements={achievements}
-        onAchievementUnlocked={(achievement) => {
-          setAchievementUnlocked(achievement);
-          setShowAchievementPopup(true);
-          setAchievements(AchievementsManager.getUserAchievements(user.id));
-        }}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+        <div className="lg:col-span-2 space-y-6">
+          <ProfileHeader user={user} />
+          <ProfileAnalytics />
+          <ProfileAbout user={user} />
+          <ProfileActivities />
+          <ProfileExperience user={user} />
+          <ProfileEducation user={user} />
+          
+          <ProfileTabs 
+            user={user} 
+            achievements={achievements}
+            onAchievementUnlocked={(achievement) => {
+              setAchievementUnlocked(achievement);
+              setShowAchievementPopup(true);
+              setAchievements(AchievementsManager.getUserAchievements(user.id));
+            }}
+          />
+        </div>
+        
+        <div className="space-y-4">
+          <AchievementsSidebar 
+            achievements={achievements} 
+            totalPoints={totalPoints} 
+          />
+          <ProfileSuggestions />
+        </div>
+      </div>
 
       <AchievementPopupWrapper
         showAchievementPopup={showAchievementPopup}
