@@ -27,7 +27,7 @@ export function useComments(postId: string): UseCommentsReturn {
     comments: fetchedComments,
     isLoading,
     authorProfiles,
-    liked,
+    liked: dataLiked,
     mentionUsers,
     organizeCommentsIntoThreads
   } = useCommentData(postId);
@@ -55,7 +55,8 @@ export function useComments(postId: string): UseCommentsReturn {
     replyTo,
     setReplyTo,
     handleLikeComment,
-    postComment
+    postComment,
+    liked: actionsLiked
   } = useCommentActions(postId, updateCommentsWithNewComment);
   
   // Synchronize comments from the data hook
@@ -72,7 +73,7 @@ export function useComments(postId: string): UseCommentsReturn {
   return {
     comments,
     isLoading,
-    liked,
+    liked: actionsLiked, // Use the liked state from useCommentActions
     replyTo,
     authorProfiles,
     mentionUsers,

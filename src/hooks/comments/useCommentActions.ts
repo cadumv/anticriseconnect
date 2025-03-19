@@ -134,5 +134,6 @@ export function useCommentActions(
     setReplyTo,
     handleLikeComment,
     postComment,
+    liked
   };
 }

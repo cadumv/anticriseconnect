@@ -20,6 +20,7 @@ export interface UseCommentActionsReturn {
   setReplyTo: (comment: Comment | null) => void;
   handleLikeComment: (commentId: string) => void;
   postComment: (text: string, parentId: string | null) => Promise<void>;
+  liked: Record<string, boolean>;
 }
 
 export interface UseCommentRealtimeReturn {
