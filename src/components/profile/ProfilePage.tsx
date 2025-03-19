@@ -10,9 +10,9 @@ import { ChatDrawer } from "@/components/chat/ChatDrawer";
 import { ProfileNavbar } from "./sections/ProfileNavbar";
 import { ProfileAnalytics } from "./sections/ProfileAnalytics";
 import { ProfileAbout } from "./sections/ProfileAbout";
-import { ProfileActivities } from "./sections/ProfileActivities";
 import { ProfileExperience } from "./sections/ProfileExperience";
 import { ProfileEducation } from "./sections/ProfileEducation";
+import { ProfileActivities } from "./sections/ProfileActivities";
 import { AchievementPopupWrapper } from "./sections/AchievementPopupWrapper";
 import { ProfileSuggestions } from "./sections/ProfileSuggestions";
 import { AchievementsSidebar } from "@/components/achievements/AchievementsSidebar";
@@ -88,9 +88,9 @@ const ProfilePage = () => {
           <ProfileHeader user={user} />
           <ProfileAnalytics />
           <ProfileAbout user={user} />
-          <ProfileActivities />
           <ProfileExperience user={user} />
           <ProfileEducation user={user} />
+          <ProfileActivities user={user} />
           
           <ProfileTabs 
             user={user} 

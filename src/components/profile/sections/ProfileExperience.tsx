@@ -32,26 +32,6 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
-  // Format date helper function
-  const formatDate = (month: string, year: string) => {
-    if (!month || !year) return "";
-    const monthNames = [
-      "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-      "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-    ];
-    const monthIndex = parseInt(month) - 1;
-    return `${monthNames[monthIndex]} de ${year}`;
-  };
-
-  const formatExperienceDate = (experience: any) => {
-    const startDate = formatDate(experience.startMonth, experience.startYear);
-    if (experience.current) {
-      return `${startDate} - Atual`;
-    }
-    const endDate = formatDate(experience.endMonth, experience.endYear);
-    return `${startDate} - ${endDate}`;
-  };
-
   const handleAddExperience = () => {
     setExperiences([
       ...experiences,
@@ -67,6 +47,9 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
         description: ""
       }
     ]);
+    if (!isEditing) {
+      setIsEditing(true);
+    }
   };
 
   const handleRemoveExperience = (index: number) => {
@@ -81,13 +64,6 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
       ...newExperiences[index],
       [field]: value
     };
-    
-    // If marking as current position, clear end dates
-    if (field === 'current' && value === true) {
-      newExperiences[index].endMonth = '';
-      newExperiences[index].endYear = '';
-    }
-    
     setExperiences(newExperiences);
   };
 
@@ -113,13 +89,13 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
       if (profileError) throw profileError;
 
       toast({
-        title: "Experiências atualizadas com sucesso",
+        title: "Experiência profissional atualizada com sucesso",
       });
       
       setIsEditing(false);
     } catch (error: any) {
       toast({
-        title: "Erro ao atualizar experiências",
+        title: "Erro ao atualizar experiência profissional",
         description: error.message,
         variant: "destructive",
       });
@@ -132,18 +108,18 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
     setExperiences(user.user_metadata?.experiences || []);
     setIsEditing(false);
   };
-  
+
   return (
     <Card className="border shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
-        <CardTitle className="text-base font-semibold">Experiência</CardTitle>
+        <CardTitle className="text-base font-semibold">Experiência profissional</CardTitle>
         {!isEditing ? (
           <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
               size="sm" 
               className="h-8 w-8 p-0"
-              onClick={() => handleAddExperience() || setIsEditing(true)}
+              onClick={handleAddExperience}
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -214,32 +190,27 @@ export const ProfileExperience = ({ user }: ProfileExperienceProps) => {
                   <div key={index} className="flex gap-3">
                     <div className="h-10 w-10 bg-gray-100 rounded-md flex items-center justify-center shrink-0">
                       <span className="text-blue-600 font-semibold text-sm">
-                        {exp.company ? exp.company.substring(0, 3).toUpperCase() : "FSW"}
+                        {exp.company ? exp.company.substring(0, 3).toUpperCase() : "EXP"}
                       </span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm">{exp.position || "Cargo não informado"}</h3>
                       <p className="text-sm text-gray-700">{exp.company || "Empresa não informada"}</p>
                       <p className="text-xs text-gray-500">
-                        {exp.startMonth && exp.startYear ? formatExperienceDate(exp) : "Período não informado"}
+                        {exp.startMonth && exp.startYear ? 
+                          `${exp.startMonth}/${exp.startYear} - ${exp.current ? 'Atual' : 
+                          (exp.endMonth && exp.endYear ? `${exp.endMonth}/${exp.endYear}` : 'Fim não informado')}` : 
+                          "Período não informado"}
                       </p>
-                      {exp.location && <p className="text-xs text-gray-600 mt-0.5">{exp.location}</p>}
-                      
-                      {/* Skills/Competencies */}
-                      {exp.description && (
-                        <div className="mt-2">
-                          <ul className="list-disc list-inside text-xs text-gray-700 pl-1">
-                            <li>{exp.description}</li>
-                          </ul>
-                        </div>
-                      )}
+                      {exp.location && <p className="text-xs text-gray-600">{exp.location}</p>}
+                      {exp.description && <p className="text-xs text-gray-600 mt-1">{exp.description}</p>}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-gray-500">
-                Nenhuma experiência adicionada
+                Nenhuma experiência profissional adicionada
               </p>
             )}
           </>

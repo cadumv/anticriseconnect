@@ -41,6 +41,9 @@ export const ProfileEducation = ({ user }: ProfileEducationProps) => {
         description: ""
       }
     ]);
+    if (!isEditing) {
+      setIsEditing(true);
+    }
   };
 
   const handleRemoveEducation = (index: number) => {
@@ -110,7 +113,7 @@ export const ProfileEducation = ({ user }: ProfileEducationProps) => {
               variant="ghost" 
               size="sm" 
               className="h-8 w-8 p-0"
-              onClick={() => handleAddEducation() || setIsEditing(true)}
+              onClick={handleAddEducation}
             >
               <Plus className="h-4 w-4" />
             </Button>
