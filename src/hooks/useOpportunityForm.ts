@@ -66,12 +66,12 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
       const { data, error } = await supabase
         .from("posts")
         .insert({
-          title: title,
           content: description,
           image_url: imageUrl,
           user_id: user.id,
           metadata: {
             type: "opportunity",
+            title: title,
             location: location,
             partnerCount: partnerCount,
             deadline: deadline,
