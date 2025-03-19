@@ -12,7 +12,7 @@ interface UserPostsListProps {
   onLike: (postId: string) => void;
   onSave: (postId: string) => void;
   onShare: (postId: string) => void;
-  onDelete?: (postId: string) => void;
+  onDelete?: (postId: string) => Promise<boolean> | boolean;
   onEdit?: (postId: string) => void;
   compact?: boolean;
 }
@@ -52,11 +52,18 @@ export function UserPostsList({
 
   const handleDeletePost = async (postId: string) => {
     if (onDelete) {
-      const deleted = await onDelete(postId);
-      if (deleted) {
-        setDeletedPostIds(prev => [...prev, postId]);
+      try {
+        const deleted = await onDelete(postId);
+        if (deleted) {
+          setDeletedPostIds(prev => [...prev, postId]);
+        }
+        return deleted;
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        return false;
       }
     }
+    return false;
   };
 
   return (
