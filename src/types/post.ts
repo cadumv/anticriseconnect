@@ -7,7 +7,7 @@ export interface Post {
   excerpt?: string;
   tags?: string[];
   content?: string;
-  type?: 'achievement' | 'post' | 'service' | 'technical_article';
+  type?: 'achievement' | 'post' | 'service' | 'technical_article' | 'opportunity';
   achievementId?: string;
   timestamp: string;
   imageUrl?: string;
@@ -38,7 +38,7 @@ export interface StandardPost {
   excerpt?: string;
   content?: string;
   tags?: string[];
-  type?: 'service' | 'technical_article';
+  type?: 'service' | 'technical_article' | 'opportunity';
   timestamp: string;
   imageUrl?: string;
   summary?: string;
@@ -65,4 +65,15 @@ export interface Comment {
   liked_by?: Array<{id: string, name: string}>;
   replies?: Comment[];
   post_id?: string;
+}
+
+export interface OpportunityPost extends StandardPost {
+  type: 'opportunity';
+  metadata?: {
+    location?: string;
+    partnerCount?: string;
+    deadline?: string;
+    skills?: string[];
+    engineeringType?: string;
+  };
 }
