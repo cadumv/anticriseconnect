@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { TechnicalArticleForm } from "@/components/post/TechnicalArticleForm";
 import { RegularPostForm } from "@/components/post/RegularPostForm";
 import { PostDialogFooter } from "@/components/post/PostDialogFooter";
 import { usePostCreation } from "@/hooks/usePostCreation";
+import { ImageUploader } from "@/components/post/ImageUploader";
 
 interface NewPostDialogProps {
   onPostCreated: () => void;
