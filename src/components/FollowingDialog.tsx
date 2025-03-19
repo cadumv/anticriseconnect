@@ -9,7 +9,6 @@ import {
 import { ConnectionUserList } from "./connections/ConnectionUserList";
 import { useConnectionUsers } from "@/hooks/useConnectionUsers";
 import { useAuth } from "@/hooks/useAuth";
-import { useState, useEffect } from "react";
 
 interface FollowingDialogProps {
   isOpen: boolean;
