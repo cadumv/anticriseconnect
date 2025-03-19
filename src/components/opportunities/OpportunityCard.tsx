@@ -55,10 +55,10 @@ export function OpportunityCard({
             <p className="text-gray-700 mb-3">{opportunity.content}</p>
           )}
           
-          {opportunity.imageUrl && (
+          {opportunity.image_url && (
             <div className="mb-3">
               <PostCardMedia 
-                imageUrl={opportunity.imageUrl}
+                imageUrl={opportunity.image_url}
                 title={title}
               />
             </div>

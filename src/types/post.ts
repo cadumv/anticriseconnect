@@ -11,6 +11,7 @@ export interface Post {
   achievementId?: string;
   timestamp: string;
   imageUrl?: string;
+  image_url?: string;
   summary?: string;
   conclusions?: string;
   mainContent?: string;
@@ -41,6 +42,7 @@ export interface StandardPost {
   type?: 'service' | 'technical_article' | 'opportunity';
   timestamp: string;
   imageUrl?: string;
+  image_url?: string;
   summary?: string;
   mainContent?: string;
   conclusions?: string;

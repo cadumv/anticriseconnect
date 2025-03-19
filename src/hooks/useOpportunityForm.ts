@@ -65,20 +65,23 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
         const fileName = `${uuidv4()}.${fileExt}`;
         const filePath = `opportunity-images/${fileName}`;
         
+        // Upload to post_images bucket instead of posts/opportunity-images
         const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('posts')
+          .from('post_images')
           .upload(filePath, imageFile);
         
         if (uploadError) {
+          console.error("Image upload error:", uploadError);
           throw uploadError;
         }
         
         // Get public URL
         const { data: publicUrlData } = supabase.storage
-          .from('posts')
+          .from('post_images')
           .getPublicUrl(filePath);
         
         finalImageUrl = publicUrlData.publicUrl;
+        console.log("Image uploaded successfully:", finalImageUrl);
       }
       
       // Create skills array from comma-separated string
@@ -106,8 +109,12 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
         })
         .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Post creation error:", error);
+        throw error;
+      }
       
+      console.log("Opportunity created successfully:", data);
       toast.success("Oportunidade publicada com sucesso!");
       onOpportunityCreated();
       onOpenChange(false);
