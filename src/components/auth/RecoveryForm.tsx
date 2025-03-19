@@ -2,7 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User } from "lucide-react";
+import { User, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RecoveryFormProps {
   email: string;
@@ -10,6 +11,7 @@ interface RecoveryFormProps {
   handleRecovery: (e: React.FormEvent) => Promise<void>;
   setIsRecovery: (isRecovery: boolean) => void;
   loading: boolean;
+  error?: string;
 }
 
 export const RecoveryForm = ({
@@ -17,10 +19,18 @@ export const RecoveryForm = ({
   setEmail,
   handleRecovery,
   setIsRecovery,
-  loading
+  loading,
+  error
 }: RecoveryFormProps) => {
   return (
     <form onSubmit={handleRecovery} className="space-y-4">
+      {error && (
+        <Alert variant="destructive" className="py-2">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="email" className="text-sm text-gray-600">
           Email

@@ -17,7 +17,13 @@ export function useSignIn() {
         password,
       });
       
-      if (error) throw error;
+      if (error) {
+        // Specifically handle email not confirmed error
+        if (error.message.includes("Email not confirmed")) {
+          throw new Error("Email not confirmed");
+        }
+        throw error;
+      }
 
       if (data?.user) {
         const { data: profileData, error: profileError } = await supabase
@@ -47,7 +53,7 @@ export function useSignIn() {
         description: error.message,
         variant: "destructive",
       });
-      return false;
+      throw error; // Rethrow so the Login component can handle specific errors
     } finally {
       setLoading(false);
     }
@@ -83,7 +89,7 @@ export function useSignIn() {
         description: error.message,
         variant: "destructive",
       });
-      return false;
+      throw error;
     } finally {
       setLoading(false);
     }

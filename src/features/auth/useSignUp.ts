@@ -50,13 +50,14 @@ export function useSignUp() {
             description: "Um email de confirmação foi enviado para o seu endereço (usando sistema padrão).",
           });
         }
-        navigate('/login');
+        // Redirect to login with signup success and email parameters
+        navigate(`/login?signup=success&email=${encodeURIComponent(email)}`);
       } else {
         toast({
           title: "Cadastro realizado com sucesso!",
           description: "Um email de confirmação foi enviado para o seu endereço.",
         });
-        navigate('/login');
+        navigate(`/login?signup=success&email=${encodeURIComponent(email)}`);
       }
     } catch (error: any) {
       toast({

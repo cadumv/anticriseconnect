@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Key } from "lucide-react";
+import { User, Key, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LoginFormProps {
   email: string;
@@ -15,6 +16,7 @@ interface LoginFormProps {
   handleGoogleSignIn: () => Promise<void>;
   setIsRecovery: (isRecovery: boolean) => void;
   loading: boolean;
+  error?: string;
 }
 
 export const LoginForm = ({
@@ -25,10 +27,18 @@ export const LoginForm = ({
   handleLogin,
   handleGoogleSignIn,
   setIsRecovery,
-  loading
+  loading,
+  error
 }: LoginFormProps) => {
   return (
     <form onSubmit={handleLogin} className="space-y-4">
+      {error && (
+        <Alert variant="destructive" className="py-2">
+          <AlertCircle className="h-4 w-4 mr-2" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="email" className="text-sm text-gray-600">
           Nome de Utilizador
