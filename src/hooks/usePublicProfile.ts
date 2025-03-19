@@ -31,6 +31,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
       try {
         setLoading(true);
         
+        // Handle demo profile
         if (id === "demo") {
           console.log("Loading demo profile");
           setProfile(DEMO_PROFILE);
@@ -39,21 +40,73 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
           return;
         }
         
+        // Validate ID
         if (!id || id === ":id") {
           throw new Error("ID de perfil inválido");
         }
         
         console.log("Fetching profile with ID:", id);
-        // Modificar a consulta para buscar apenas as colunas que existem na tabela
+        
+        // First check if profile exists
+        const { data: profileExists, error: existsError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', id)
+          .maybeSingle();
+        
+        if (existsError) {
+          console.error("Error checking if profile exists:", existsError);
+        }
+        
+        // If profile doesn't exist, create a basic one
+        if (!profileExists) {
+          console.log("Profile doesn't exist, creating a basic one");
+          
+          // Get user data from auth if possible
+          const { data: userData } = await supabase.auth.admin.getUserById(id);
+          
+          let name = "Usuário";
+          let email = "";
+          
+          if (userData?.user) {
+            name = userData.user.user_metadata?.name || userData.user.email?.split('@')[0] || "Usuário";
+            email = userData.user.email || "";
+          }
+          
+          // Create basic profile
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: id,
+              name: name,
+              username: email ? email.split('@')[0] : null,
+              professional_description: "",
+              areas_of_expertise: []
+            });
+          
+          if (insertError) {
+            console.error("Error creating basic profile:", insertError);
+            throw new Error("Não foi possível criar perfil básico");
+          }
+        }
+        
+        // Now fetch the profile (either existing or newly created)
         const { data, error } = await supabase
           .from('profiles')
           .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
           .eq('id', id)
-          .single();
+          .maybeSingle();
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching profile:", error);
+          throw error;
+        }
+        
+        if (!data) {
+          throw new Error("Perfil não encontrado");
+        }
+        
         setProfile(data);
-        
         setPublications([]);
       } catch (err: any) {
         console.error("Erro ao buscar perfil:", err);
