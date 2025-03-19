@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Comment } from "@/types/post";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,6 +13,17 @@ export function useCommentActions(
   const { user } = useAuth();
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
+  
+  // Load liked state from localStorage on component mount
+  useEffect(() => {
+    if (user) {
+      const likedCommentsKey = `user_liked_comments_${user.id}`;
+      const storedLikes = localStorage.getItem(likedCommentsKey);
+      if (storedLikes) {
+        setLiked(JSON.parse(storedLikes));
+      }
+    }
+  }, [user]);
 
   const handleLikeComment = async (commentId: string) => {
     if (!user) {

@@ -82,14 +82,6 @@ export function CommentItem({
               dangerouslySetInnerHTML={{ __html: formattedCommentHtml }}
             />
           </div>
-          
-          {/* This is where we display the likes if any */}
-          {comment.likes && comment.likes > 0 && (
-            <div className="absolute bottom-0 right-0 translate-y-1/2 bg-red-100 text-red-500 rounded-full px-2 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
-              <Heart size={10} fill="currentColor" />
-              <span>{comment.likes}</span>
-            </div>
-          )}
         </div>
         
         <div className="flex gap-3 mt-1 text-xs px-2">
@@ -100,6 +92,9 @@ export function CommentItem({
           >
             <Heart size={12} className={liked ? "fill-red-500" : ""} />
             Gostei
+            {comment.likes && comment.likes > 0 && (
+              <span className="ml-1">({comment.likes})</span>
+            )}
           </button>
           
           <button 
