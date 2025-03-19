@@ -3,8 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PlusCircle, CheckCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface SuggestedUser {
   id: string;
@@ -15,74 +16,137 @@ interface SuggestedUser {
   isFollowing?: boolean;
 }
 
-// Mock data for suggested connections
-const suggestedUsers: SuggestedUser[] = [
-  {
-    id: "edu-123",
-    name: "Eduardo Cavalcanti",
-    title: "Founder & President",
-    subtitle: "Instituto Brasileiro de IA",
-    avatarUrl: "https://i.pravatar.cc/150?u=eduardo",
-    isFollowing: true
-  },
-  {
-    id: "dan-456",
-    name: "Daniel Lemos",
-    title: "CTO",
-    subtitle: "Aqui você Aprende a Faturar Acima dos 15 Mil Reais",
-    avatarUrl: "https://i.pravatar.cc/150?u=daniel",
-    isFollowing: true
-  },
-  {
-    id: "jul-789",
-    name: "Julian Massayoshi Ubukata",
-    title: "Bacharel em Engenharia Mecânica e Tecnologia em Mecatrônica",
-    avatarUrl: "https://i.pravatar.cc/150?u=julian"
-  },
-  {
-    id: "dan-012",
-    name: "Danilo Soares",
-    title: "Proprietário da empresa DS Soluções em Engenharia",
-    avatarUrl: "https://i.pravatar.cc/150?u=danilo"
-  },
-  {
-    id: "pau-345",
-    name: "Paulo Filho",
-    title: "Engenheiro Mecânico",
-    subtitle: "Autônomo na PS Soluções e Projetos",
-    avatarUrl: "https://i.pravatar.cc/150?u=paulo"
-  }
-];
-
-const connectionSuggestions: SuggestedUser[] = [
-  {
-    id: "reg-678",
-    name: "Regiano Lopes Someoshi",
-    title: "Coordenador de Projetos",
-    subtitle: "TimeNow",
-    avatarUrl: "https://i.pravatar.cc/150?u=regiano"
-  }
-];
-
 export const ProfileSuggestions = () => {
-  const [following, setFollowing] = useState<Record<string, boolean>>(() => {
-    // Initialize with users already being followed
-    const initialState: Record<string, boolean> = {};
-    suggestedUsers.forEach(user => {
-      if (user.isFollowing) {
-        initialState[user.id] = true;
-      }
-    });
-    return initialState;
-  });
-
+  const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([]);
+  const [connectionSuggestions, setConnectionSuggestions] = useState<SuggestedUser[]>([]);
+  const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [connected, setConnected] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
 
-  const handleFollow = (userId: string) => {
-    setFollowing(prev => ({
-      ...prev,
-      [userId]: !prev[userId]
-    }));
+  useEffect(() => {
+    fetchSuggestedUsers();
+  }, []);
+
+  const fetchSuggestedUsers = async () => {
+    setLoading(true);
+    try {
+      // Fetch users from Supabase
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, engineering_type, professional_description, avatar_url')
+        .not('name', 'is', null)
+        .limit(5);
+
+      if (error) throw error;
+
+      if (data) {
+        const formattedUsers = data.map(user => ({
+          id: user.id,
+          name: user.name,
+          title: user.engineering_type || "Engenheiro(a)",
+          subtitle: user.professional_description?.substring(0, 60) || undefined,
+          avatarUrl: user.avatar_url || undefined,
+          isFollowing: false // Will be updated in checkFollowingStatus
+        }));
+
+        setSuggestedUsers(formattedUsers);
+        
+        // Initialize following state
+        const initialFollowingState: Record<string, boolean> = {};
+        formattedUsers.forEach(user => {
+          initialFollowingState[user.id] = false;
+        });
+        
+        setFollowing(initialFollowingState);
+        
+        // Also set a small subset for connection suggestions
+        if (formattedUsers.length > 0) {
+          setConnectionSuggestions([formattedUsers[0]]);
+        }
+        
+        // Then check following status
+        await checkFollowingStatus(formattedUsers);
+      }
+    } catch (err) {
+      console.error("Error fetching user suggestions:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkFollowingStatus = async (users: SuggestedUser[]) => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      if (!data?.user) return;
+      
+      const userId = data.user.id;
+      const followingData = localStorage.getItem(`following_${userId}`);
+      
+      if (followingData) {
+        try {
+          const followingList = JSON.parse(followingData);
+          
+          if (Array.isArray(followingList)) {
+            const newFollowingState = { ...following };
+            
+            users.forEach(user => {
+              newFollowingState[user.id] = followingList.includes(user.id);
+            });
+            
+            setFollowing(newFollowingState);
+          }
+        } catch (error) {
+          console.error("Error parsing following data:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking following status:", error);
+    }
+  };
+
+  const handleFollow = async (userId: string) => {
+    try {
+      const { data } = await supabase.auth.getUser();
+      if (!data?.user) return;
+      
+      const currentUserId = data.user.id;
+      let followingList: string[] = [];
+      
+      const followData = localStorage.getItem(`following_${currentUserId}`);
+      if (followData) {
+        try {
+          followingList = JSON.parse(followData);
+        } catch (err) {
+          console.error("Error parsing following data:", err);
+        }
+      }
+      
+      if (!Array.isArray(followingList)) {
+        followingList = [];
+      }
+      
+      // Toggle following
+      if (following[userId]) {
+        // Unfollow
+        followingList = followingList.filter(id => id !== userId);
+      } else {
+        // Follow
+        if (!followingList.includes(userId)) {
+          followingList.push(userId);
+        }
+      }
+      
+      // Save to localStorage
+      localStorage.setItem(`following_${currentUserId}`, JSON.stringify(followingList));
+      
+      // Update state
+      setFollowing(prev => ({
+        ...prev,
+        [userId]: !prev[userId]
+      }));
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+    }
   };
 
   const handleConnect = (userId: string) => {
@@ -145,6 +209,22 @@ export const ProfileSuggestions = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Card className="border shadow-sm">
+          <CardContent className="p-4">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <Card className="border shadow-sm">
@@ -152,13 +232,19 @@ export const ProfileSuggestions = () => {
           <CardTitle className="text-lg font-semibold">Mais perfis para você</CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0">
-          <div className="divide-y">
-            {suggestedUsers.map(user => renderUserCard(user))}
-          </div>
+          {suggestedUsers.length > 0 ? (
+            <div className="divide-y">
+              {suggestedUsers.map(user => renderUserCard(user))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 py-4 text-center">Nenhuma sugestão disponível no momento.</p>
+          )}
           <Button 
             variant="link" 
             className="w-full mt-2 text-blue-600" 
             size="sm"
+            as={Link}
+            to="/search"
           >
             Exibir tudo
           </Button>
@@ -170,9 +256,13 @@ export const ProfileSuggestions = () => {
           <CardTitle className="text-lg font-semibold">Pessoas que talvez você conheça</CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0">
-          <div className="divide-y">
-            {connectionSuggestions.map(user => renderUserCard(user, 'connect'))}
-          </div>
+          {connectionSuggestions.length > 0 ? (
+            <div className="divide-y">
+              {connectionSuggestions.map(user => renderUserCard(user, 'connect'))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 py-4 text-center">Nenhuma sugestão disponível no momento.</p>
+          )}
         </CardContent>
       </Card>
     </div>
