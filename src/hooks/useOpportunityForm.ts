@@ -17,23 +17,21 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
   // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [location, setLocation] = useState("");
   const [partnerCount, setPartnerCount] = useState("");
   const [deadline, setDeadline] = useState("");
   const [skills, setSkills] = useState("");
   const [engineeringType, setEngineeringType] = useState("");
   
-  // For the image uploader
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // For the image uploader - multiple images
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   const resetForm = () => {
     setTitle("");
     setDescription("");
-    setImageUrl(null);
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     setLocation("");
     setPartnerCount("");
     setDeadline("");
@@ -57,31 +55,33 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
     setIsSubmitting(true);
     
     try {
-      let finalImageUrl = null;
+      const imageUrls: string[] = [];
       
-      // Upload image if there's an image file
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
-        const filePath = `opportunity-images/${fileName}`;
-        
-        // Upload to post_images bucket instead of posts/opportunity-images
-        const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('post_images')
-          .upload(filePath, imageFile);
-        
-        if (uploadError) {
-          console.error("Image upload error:", uploadError);
-          throw uploadError;
+      // Upload all images if there are image files
+      if (imageFiles.length > 0) {
+        for (const imageFile of imageFiles) {
+          const fileExt = imageFile.name.split('.').pop();
+          const fileName = `${uuidv4()}.${fileExt}`;
+          const filePath = `opportunity-images/${fileName}`;
+          
+          // Upload to post_images bucket
+          const { error: uploadError, data: uploadData } = await supabase.storage
+            .from('post_images')
+            .upload(filePath, imageFile);
+          
+          if (uploadError) {
+            console.error("Image upload error:", uploadError);
+            throw uploadError;
+          }
+          
+          // Get public URL
+          const { data: publicUrlData } = supabase.storage
+            .from('post_images')
+            .getPublicUrl(filePath);
+          
+          imageUrls.push(publicUrlData.publicUrl);
+          console.log("Image uploaded successfully:", publicUrlData.publicUrl);
         }
-        
-        // Get public URL
-        const { data: publicUrlData } = supabase.storage
-          .from('post_images')
-          .getPublicUrl(filePath);
-        
-        finalImageUrl = publicUrlData.publicUrl;
-        console.log("Image uploaded successfully:", finalImageUrl);
       }
       
       // Create skills array from comma-separated string
@@ -95,7 +95,7 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
         .from("posts")
         .insert({
           content: description,
-          image_url: finalImageUrl,
+          image_url: imageUrls.length > 0 ? imageUrls[0] : null, // First image as the main image for backward compatibility
           user_id: user.id,
           metadata: {
             type: "opportunity",
@@ -104,7 +104,8 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
             partnerCount: partnerCount,
             deadline: deadline,
             skills: skillsArray,
-            engineeringType: engineeringType
+            engineeringType: engineeringType,
+            image_urls: imageUrls // All images stored in metadata
           }
         })
         .select();
@@ -142,12 +143,10 @@ export function useOpportunityForm({ onOpportunityCreated, onOpenChange }: UseOp
     setSkills,
     engineeringType,
     setEngineeringType,
-    imageFile,
-    setImageFile,
-    imagePreview,
-    setImagePreview,
-    imageUrl,
-    setImageUrl,
+    imageFiles,
+    setImageFiles,
+    imagePreviews,
+    setImagePreviews,
     isSubmitting,
     handleSubmit
   };

@@ -40,8 +40,9 @@ export function OpportunityCard({
   const partnerCount = metadata.partnerCount || "Não especificado";
   const deadline = metadata.deadline;
   
-  // Get image URL from either image_url or imageUrl property
+  // Get image URLs - support both single and multiple images
   const imageUrl = opportunity.image_url || opportunity.imageUrl;
+  const imageUrls = metadata.image_urls || [];
   
   const handleRequestPartnership = () => {
     toast.success("Solicitação de parceria enviada com sucesso!");
@@ -74,10 +75,11 @@ export function OpportunityCard({
             <p className="text-gray-700 mb-3">{opportunity.content}</p>
           )}
           
-          {imageUrl && (
+          {(imageUrl || imageUrls.length > 0) && (
             <div className="mb-3">
               <PostCardMedia 
                 imageUrl={imageUrl}
+                imageUrls={imageUrls}
                 title={title}
               />
             </div>

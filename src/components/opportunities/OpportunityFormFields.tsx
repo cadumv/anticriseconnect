@@ -21,10 +21,10 @@ interface OpportunityFormFieldsProps {
   setSkills: (value: string) => void;
   engineeringType: string;
   setEngineeringType: (value: string) => void;
-  imageFile: File | null;
-  imagePreview: string | null;
-  setImageFile: (file: File | null) => void;
-  setImagePreview: (preview: string | null) => void;
+  imageFiles: File[];
+  imagePreviews: string[];
+  setImageFiles: (files: File[]) => void;
+  setImagePreviews: (previews: string[]) => void;
 }
 
 export function OpportunityFormFields({
@@ -42,10 +42,10 @@ export function OpportunityFormFields({
   setSkills,
   engineeringType,
   setEngineeringType,
-  imageFile,
-  imagePreview,
-  setImageFile,
-  setImagePreview
+  imageFiles,
+  imagePreviews,
+  setImageFiles,
+  setImagePreviews
 }: OpportunityFormFieldsProps) {
   return (
     <>
@@ -122,12 +122,14 @@ export function OpportunityFormFields({
       </div>
       
       <div className="space-y-2">
-        <Label>Imagem (opcional)</Label>
+        <Label>Imagens (opcional)</Label>
         <ImageUploader
-          imageFile={imageFile}
-          imagePreview={imagePreview}
-          setImageFile={setImageFile}
-          setImagePreview={setImagePreview}
+          imageFiles={imageFiles}
+          imagePreviews={imagePreviews}
+          setImageFiles={setImageFiles}
+          setImagePreviews={setImagePreviews}
+          multiple={true}
+          maxImages={5}
         />
       </div>
     </>

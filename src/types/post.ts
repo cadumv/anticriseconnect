@@ -77,5 +77,6 @@ export interface OpportunityPost extends StandardPost {
     deadline?: string;
     skills?: string[];
     engineeringType?: string;
+    image_urls?: string[];
   };
 }
