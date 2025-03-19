@@ -2,7 +2,6 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ImagePlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { resizeImageToStandard } from "./imageUtils";
@@ -55,7 +54,6 @@ export function ImageUploader({
 
   return (
     <div className="space-y-2">
-      <Label className="block">Imagem <span className="text-sm text-gray-500">(Opcional)</span></Label>
       <div className="flex items-center gap-2">
         <Button 
           type="button" 
