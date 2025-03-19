@@ -82,20 +82,23 @@ export function CommentItem({
               dangerouslySetInnerHTML={{ __html: formattedCommentHtml }}
             />
           </div>
-          <div className="absolute bottom-0 right-0 translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-            {liked ? (
-              <div className="bg-red-100 text-red-500 rounded-full p-1 shadow-sm">
-                <Heart size={12} fill="currentColor" />
-              </div>
-            ) : null}
-          </div>
+          
+          {/* This is where we display the likes if any */}
+          {comment.likes && comment.likes > 0 && (
+            <div className="absolute bottom-0 right-0 translate-y-1/2 bg-red-100 text-red-500 rounded-full px-2 py-1 text-xs font-medium shadow-sm flex items-center gap-1">
+              <Heart size={10} fill="currentColor" />
+              <span>{comment.likes}</span>
+            </div>
+          )}
         </div>
         
         <div className="flex gap-3 mt-1 text-xs px-2">
           <button 
-            className={`font-medium ${liked ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'}`}
+            className={`font-medium flex items-center gap-1 ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
             onClick={onLike}
+            aria-label={liked ? "Remover curtida" : "Curtir comentário"}
           >
+            <Heart size={12} className={liked ? "fill-red-500" : ""} />
             Gostei
           </button>
           

@@ -15,15 +15,58 @@ export function useCommentActions(
   const [liked, setLiked] = useState<Record<string, boolean>>({});
 
   const handleLikeComment = async (commentId: string) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Você precisa estar logado para curtir comentários.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // Update UI state first for immediate feedback
-    const isLiked = liked[commentId] || false;
-    const newLiked = { ...liked, [commentId]: !isLiked };
-    setLiked(newLiked);
-    
-    // Save to localStorage
-    localStorage.setItem(`user_liked_comments_${user.id}`, JSON.stringify(newLiked));
+    try {
+      // Update UI state first for immediate feedback
+      const isLiked = liked[commentId] || false;
+      const newLiked = { ...liked, [commentId]: !isLiked };
+      setLiked(newLiked);
+      
+      // Save to localStorage for persistence between sessions
+      localStorage.setItem(`user_liked_comments_${user.id}`, JSON.stringify(newLiked));
+      
+      // Get current comment data
+      const { data: comment, error: fetchError } = await supabase
+        .from('comments')
+        .select('likes')
+        .eq('id', commentId)
+        .single();
+      
+      if (fetchError) throw fetchError;
+      
+      // Calculate new likes count
+      const currentLikes = comment?.likes || 0;
+      const newLikesCount = isLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+      
+      // Update the likes count in the database
+      const { error: updateError } = await supabase
+        .from('comments')
+        .update({ likes: newLikesCount })
+        .eq('id', commentId);
+      
+      if (updateError) throw updateError;
+      
+    } catch (error) {
+      console.error('Error updating comment like:', error);
+      toast({
+        title: "Erro ao curtir comentário",
+        description: "Não foi possível atualizar o status do like.",
+        variant: "destructive"
+      });
+      
+      // Revert UI state if there was an error
+      const revertedLiked = { ...liked };
+      delete revertedLiked[commentId];
+      setLiked(revertedLiked);
+    }
   };
 
   const postComment = async (text: string, parentId: string | null = null) => {
