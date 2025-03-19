@@ -26,45 +26,46 @@ export const ProfileContainer = ({
   onFollowToggle,
   onConnectionRequest
 }: ProfileContainerProps) => {
-  // Check if this is a demo profile
-  const isDemoProfile = profile.id === "demo-profile-123";
-
   return (
-    <Card>
-      <CardHeader className="pb-0">
-        <ProfileHeader 
-          profile={profile}
-          currentUser={currentUser}
-          isFollowing={isFollowing}
-          followLoading={followLoading}
-          onFollowToggle={onFollowToggle}
-          onConnectionRequest={onConnectionRequest}
-        />
-      </CardHeader>
-      <CardContent className="pt-6">
-        <div className="space-y-6">
+    <div className="space-y-6">
+      <Card className="shadow-sm">
+        <CardHeader className="pb-0">
+          <ProfileHeader 
+            profile={profile}
+            currentUser={currentUser}
+            isFollowing={isFollowing}
+            followLoading={followLoading}
+            onFollowToggle={onFollowToggle}
+            onConnectionRequest={onConnectionRequest}
+          />
+        </CardHeader>
+        <CardContent className="pt-6">
           <ProfileDetails 
             description={profile.professional_description || ''}
             areasOfExpertise={profile.areas_of_expertise || []}
           />
-          
-          {/* Education Section - only show for demo profiles */}
-          {isDemoProfile && profile.education && profile.education.length > 0 && (
-            <ProfileEducation education={profile.education} />
-          )}
-          
-          {/* Experience Section - only show for demo profiles */}
-          {isDemoProfile && profile.experiences && profile.experiences.length > 0 && (
-            <ProfileExperience experience={profile.experiences} />
-          )}
-          
+        </CardContent>
+      </Card>
+      
+      {/* Education Section */}
+      {profile.education && profile.education.length > 0 && (
+        <ProfileEducation education={profile.education} />
+      )}
+      
+      {/* Experience Section */}
+      {profile.experiences && profile.experiences.length > 0 && (
+        <ProfileExperience experience={profile.experiences} />
+      )}
+      
+      <Card className="shadow-sm">
+        <CardContent className="p-4">
           <ProfileContact 
             profileId={profile.id}
             profileName={profile.name}
             isConnectionAccepted={isConnectionAccepted}
           />
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

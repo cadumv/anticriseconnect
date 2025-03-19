@@ -84,13 +84,31 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
               throw new Error("Não foi possível criar perfil básico");
             }
             
-            setProfile(newProfile);
+            // Get education and experience data from auth metadata if available
+            const userData = user && user.id === id ? user.user_metadata : null;
+            
+            const profileData: ProfileData = {
+              ...newProfile,
+              education: userData?.education || [],
+              experiences: userData?.experiences || []
+            };
+            
+            setProfile(profileData);
           } catch (createError) {
             console.error("Error in profile creation process:", createError);
             throw new Error("Falha ao criar perfil básico");
           }
         } else {
-          setProfile(data);
+          // For existing profile, check if we can get education and experience from metadata
+          const userData = user && user.id === id ? user.user_metadata : null;
+          
+          const profileData: ProfileData = {
+            ...data,
+            education: userData?.education || [],
+            experiences: userData?.experiences || []
+          };
+          
+          setProfile(profileData);
         }
       } catch (err: any) {
         console.error("Erro ao buscar perfil:", err);

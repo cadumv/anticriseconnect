@@ -1,6 +1,7 @@
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EducationViewList } from "../profile/sections/education/EducationViewList";
-import { Education } from "../profile/sections/education/types";
+import { Education } from "@/types/profile";
 
 interface ProfileEducationProps {
   education: Education[];
@@ -8,9 +9,13 @@ interface ProfileEducationProps {
 
 export const ProfileEducation = ({ education }: ProfileEducationProps) => {
   return (
-    <div className="p-4 border rounded-md shadow-sm">
-      <h3 className="text-base font-semibold mb-4">Formação Acadêmica</h3>
-      <EducationViewList educationList={education || []} />
-    </div>
+    <Card className="border shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
+        <CardTitle className="text-base font-semibold">Formação acadêmica</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 pt-2">
+        <EducationViewList educationList={education || []} />
+      </CardContent>
+    </Card>
   );
 };
