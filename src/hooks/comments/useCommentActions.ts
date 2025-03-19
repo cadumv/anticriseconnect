@@ -65,6 +65,16 @@ export function useCommentActions(
       
       if (updateError) throw updateError;
       
+      // Manually update the UI with the updated likes count
+      const updatedComment: Partial<Comment> = {
+        id: commentId,
+        likes: newLikesCount
+      };
+      
+      // You would need to implement this function in useCommentRealtime
+      // This is just a placeholder to signal that we need to update the UI
+      updateCommentLikes(updatedComment);
+      
     } catch (error) {
       console.error('Error updating comment like:', error);
       toast({
@@ -78,6 +88,14 @@ export function useCommentActions(
       delete revertedLiked[commentId];
       setLiked(revertedLiked);
     }
+  };
+
+  // This is a placeholder function that would need to be implemented
+  // It should update the comment in the comments state with the new likes count
+  const updateCommentLikes = (updatedComment: Partial<Comment>) => {
+    // This would be implemented in useCommentRealtime
+    console.log('Comment likes updated:', updatedComment);
+    // For now, we'll rely on the UI state update
   };
 
   const postComment = async (text: string, parentId: string | null = null) => {

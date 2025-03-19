@@ -44,6 +44,24 @@ export function useCommentRealtime(
           }
         }
       )
+      .on('postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'comments',
+          filter: `post_id=eq.${postId}`
+        },
+        (payload) => {
+          const updatedComment = payload.new as any;
+          // Update the comment in the state
+          setComments(prevComments => {
+            return updateCommentInList(prevComments, {
+              id: updatedComment.id,
+              likes: updatedComment.likes || 0
+            });
+          });
+        }
+      )
       .subscribe();
     
     return () => {

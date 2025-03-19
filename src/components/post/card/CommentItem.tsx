@@ -92,7 +92,7 @@ export function CommentItem({
           >
             <Heart size={12} className={liked ? "fill-red-500" : ""} />
             <span>Gostei</span>
-            {comment.likes && comment.likes > 0 && (
+            {comment.likes > 0 && (
               <span className="ml-1">({comment.likes})</span>
             )}
           </button>
