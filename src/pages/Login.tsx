@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { InfoPanel } from "@/components/auth/InfoPanel";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -21,14 +21,12 @@ const Login = () => {
   const { signIn, signInWithGoogle, resetPassword, loading, user } = useAuth();
   const navigate = useNavigate();
 
-  // Check if user is coming from signup
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const justSignedUp = queryParams.get('signup') === 'success';
     
     if (justSignedUp) {
       setShowEmailConfirmationAlert(true);
-      // Pre-fill the email if provided in URL
       const emailParam = queryParams.get('email');
       if (emailParam) {
         setEmail(emailParam);
@@ -36,7 +34,6 @@ const Login = () => {
     }
   }, []);
 
-  // Redirect to home page if user is already logged in
   useEffect(() => {
     if (user) {
       console.log("User detected, redirecting to home", user);
@@ -44,7 +41,6 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  // Check for error parameters in URL (common with OAuth redirects)
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     const error = queryParams.get('error');
@@ -107,8 +103,6 @@ const Login = () => {
   };
 
   const handleResendConfirmation = async () => {
-    // This functionality would require backend support to resend confirmation emails
-    // For now, we'll just show an alert to check email
     alert("Por favor verifique seu email para o link de confirmação. Se não recebeu, entre em contato com suporte.");
   };
 
@@ -116,10 +110,8 @@ const Login = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-[900px] shadow-lg border-0 p-0 overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          {/* Left side with logo and description */}
           <InfoPanel isRecovery={isRecovery} />
           
-          {/* Right side with login form */}
           <div className="bg-white md:w-1/2 p-8">
             <div className="max-w-md mx-auto">
               <CardHeader className="px-0 pt-2">
@@ -175,7 +167,6 @@ const Login = () => {
         </div>
       </Card>
 
-      {/* Recovery email confirmation dialog */}
       <RecoveryDialog 
         open={recoveryComplete}
         onOpenChange={setRecoveryComplete}
