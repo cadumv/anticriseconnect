@@ -87,10 +87,10 @@ export const useProfilePostInteractions = (user: User | null) => {
       if (error) throw error;
       
       toast({
-        title: saved[postId] ? "Artigo removido" : "Artigo salvo",
+        title: saved[postId] ? "Publicação removida dos salvos" : "Publicação salva",
         description: saved[postId] 
-          ? "O artigo foi removido dos seus salvos" 
-          : "O artigo foi salvo e você pode acessá-lo depois",
+          ? "A publicação foi removida dos seus salvos" 
+          : "A publicação foi salva para visualização posterior",
         variant: "default",
       });
     } catch (error) {
@@ -106,6 +106,10 @@ export const useProfilePostInteractions = (user: User | null) => {
   const handleSharePost = async (postId: string) => {
     try {
       // Just return the postId for the ShareDialog component to handle
+      toast({
+        title: "Função de compartilhamento",
+        description: "Esta funcionalidade será implementada em breve.",
+      });
       return postId;
     } catch (error) {
       console.error("Error sharing post:", error);

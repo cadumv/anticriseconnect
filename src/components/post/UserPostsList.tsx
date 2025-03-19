@@ -13,6 +13,7 @@ interface UserPostsListProps {
   onSave: (postId: string) => void;
   onShare: (postId: string) => void;
   onDelete?: (postId: string) => void;
+  onEdit?: (postId: string) => void;
   compact?: boolean;
 }
 
@@ -25,6 +26,7 @@ export function UserPostsList({
   onSave, 
   onShare,
   onDelete,
+  onEdit,
   compact = false
 }: UserPostsListProps) {
   if (!posts || posts.length === 0) {
@@ -54,6 +56,7 @@ export function UserPostsList({
                 onSave={onSave} 
                 onShare={onShare}
                 onDelete={onDelete ? () => onDelete(post.id) : undefined}
+                onEdit={onEdit ? () => onEdit(post.id) : undefined}
                 compact={compact}
               />
             </div>

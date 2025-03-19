@@ -12,15 +12,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
 
 interface PostCardHeaderProps {
   post: Post;
   compact?: boolean;
   onDelete?: () => void;
+  onEdit?: () => void;
+  onSave?: () => void;
   onUserClick?: () => void;
 }
 
-export function PostCardHeader({ post, compact = false, onDelete, onUserClick }: PostCardHeaderProps) {
+export function PostCardHeader({ 
+  post, 
+  compact = false, 
+  onDelete, 
+  onEdit,
+  onSave,
+  onUserClick 
+}: PostCardHeaderProps) {
   const navigate = useNavigate();
   const [profileData, setProfileData] = useState<{ name: string; avatar_url: string | null } | null>(null);
   
@@ -68,6 +78,40 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
       onUserClick();
     } else if (post.user_id) {
       navigate(`/profile/${post.user_id}`);
+    }
+  };
+  
+  const handleEditPost = () => {
+    if (onEdit) {
+      onEdit();
+    } else {
+      toast({
+        title: "Editar publicação",
+        description: "Funcionalidade de edição será implementada em breve.",
+      });
+    }
+  };
+  
+  const handleSavePost = () => {
+    if (onSave) {
+      onSave();
+    } else {
+      toast({
+        title: "Salvar publicação",
+        description: "Funcionalidade de salvamento será implementada em breve.",
+      });
+    }
+  };
+  
+  const handleDeletePost = () => {
+    if (onDelete) {
+      onDelete();
+    } else {
+      toast({
+        title: "Funcionalidade não disponível",
+        description: "A exclusão de publicações não está disponível neste contexto.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -147,30 +191,36 @@ export function PostCardHeader({ post, compact = false, onDelete, onUserClick }:
         </div>
       </div>
       
-      {onDelete && (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="outline-none">
-            <div className="p-1 hover:bg-gray-100 rounded-full">
-              <MoreHorizontal className="h-5 w-5 text-gray-500" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="outline-none">
+          <div className="p-1 hover:bg-gray-100 rounded-full">
+            <MoreHorizontal className="h-5 w-5 text-gray-500" />
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {onDelete && (
             <DropdownMenuItem 
               className="text-red-600 focus:text-red-600 cursor-pointer"
-              onClick={onDelete}
+              onClick={handleDeletePost}
             >
               Apagar publicação
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Editar publicação
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Salvar publicação
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+          )}
+          <DropdownMenuItem 
+            className="cursor-pointer"
+            onClick={handleEditPost}
+          >
+            Editar publicação
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem 
+            className="cursor-pointer"
+            onClick={handleSavePost}
+          >
+            Salvar publicação
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

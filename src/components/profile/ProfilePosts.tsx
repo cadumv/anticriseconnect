@@ -7,6 +7,9 @@ import { UserPostsList } from "@/components/post/UserPostsList";
 import { Post } from "@/types/post";
 import { supabase } from "@/lib/supabase";
 import { useProfilePostInteractions } from "@/hooks/useProfilePostInteractions";
+import { toast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProfilePostsProps {
   user: User;
@@ -15,6 +18,10 @@ interface ProfilePostsProps {
 export const ProfilePosts = ({ user }: ProfilePostsProps) => {
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+  const [editPostContent, setEditPostContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Post interactions using our custom hook
   const { 
@@ -81,9 +88,70 @@ export const ProfilePosts = ({ user }: ProfilePostsProps) => {
         
         // Update the local state immediately
         setUserPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+        
+        toast({
+          title: "Publicação excluída",
+          description: "Sua publicação foi excluída com sucesso.",
+        });
       } catch (error) {
         console.error("Error deleting post:", error);
+        toast({
+          title: "Erro ao excluir publicação",
+          description: "Não foi possível excluir sua publicação. Tente novamente.",
+          variant: "destructive",
+        });
       }
+    }
+  };
+  
+  // Edit post handler
+  const onEditPost = (postId: string) => {
+    const post = userPosts.find(p => p.id === postId);
+    if (post) {
+      setCurrentPostId(postId);
+      setEditPostContent(post.content || "");
+      setIsEditingPost(true);
+    }
+  };
+  
+  // Save edited post
+  const saveEditedPost = async () => {
+    if (!currentPostId || !editPostContent.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ content: editPostContent })
+        .eq('id', currentPostId)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setUserPosts(prev => prev.map(post => 
+        post.id === currentPostId 
+          ? { ...post, content: editPostContent }
+          : post
+      ));
+      
+      toast({
+        title: "Publicação atualizada",
+        description: "Sua publicação foi atualizada com sucesso.",
+      });
+      
+      setIsEditingPost(false);
+      setCurrentPostId(null);
+      setEditPostContent("");
+    } catch (error) {
+      console.error("Error updating post:", error);
+      toast({
+        title: "Erro ao atualizar publicação",
+        description: "Não foi possível atualizar sua publicação. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,6 +182,7 @@ export const ProfilePosts = ({ user }: ProfilePostsProps) => {
             onSave={handleSavePost}
             onShare={handleSharePost}
             onDelete={onDeletePost}
+            onEdit={onEditPost}
           />
         ) : (
           <div className="text-center py-10 border rounded-lg border-dashed">
@@ -124,6 +193,42 @@ export const ProfilePosts = ({ user }: ProfilePostsProps) => {
             </Button>
           </div>
         )}
+        
+        {/* Edit Post Dialog */}
+        <Dialog open={isEditingPost} onOpenChange={setIsEditingPost}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar publicação</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Textarea
+                placeholder="O que você gostaria de compartilhar?"
+                value={editPostContent}
+                onChange={(e) => setEditPostContent(e.target.value)}
+                className="min-h-[120px]"
+              />
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsEditingPost(false);
+                  setCurrentPostId(null);
+                  setEditPostContent("");
+                }}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={saveEditedPost}
+                disabled={isSubmitting || !editPostContent.trim()}
+              >
+                {isSubmitting ? "Salvando..." : "Salvar alterações"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

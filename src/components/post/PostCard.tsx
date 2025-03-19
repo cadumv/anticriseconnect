@@ -9,6 +9,7 @@ import { Post } from "@/types/post";
 import { useNavigate } from "react-router-dom";
 import { usePostData } from "@/hooks/usePostData";
 import { PostInteractions } from "./card/PostInteractions";
+import { toast } from "@/hooks/use-toast";
 
 interface PostCardProps {
   post: Post;
@@ -18,6 +19,7 @@ interface PostCardProps {
   onSave?: (postId: string) => void;
   onShare: (postId: string) => void;
   onDelete?: () => void;
+  onEdit?: () => void;
   compact?: boolean;
 }
 
@@ -29,6 +31,7 @@ export function PostCard({
   onSave,
   onShare, 
   onDelete,
+  onEdit,
   compact = false 
 }: PostCardProps) {
   const navigate = useNavigate();
@@ -71,6 +74,17 @@ export function PostCard({
     setLocalLikes(newLikesCount);
   };
 
+  const handleSavePost = () => {
+    if (onSave && post.id) {
+      onSave(post.id);
+    } else {
+      toast({
+        title: "Salvar publicação",
+        description: "Funcionalidade de salvamento será implementada em breve.",
+      });
+    }
+  };
+
   const toggleComments = () => {
     setShowComments(prev => !prev);
   };
@@ -81,6 +95,8 @@ export function PostCard({
         post={post} 
         compact={compact}
         onDelete={onDelete}
+        onEdit={onEdit}
+        onSave={handleSavePost}
         onUserClick={() => handleUserClick(post.user_id || '')}
       />
       

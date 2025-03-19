@@ -17,7 +17,10 @@ interface ProfileActivitiesProps {
 
 export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
   const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState<string | null>(null);
   const [postContent, setPostContent] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -143,6 +146,13 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
       ...prev,
       [postId]: !prev[postId]
     }));
+    
+    toast({
+      title: saved[postId] ? "Publicação removida dos salvos" : "Publicação salva",
+      description: saved[postId] 
+        ? "A publicação foi removida dos seus salvos"
+        : "A publicação foi salva para visualização posterior",
+    });
   };
   
   const handleShare = (postId: string) => {
@@ -174,6 +184,53 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+  
+  const handleEditPost = (postId: string) => {
+    const post = userPosts.find(p => p.id === postId);
+    if (post) {
+      setCurrentPostId(postId);
+      setEditPostContent(post.content || "");
+      setIsEditingPost(true);
+    }
+  };
+  
+  const saveEditedPost = async () => {
+    if (!currentPostId || !editPostContent.trim()) return;
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({ content: editPostContent })
+        .eq('id', currentPostId);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setUserPosts(prev => prev.map(post => 
+        post.id === currentPostId 
+          ? { ...post, content: editPostContent }
+          : post
+      ));
+      
+      toast({
+        title: "Publicação atualizada com sucesso",
+      });
+      
+      setIsEditingPost(false);
+      setCurrentPostId(null);
+      setEditPostContent("");
+    } catch (error: any) {
+      console.error("Error updating post:", error);
+      toast({
+        title: "Erro ao atualizar publicação",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -249,6 +306,7 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
             onSave={handleSave}
             onShare={handleShare}
             onDelete={handleDeletePost}
+            onEdit={handleEditPost}
             compact={true}
           />
         ) : (
@@ -265,6 +323,42 @@ export const ProfileActivities = ({ user }: ProfileActivitiesProps) => {
             </Button>
           </div>
         )}
+        
+        {/* Edit Post Dialog */}
+        <Dialog open={isEditingPost} onOpenChange={setIsEditingPost}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar publicação</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <Textarea
+                placeholder="O que você gostaria de compartilhar?"
+                value={editPostContent}
+                onChange={(e) => setEditPostContent(e.target.value)}
+                className="min-h-[120px]"
+              />
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsEditingPost(false);
+                  setCurrentPostId(null);
+                  setEditPostContent("");
+                }}
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                onClick={saveEditedPost}
+                disabled={isSubmitting || !editPostContent.trim()}
+              >
+                {isSubmitting ? "Salvando..." : "Salvar alterações"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
