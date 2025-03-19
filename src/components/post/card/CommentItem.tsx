@@ -86,12 +86,12 @@ export function CommentItem({
         
         <div className="flex gap-3 mt-1 text-xs px-2">
           <button 
-            className={`font-medium flex items-center gap-1 ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}
+            className={`font-medium flex items-center gap-1 ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'} cursor-pointer`}
             onClick={onLike}
             aria-label={liked ? "Remover curtida" : "Curtir comentário"}
           >
             <Heart size={12} className={liked ? "fill-red-500" : ""} />
-            Gostei
+            <span>Gostei</span>
             {comment.likes && comment.likes > 0 && (
               <span className="ml-1">({comment.likes})</span>
             )}
