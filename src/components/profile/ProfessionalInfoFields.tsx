@@ -1,8 +1,7 @@
 
-import { Label } from "@/components/ui/label";
-import { AreasOfExpertise } from "./AreasOfExpertise";
-import { EngineeringTypeSelect } from "./EngineeringTypeSelect";
-import { ProfileDescriptionGenerator } from "./ProfileDescriptionGenerator";
+import { AreasOfExpertiseField } from "./form/AreasOfExpertiseField";
+import { EngineeringTypeField } from "./form/EngineeringTypeField";
+import { ProfessionalDescriptionField } from "./form/ProfessionalDescriptionField";
 
 interface ProfessionalInfoFieldsProps {
   engineeringType: string;
@@ -23,20 +22,17 @@ export const ProfessionalInfoFields = ({
 }: ProfessionalInfoFieldsProps) => {
   return (
     <>
-      <EngineeringTypeSelect 
+      <EngineeringTypeField 
         engineeringType={engineeringType}
         setEngineeringType={setEngineeringType}
       />
       
-      <div className="grid gap-2">
-        <Label>Áreas de atuação em que atua ou gostaria de atuar</Label>
-        <AreasOfExpertise 
-          areasOfExpertise={areasOfExpertise} 
-          updateAreasOfExpertise={updateAreasOfExpertise}
-        />
-      </div>
+      <AreasOfExpertiseField 
+        areasOfExpertise={areasOfExpertise} 
+        updateAreasOfExpertise={updateAreasOfExpertise}
+      />
 
-      <ProfileDescriptionGenerator
+      <ProfessionalDescriptionField
         engineeringType={engineeringType}
         areasOfExpertise={areasOfExpertise}
         professionalDescription={professionalDescription}
