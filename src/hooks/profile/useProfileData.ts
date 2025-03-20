@@ -36,10 +36,10 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
         
         console.log("Fetching profile with ID:", id);
         
-        // Primeiro tenta buscar o perfil existente
+        // First try to fetch the existing profile
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
           .eq('id', id)
           .maybeSingle();
         
@@ -48,11 +48,11 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
           throw error;
         }
         
-        // Se o perfil não existe, tenta criar um básico
+        // If profile doesn't exist, try to create a basic one
         if (!data) {
           console.log("Profile not found, creating a basic one");
           
-          // Obtém informações do usuário da autenticação se possível
+          // Get user info from authentication if possible
           let name = "Usuário";
           let email = "";
           let username = null;
@@ -66,7 +66,7 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
               username = email ? email.split('@')[0] : null;
             }
             
-            // Cria o perfil básico
+            // Create the basic profile
             const { data: newProfile, error: insertError } = await supabase
               .from('profiles')
               .insert({
@@ -76,7 +76,7 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
                 professional_description: "",
                 areas_of_expertise: []
               })
-              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
+              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
               .single();
             
             if (insertError) {
@@ -99,13 +99,14 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
             throw new Error("Falha ao criar perfil básico");
           }
         } else {
-          // For existing profile, check if we can get education and experience from metadata
+          // For existing profile, check if we can get education and experience from metadata or database
           const userData = user && user.id === id ? user.user_metadata : null;
           
+          // Use the education and experiences from the database if available, otherwise from metadata
           const profileData: ProfileData = {
             ...data,
-            education: userData?.education || [],
-            experiences: userData?.experiences || []
+            education: data.education || userData?.education || [],
+            experiences: data.experiences || userData?.experiences || []
           };
           
           setProfile(profileData);
