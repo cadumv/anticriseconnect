@@ -77,6 +77,13 @@ export function ImageUploader({
         )}
       </div>
       
+      {isProcessing && (
+        <div className="py-2 flex justify-center">
+          <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+          <span className="ml-2 text-sm text-gray-500">Processando imagens...</span>
+        </div>
+      )}
+      
       <ImagePreview 
         previews={imagePreviews} 
         onRemove={removeImage} 
