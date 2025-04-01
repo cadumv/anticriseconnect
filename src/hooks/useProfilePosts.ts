@@ -137,6 +137,7 @@ export const useProfilePosts = (user: User) => {
     onEditPost,
     saveEditedPost,
     updatePostsAfterDelete,
-    resetEditState
+    resetEditState,
+    fetchUserPosts
   };
 };
