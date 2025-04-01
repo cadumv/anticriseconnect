@@ -27,7 +27,7 @@ export const EngineerList = ({ engineers }: EngineerListProps) => {
         <Link key={engineer.id} to={`/profile/${engineer.id}`} className="block">
           <div className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-md transition-colors">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={engineer.avatar_url || ""} alt={engineer.name || "Usuário"} />
+              <AvatarImage src={engineer.avatar_url || ""} alt={engineer.name || "Usuário"} style={{ objectFit: "contain" }} />
               <AvatarFallback>{engineer.name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
             </Avatar>
             <div>

@@ -29,7 +29,7 @@ export const SuggestedUser = ({
   return (
     <div className="flex items-start gap-3 py-3">
       <Avatar className="h-10 w-10">
-        <AvatarImage src={avatarUrl} />
+        <AvatarImage src={avatarUrl} style={{ objectFit: "contain" }} />
         <AvatarFallback>{name.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">

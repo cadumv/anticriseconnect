@@ -22,7 +22,7 @@ export const ProfileHeaderAvatar = ({ user }: ProfileHeaderAvatarProps) => {
         <img 
           src={`${user.user_metadata.avatar_url}?v=${avatarKey}`} 
           alt="Foto de perfil" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain" // Changed from object-cover to object-contain
         />
       ) : (
         <span className="text-3xl font-bold text-blue-500">

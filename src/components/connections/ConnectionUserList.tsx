@@ -39,7 +39,7 @@ export const ConnectionUserList = ({ users, loading, type }: ConnectionUserListP
         >
           <Avatar className="w-10 h-10">
             {user.avatar_url ? (
-              <AvatarImage src={user.avatar_url} alt={user.name} />
+              <AvatarImage src={user.avatar_url} alt={user.name} style={{ objectFit: "contain" }} />
             ) : (
               <AvatarFallback className="bg-blue-100 text-blue-500">
                 {user.name[0].toUpperCase()}

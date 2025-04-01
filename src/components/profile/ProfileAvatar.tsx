@@ -111,7 +111,7 @@ export const ProfileAvatar = ({ userId, avatarUrl, setAvatarUrl }: ProfileAvatar
           <img 
             src={avatarUrl} 
             alt="Avatar" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain" // Changed from object-cover to object-contain
           />
         ) : (
           <span className="text-3xl font-bold text-blue-500">

@@ -19,7 +19,7 @@ export function PostAvatar({
     <div onClick={onClick} className="cursor-pointer">
       <Avatar className={compact ? "h-8 w-8" : "h-10 w-10"}>
         {avatarUrl ? (
-          <AvatarImage src={avatarUrl} alt={displayName} />
+          <AvatarImage src={avatarUrl} alt={displayName} style={{ objectFit: "contain" }} />
         ) : (
           <AvatarFallback>{displayName[0].toUpperCase()}</AvatarFallback>
         )}

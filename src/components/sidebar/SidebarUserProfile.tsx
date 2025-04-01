@@ -29,7 +29,7 @@ export function SidebarUserProfile({ user, collapsed, signOut }: SidebarUserProf
           collapsed ? "hidden" : "flex"
         )}>
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
+            <AvatarImage src={user?.user_metadata?.avatar_url} style={{ objectFit: "contain" }} />
             <AvatarFallback>{getInitials(user?.user_metadata?.name || "")}</AvatarFallback>
           </Avatar>
           <span className="text-sm font-medium truncate max-w-[120px]">

@@ -13,7 +13,7 @@ export const ProfileAvatar = ({ avatarUrl, name }: ProfileAvatarProps) => {
         <img 
           src={avatarUrl} 
           alt={`Foto de ${name}`} 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain" // Changed from object-cover to object-contain
         />
       ) : (
         <User className="h-12 w-12 text-blue-500" />

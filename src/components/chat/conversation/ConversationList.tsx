@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -80,7 +81,8 @@ export function ConversationList({
                   <img 
                     src={conversation.recipientAvatar}
                     alt={conversation.recipientName}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain" // Changed from object-cover to object-contain
+                    style={{ objectFit: "contain" }}
                   />
                 ) : (
                   <div className="h-full w-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-lg font-medium">

@@ -47,7 +47,8 @@ export function MessageList({ messages, activeConversation }: MessageListProps) 
                     <img 
                       src={activeConversation.recipientAvatar}
                       alt={activeConversation.recipientName}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain" // Changed from object-cover to object-contain
+                      style={{ objectFit: "contain" }}
                     />
                   ) : (
                     <div className="h-full w-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-xs font-medium">

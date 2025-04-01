@@ -86,6 +86,13 @@ html, body, #root {
   padding: 0;
 }
 
+/* Profile image styles */
+img.avatar-image, 
+.avatar img, 
+[class*="Avatar"] img {
+  object-fit: contain !important;
+}
+
 /* Achievement animations */
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }

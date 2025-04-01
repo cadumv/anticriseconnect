@@ -68,7 +68,7 @@ export function CommentItem({
     <div className="flex gap-2 mb-3">
       <Avatar className="h-8 w-8 flex-shrink-0 cursor-pointer" onClick={handleUserClick}>
         {avatarUrl ? (
-          <AvatarImage src={avatarUrl} alt={authorName} />
+          <AvatarImage src={avatarUrl} alt={authorName} style={{ objectFit: "contain" }} />
         ) : (
           <AvatarFallback>{authorName[0].toUpperCase()}</AvatarFallback>
         )}
