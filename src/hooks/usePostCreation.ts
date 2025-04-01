@@ -1,152 +1,15 @@
 
 import { useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
-import { AchievementsManager } from "@/services/AchievementsManager";
-
-type PostType = 'post' | 'technical_article' | 'service' | 'opportunity';
-
-interface PostMetadata {
-  type: PostType;
-  title?: string;
-  author?: string;
-  company?: string;
-  summary?: string;
-  mainContent?: string;
-  conclusions?: string;
-  tags?: string[];
-  image_urls?: string[];
-  // Service-specific fields
-  content?: string;
-  // Opportunity-specific fields
-  location?: string;
-  partnerCount?: string;
-  deadline?: string;
-  skills?: string[];
-  engineeringType?: string;
-}
-
-interface PostData {
-  content: string;
-  image_url?: string | null;
-  user_id: string;
-  metadata: PostMetadata;
-}
+import { uploadImages } from "@/services/posts/imageUploadService";
+import { checkPostAchievements } from "@/services/posts/achievementService";
+import { preparePostMetadata } from "@/services/posts/metadataService";
+import { createPostInDb, cachePostInLocalStorage } from "@/services/posts/postDbService";
+import { PostType } from "@/types/postCreation";
 
 export function usePostCreation(user: User | null, onPostCreated: () => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  /**
-   * Uploads multiple images to Supabase storage
-   */
-  const uploadImages = async (files: File[]): Promise<string[]> => {
-    try {
-      const imageUrls: string[] = [];
-      
-      for (const file of files) {
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('post_images')
-          .upload(filePath, file);
-        
-        if (uploadError) throw uploadError;
-        
-        const { data } = supabase.storage
-          .from('post_images')
-          .getPublicUrl(filePath);
-        
-        imageUrls.push(data.publicUrl);
-      }
-      
-      return imageUrls;
-    } catch (error) {
-      console.error('Error uploading images:', error);
-      throw error;
-    }
-  };
-
-  /**
-   * Prepares post metadata based on post type
-   */
-  const preparePostMetadata = (
-    postType: PostType, 
-    data: Record<string, any>, 
-    imageUrls: string[]
-  ): PostMetadata => {
-    // Common metadata for all post types
-    const metadata: PostMetadata = {
-      type: postType,
-      image_urls: imageUrls
-    };
-
-    // Add metadata specific to post type
-    switch (postType) {
-      case 'technical_article':
-        return {
-          ...metadata,
-          title: data.title,
-          summary: data.summary,
-          mainContent: data.mainContent,
-          conclusions: data.conclusions,
-          tags: data.tags?.split(',').map((tag: string) => tag.trim()).filter(Boolean) || [],
-          author: data.author?.trim() || user?.user_metadata?.name || "Anônimo",
-          company: data.company || user?.user_metadata?.engineering_type || "Engenheiro"
-        };
-      
-      case 'service':
-        return {
-          ...metadata,
-          title: data.serviceArea,
-          content: data.serviceDescription,
-          author: user?.user_metadata?.name || "Anônimo",
-          company: user?.user_metadata?.engineering_type || "Engenheiro"
-        };
-      
-      case 'opportunity':
-        return {
-          ...metadata,
-          title: data.title,
-          location: data.location,
-          partnerCount: data.partnerCount,
-          deadline: data.deadline,
-          skills: data.skills?.split(',').map((skill: string) => skill.trim()).filter(Boolean) || [],
-          engineeringType: data.engineeringType
-        };
-      
-      default:
-        return metadata;
-    }
-  };
-
-  /**
-   * Checks for achievements based on post type
-   */
-  const checkPostAchievements = (userId: string, postType: PostType) => {
-    // Check for first publication achievement
-    const firstPublicationAchievement = AchievementsManager.checkFirstPublicationAchievement(userId);
-    if (firstPublicationAchievement) {
-      const shownAchievements = AchievementsManager.getUnlockedAchievements(userId);
-      if (!shownAchievements.includes(firstPublicationAchievement.id)) {
-        shownAchievements.push(firstPublicationAchievement.id);
-        AchievementsManager.saveUnlockedAchievements(userId, shownAchievements);
-      }
-    }
-    
-    // Check for post-type specific achievements
-    if (postType === 'technical_article') {
-      const technicalArticleAchievement = AchievementsManager.checkTechnicalArticleAchievement(userId);
-      if (technicalArticleAchievement) {
-        const shownAchievements = AchievementsManager.getUnlockedAchievements(userId);
-        if (!shownAchievements.includes(technicalArticleAchievement.id)) {
-          shownAchievements.push(technicalArticleAchievement.id);
-          AchievementsManager.saveUnlockedAchievements(userId, shownAchievements);
-        }
-      }
-    }
-  };
 
   /**
    * Creates a post in Supabase
@@ -167,10 +30,16 @@ export function usePostCreation(user: User | null, onPostCreated: () => void) {
       }
       
       // Prepare metadata based on post type
-      const metadata = preparePostMetadata(postType, postData, imageUrls);
+      const metadata = preparePostMetadata(
+        postType as PostType, 
+        postData, 
+        imageUrls,
+        user?.user_metadata?.name,
+        user?.user_metadata?.engineering_type
+      );
       
       // Create post data
-      const dbPostData: PostData = {
+      const dbPostData = {
         content: postData.content,
         image_url: imageUrls.length > 0 ? imageUrls[0] : null, // First image as main image for backward compatibility
         user_id: user.id,
@@ -180,23 +49,13 @@ export function usePostCreation(user: User | null, onPostCreated: () => void) {
       console.log("Saving post data:", dbPostData);
       
       // Save to Supabase
-      const { data, error } = await supabase
-        .from('posts')
-        .insert(dbPostData)
-        .select()
-        .single();
-      
-      if (error) throw error;
+      const data = await createPostInDb(dbPostData);
       
       // Check for achievements
       checkPostAchievements(user.id, postType as PostType);
       
       // Cache post in localStorage for quicker access
-      const postsKey = `user_posts_${user.id}`;
-      const savedPosts = localStorage.getItem(postsKey);
-      const posts = savedPosts ? JSON.parse(savedPosts) : [];
-      posts.unshift(data);
-      localStorage.setItem(postsKey, JSON.stringify(posts));
+      cachePostInLocalStorage(user.id, data);
       
       toast({
         title: "Publicação criada com sucesso",
@@ -220,7 +79,6 @@ export function usePostCreation(user: User | null, onPostCreated: () => void) {
 
   return {
     isSubmitting,
-    uploadImages,
     createPost
   };
 }
