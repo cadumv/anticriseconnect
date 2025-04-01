@@ -39,7 +39,7 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
         // First try to fetch the existing profile
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
+          .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
           .eq('id', id)
           .maybeSingle();
         
@@ -76,7 +76,7 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
                 professional_description: "",
                 areas_of_expertise: []
               })
-              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone, education, experiences')
+              .select('id, name, username, engineering_type, professional_description, areas_of_expertise, avatar_url, phone')
               .single();
             
             if (insertError) {
@@ -105,8 +105,8 @@ export const useProfileData = (id: string | undefined, user: User | null): UsePr
           // Use the education and experiences from the database if available, otherwise from metadata
           const profileData: ProfileData = {
             ...data,
-            education: data.education || userData?.education || [],
-            experiences: data.experiences || userData?.experiences || []
+            education: userData?.education || [],
+            experiences: userData?.experiences || []
           };
           
           setProfile(profileData);
