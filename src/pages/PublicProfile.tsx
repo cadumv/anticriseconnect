@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,7 +11,8 @@ import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { BackToSearchButton } from "@/components/public-profile/BackToSearchButton";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfileHeader } from "@/components/ProfileHeader";
+import { ProfileHeader } from "@/components/public-profile/ProfileHeader";
+import { ProfileAvatar } from "@/components/public-profile/ProfileAvatar";
 
 const PublicProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -63,19 +63,10 @@ const PublicProfile = () => {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                {profile.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt={`Foto de ${profile.name}`} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-3xl font-bold text-blue-500">
-                    {profile.name?.[0]?.toUpperCase() || "U"}
-                  </span>
-                )}
-              </div>
+              <ProfileAvatar 
+                avatarUrl={profile.avatar_url} 
+                name={profile.name}
+              />
               <div className="text-left">
                 <div>
                   {profile.engineering_type && (
