@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { v4 as uuidv4 } from "uuid";
 
 interface ConnectionRequestDialogProps {
   isOpen: boolean;
@@ -68,6 +69,9 @@ export const ConnectionRequestDialog = ({
       // Update localStorage
       localStorage.setItem(connectionKey, JSON.stringify(requests));
       
+      // Create a notification for the recipient
+      createNotificationForRecipient(targetProfileId, currentUserId, message);
+      
       // Auto-accept for demo purposes (normally would wait for other user to accept)
       if (targetProfileId === "demo") {
         const updatedRequests = requests.map((req: any) => {
@@ -90,6 +94,42 @@ export const ConnectionRequestDialog = ({
     } finally {
       setIsSubmitting(false);
       onClose();
+    }
+  };
+  
+  // Function to create a notification for the recipient
+  const createNotificationForRecipient = (recipientId: string, senderId: string, requestMessage: string) => {
+    try {
+      // Get the sender's name from localStorage or fetch it from the database
+      // For demo purposes, we'll use a placeholder
+      let senderName = "Usuário";
+      
+      // Try to get sender profile from localStorage
+      const senderProfileData = localStorage.getItem(`profile_${senderId}`);
+      if (senderProfileData) {
+        const senderProfile = JSON.parse(senderProfileData);
+        senderName = senderProfile.name || senderName;
+      }
+      
+      // Create a notification
+      const notificationKey = `notifications_${recipientId}`;
+      const existingNotifications = localStorage.getItem(notificationKey);
+      const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
+      
+      const newNotification = {
+        id: uuidv4(),
+        type: "partnership",
+        message: `${senderName} enviou uma solicitação de conexão para você: "${requestMessage.substring(0, 50)}${requestMessage.length > 50 ? '...' : ''}"`,
+        read: false,
+        date: new Date().toISOString(),
+        link: `/profile/${senderId}`,
+        senderId: senderId
+      };
+      
+      notifications.push(newNotification);
+      localStorage.setItem(notificationKey, JSON.stringify(notifications));
+    } catch (error) {
+      console.error('Error creating notification:', error);
     }
   };
   
