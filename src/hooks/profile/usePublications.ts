@@ -39,7 +39,7 @@ export const usePublications = (profileId: string | undefined): UsePublicationsR
         }
         
         // Transform posts to publication format
-        const transformedPublications: Publication[] = data.map((post: Post) => {
+        const transformedPublications: Publication[] = data.map((post) => {
           const metadata = post.metadata || {};
           const content = post.content || "";
           
@@ -52,7 +52,7 @@ export const usePublications = (profileId: string | undefined): UsePublicationsR
             id: post.id,
             title: metadata.title || "Publicação",
             snippet: snippet,
-            date: new Date(post.timestamp).toLocaleDateString('pt-BR'), // Fixed: use timestamp instead of created_at
+            date: new Date(post.created_at).toLocaleDateString('pt-BR'),
             url: `/post/${post.id}`
           };
         });

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Clock, Calendar, Eye } from "lucide-react";
+import { useState } from "react";
 
 interface PublicationsListProps {
   publications: Publication[];
@@ -11,6 +12,12 @@ interface PublicationsListProps {
 }
 
 export const PublicationsList = ({ publications, loading = false }: PublicationsListProps) => {
+  const [expandedPublication, setExpandedPublication] = useState<string | null>(null);
+  
+  const toggleExpand = (id: string) => {
+    setExpandedPublication(expandedPublication === id ? null : id);
+  };
+  
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -38,7 +45,13 @@ export const PublicationsList = ({ publications, loading = false }: Publications
                 className="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
               >
                 <h3 className="font-medium text-lg text-blue-700 text-left">{publication.title}</h3>
-                <p className="mt-2 text-gray-600 text-left">{publication.snippet}</p>
+                <p className="mt-2 text-gray-600 text-left">
+                  {expandedPublication === publication.id 
+                    ? publication.snippet 
+                    : publication.snippet && publication.snippet.length > 100 
+                      ? `${publication.snippet.substring(0, 100)}...` 
+                      : publication.snippet}
+                </p>
                 <div className="mt-3 flex items-center justify-between">
                   <div className="flex items-center gap-4 text-sm text-gray-500 text-left">
                     <span className="flex items-center gap-1">
@@ -54,8 +67,13 @@ export const PublicationsList = ({ publications, loading = false }: Publications
                       127 visualizações
                     </span>
                   </div>
-                  <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-800">
-                    Ler mais
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => toggleExpand(publication.id)}
+                  >
+                    {expandedPublication === publication.id ? 'Mostrar menos' : 'Ler mais'}
                   </Button>
                 </div>
               </div>
