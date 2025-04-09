@@ -5,6 +5,7 @@ import { ProfileActionButtons } from "./ProfileActionButtons";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileData } from "@/types/profile";
 import { User } from "@supabase/supabase-js";
+import { ProfileAvatar } from "./ProfileAvatar";
 
 interface ProfileCoverSectionProps {
   profile: ProfileData;
@@ -47,19 +48,10 @@ export const ProfileCoverSection = ({
           <div className="flex flex-col sm:flex-row">
             <div className="relative -top-16 mb-2 sm:-top-16 sm:mb-0 sm:mr-4">
               <div className="w-32 h-32 rounded-full bg-white p-1 shadow-lg">
-                <div className="w-full h-full rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                  {profile.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt="Foto de perfil" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-4xl font-bold text-blue-500">
-                      {profile.name[0]?.toUpperCase() || "U"}
-                    </span>
-                  )}
-                </div>
+                <ProfileAvatar 
+                  avatarUrl={profile.avatar_url} 
+                  name={profile.name} 
+                />
               </div>
             </div>
             

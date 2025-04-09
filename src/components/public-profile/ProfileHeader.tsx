@@ -1,6 +1,5 @@
 
 import { User as AuthUser } from "@supabase/supabase-js";
-import { ProfileAvatar } from "./ProfileAvatar";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileStats } from "./ProfileStats";
 import { ProfileActions } from "./ProfileActions";
@@ -43,11 +42,7 @@ export const ProfileHeader = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <ProfileAvatar 
-            avatarUrl={profile.avatar_url} 
-            name={profile.name} 
-          />
+        <div>
           <ProfileInfo 
             name={profile.name}
             username={profile.username}
