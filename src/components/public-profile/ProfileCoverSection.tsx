@@ -10,6 +10,7 @@ interface ProfileCoverSectionProps {
   user: User | null;
   isFollowing: boolean;
   followLoading: boolean;
+  isConnectionPending: boolean;
   postCount: number;
   onFollowToggle: () => Promise<void>;
   onConnectionRequest: () => void;
@@ -20,6 +21,7 @@ export const ProfileCoverSection = ({
   user,
   isFollowing,
   followLoading,
+  isConnectionPending,
   postCount,
   onFollowToggle,
   onConnectionRequest
@@ -79,6 +81,7 @@ export const ProfileCoverSection = ({
                     <ProfileActionButtons
                       isFollowing={isFollowing}
                       followLoading={followLoading}
+                      isConnectionPending={isConnectionPending}
                       onFollowToggle={onFollowToggle}
                       onConnectionRequest={onConnectionRequest}
                     />

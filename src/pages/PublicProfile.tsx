@@ -58,6 +58,11 @@ const PublicProfile = () => {
     }
   }, [handleFollowToggle, isFollowing, profile]);
 
+  // Force re-render when connection dialog closes to update UI states
+  const handleCloseConnectionDialog = useCallback(() => {
+    setIsConnectionDialogOpen(false);
+  }, []);
+
   if (loading) {
     return <ProfileLoadingState />;
   }
@@ -84,6 +89,7 @@ const PublicProfile = () => {
           user={user}
           isFollowing={isFollowing}
           followLoading={followLoading}
+          isConnectionPending={isConnectionPending}
           postCount={profile.postCount || 0}
           onFollowToggle={handleSuccessfulFollowToggle}
           onConnectionRequest={handleConnectionRequest}
@@ -100,7 +106,7 @@ const PublicProfile = () => {
               postsLoading={postsLoading}
               isConnectionAccepted={isConnectionAccepted}
               isConnectionPending={isConnectionPending}
-              onOpenConnectionDialog={() => setIsConnectionDialogOpen(true)}
+              onOpenConnectionDialog={handleConnectionRequest}
               liked={liked}
               saved={saved}
               onLikePost={handleLikePost}
@@ -120,7 +126,7 @@ const PublicProfile = () => {
       {user && profile && (
         <ConnectionRequestDialog
           isOpen={isConnectionDialogOpen}
-          onClose={() => setIsConnectionDialogOpen(false)}
+          onClose={handleCloseConnectionDialog}
           targetProfileName={profile.name}
           targetProfileId={profile.id}
           currentUserId={user.id}

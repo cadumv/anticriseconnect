@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -27,8 +27,15 @@ export const ConnectionRequestDialog = ({
   targetProfileId,
   currentUserId
 }: ConnectionRequestDialogProps) => {
-  const [message, setMessage] = useState(`Olá ${targetProfileName}, gostaria de conectar para uma parceria profissional.`);
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Set initial message when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setMessage(`Olá ${targetProfileName}, gostaria de conectar para uma parceria profissional.`);
+    }
+  }, [isOpen, targetProfileName]);
   
   const handleSubmit = () => {
     setIsSubmitting(true);
@@ -74,6 +81,9 @@ export const ConnectionRequestDialog = ({
       }
       
       toast.success("Solicitação de conexão enviada!");
+      
+      // Force window to reload to update connection status throughout the UI
+      window.location.reload();
     } catch (error) {
       console.error('Error sending connection request:', error);
       toast.error("Erro ao enviar solicitação");
