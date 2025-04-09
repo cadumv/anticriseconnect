@@ -26,7 +26,12 @@ const AvatarImage = React.forwardRef<
   <AvatarPrimitive.Image
     ref={ref}
     className={cn("aspect-square h-full w-full", className)}
-    style={{ objectFit: "contain", ...style }}
+    style={{ 
+      objectFit: "contain", 
+      width: "100%", 
+      height: "100%", 
+      ...style 
+    }}
     {...props}
   />
 ))
