@@ -33,6 +33,58 @@ export const ProfileActionButtons = ({
       setRequestLoading(true);
       // Add a small delay to simulate network request
       await new Promise(resolve => setTimeout(resolve, 300));
+      
+      try {
+        // Get existing connection requests
+        const connectionKey = `connection_requests_${currentUserId}`;
+        const existingRequests = localStorage.getItem(connectionKey);
+        
+        if (existingRequests) {
+          const requests = JSON.parse(existingRequests);
+          // Filter out the request to this profile
+          const updatedRequests = requests.filter((req: any) => req.targetId !== profileId);
+          
+          // Update localStorage
+          localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
+          
+          // Remove notification from target user
+          try {
+            const targetNotificationsKey = `notifications_${profileId}`;
+            const targetNotifications = localStorage.getItem(targetNotificationsKey);
+            
+            if (targetNotifications) {
+              const parsedTargetNotifications = JSON.parse(targetNotifications);
+              // Filter out notifications about this connection request
+              const updatedTargetNotifications = parsedTargetNotifications.filter((notif: any) => 
+                !(notif.senderId === currentUserId && notif.type === "partnership")
+              );
+              
+              localStorage.setItem(targetNotificationsKey, JSON.stringify(updatedTargetNotifications));
+            }
+          } catch (notifError) {
+            console.error("Error removing notification from target:", notifError);
+          }
+          
+          // Remove sender's own notification tracking the request
+          const ownNotificationsKey = `notifications_${currentUserId}`;
+          const ownNotifications = localStorage.getItem(ownNotificationsKey);
+          
+          if (ownNotifications) {
+            const parsedOwnNotifications = JSON.parse(ownNotifications);
+            const updatedOwnNotifications = parsedOwnNotifications.filter((notif: any) => 
+              !(notif.link === `/profile/${profileId}` && notif.type === "partnership")
+            );
+            
+            localStorage.setItem(ownNotificationsKey, JSON.stringify(updatedOwnNotifications));
+          }
+          
+          toast.success("Solicitação de conexão cancelada");
+        }
+      } catch (error) {
+        console.error("Error cancelling connection request:", error);
+        toast.error("Erro ao cancelar solicitação");
+      }
+      
       onCancelConnection();
       setRequestLoading(false);
     } else {
