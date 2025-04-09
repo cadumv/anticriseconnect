@@ -19,12 +19,15 @@ export function useProfileStats(profileId: string, currentUser: User | null): Pr
   useEffect(() => {
     const fetchCounts = async () => {
       try {
+        // Only proceed if we have a valid profile ID
         if (!profileId) return;
         
         // Use our connection utilities to fetch all the relevant user IDs
         const connectionIds = await fetchConnectionUserIds(profileId, "connections");
         const followerIds = await fetchConnectionUserIds(profileId, "followers");
         const followingIds = await fetchConnectionUserIds(profileId, "following");
+        
+        console.log(`Profile ${profileId} stats - Connections: ${connectionIds.length}, Followers: ${followerIds.length}, Following: ${followingIds.length}`);
         
         setStats({
           connections: connectionIds.length,

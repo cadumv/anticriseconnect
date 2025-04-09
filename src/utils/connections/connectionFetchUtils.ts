@@ -11,6 +11,8 @@ export async function fetchConnectionUserIds(
   type: ConnectionType
 ): Promise<string[]> {
   try {
+    console.log(`Fetching ${type} for user ${userId}`);
+    
     switch (type) {
       case "following":
         return getFollowing(userId);

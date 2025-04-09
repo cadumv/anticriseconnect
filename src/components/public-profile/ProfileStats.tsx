@@ -1,5 +1,4 @@
 
-import { Handshake, Users, UserPlus } from "lucide-react";
 import { ConnectionTypeIcon, ConnectionType } from "@/components/connections/ConnectionTypeIcon";
 
 interface ProfileStatsProps {
