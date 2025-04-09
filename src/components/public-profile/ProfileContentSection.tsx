@@ -9,6 +9,7 @@ import { PublicationsList } from "./PublicationsList";
 import { UserPostsList } from "@/components/post/UserPostsList";
 import { Publication, ProfileData } from "@/types/profile";
 import { Post } from "@/types/post";
+import { useState } from "react";
 
 interface ProfileContentSectionProps {
   profile: ProfileData;
@@ -39,6 +40,9 @@ export const ProfileContentSection = ({
   onSavePost,
   onSharePost
 }: ProfileContentSectionProps) => {
+  // Usando useState para controlar a renderização de UserPostsList
+  const [showPosts, setShowPosts] = useState(true);
+
   return (
     <div className="space-y-6">
       {/* About Section */}
@@ -77,13 +81,25 @@ export const ProfileContentSection = ({
       {/* Tabbed Content for Posts and Publications */}
       <Tabs defaultValue="posts" className="w-full">
         <TabsList className="w-full justify-start border-b rounded-none px-0 h-auto">
-          <TabsTrigger value="posts" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+          <TabsTrigger 
+            value="posts" 
+            className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none"
+            onClick={() => setShowPosts(true)}
+          >
             Publicações
           </TabsTrigger>
-          <TabsTrigger value="articles" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+          <TabsTrigger 
+            value="articles" 
+            className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none"
+            onClick={() => setShowPosts(false)}
+          >
             Artigos técnicos
           </TabsTrigger>
-          <TabsTrigger value="info" className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+          <TabsTrigger 
+            value="info" 
+            className="py-3 px-4 data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none"
+            onClick={() => setShowPosts(false)}
+          >
             Contato
           </TabsTrigger>
         </TabsList>
@@ -94,15 +110,17 @@ export const ProfileContentSection = ({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
           ) : (
-            <UserPostsList
-              posts={userPosts}
-              userName={profile.name || "Usuário"}
-              liked={liked}
-              saved={saved}
-              onLike={onLikePost}
-              onSave={onSavePost}
-              onShare={onSharePost}
-            />
+            showPosts && (
+              <UserPostsList
+                posts={userPosts}
+                userName={profile.name || "Usuário"}
+                liked={liked}
+                saved={saved}
+                onLike={onLikePost}
+                onSave={onSavePost}
+                onShare={onSharePost}
+              />
+            )
           )}
         </TabsContent>
 

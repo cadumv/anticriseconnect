@@ -1,6 +1,6 @@
 
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ConnectionRequestDialog } from "@/components/ConnectionRequestDialog";
@@ -42,10 +42,20 @@ const PublicProfile = () => {
     handleSharePost 
   } = useProfilePostInteractions(user);
 
-  const handleConnectionRequest = () => {
+  const handleConnectionRequest = useCallback(() => {
     if (!user || !profile) return;
     setIsConnectionDialogOpen(true);
-  };
+  }, [user, profile]);
+
+  const handleSuccessfulFollowToggle = useCallback(async () => {
+    await handleFollowToggle();
+    if (profile) {
+      toast.success(isFollowing ? 
+        `Você deixou de seguir ${profile.name}` : 
+        `Você está seguindo ${profile.name}`
+      );
+    }
+  }, [handleFollowToggle, isFollowing, profile]);
 
   if (loading) {
     return <ProfileLoadingState />;
@@ -54,14 +64,6 @@ const PublicProfile = () => {
   if (error || !profile) {
     return <ProfileErrorState error={error} />;
   }
-
-  const handleSuccessfulFollowToggle = async () => {
-    await handleFollowToggle();
-    toast.success(isFollowing ? 
-      `Você deixou de seguir ${profile.name}` : 
-      `Você está seguindo ${profile.name}`
-    );
-  };
 
   // Calculate total achievement points
   const totalPoints = profile?.achievements?.reduce((total, achievement) => {
@@ -112,12 +114,6 @@ const PublicProfile = () => {
           />
         </div>
       </div>
-
-      <Achievements 
-        showProfileSpecific={true} 
-        profileId={profile.id} 
-        isDemoProfile={id === "demo"} 
-      />
 
       {user && profile && (
         <ConnectionRequestDialog
