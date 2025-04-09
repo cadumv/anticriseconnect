@@ -13,7 +13,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Achievements } from "@/components/Achievements";
 import { FollowingDialog } from "@/components/FollowingDialog";
 import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Users } from "lucide-react";
+import { ConnectionUserList } from "@/components/connections/ConnectionUserList";
+import { useConnectionUsers } from "@/hooks/useConnectionUsers";
 
 const Index = () => {
   const { user } = useAuth();
@@ -22,6 +24,13 @@ const Index = () => {
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const [showFollowingDialog, setShowFollowingDialog] = useState(false);
   const firstLoadRef = useRef(true);
+
+  // Get following users
+  const { users: followingUsers, loading: followingLoading } = useConnectionUsers({
+    userId: user?.id,
+    type: "following",
+    dialogOpen: true
+  });
 
   // Load user achievements when component mounts or user changes
   useEffect(() => {
@@ -74,10 +83,10 @@ const Index = () => {
           <div className="lg:col-span-4 space-y-8">
             <div className="sticky top-4 space-y-8">
               <div className="bg-white rounded-lg shadow-sm p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-1 text-blue-500">
-                    <UserPlus className="h-4 w-4" />
-                    <span className="font-semibold">Seguindo</span>
+                    <Users className="h-5 w-5" />
+                    <span className="font-semibold">Seguindo ({followingUsers.length})</span>
                   </div>
                   <Button 
                     onClick={handleOpenFollowingDialog}
@@ -88,9 +97,24 @@ const Index = () => {
                     Ver todos
                   </Button>
                 </div>
-                <p className="text-sm text-gray-600">
-                  Perfis que você segue.
-                </p>
+                
+                {followingLoading ? (
+                  <div className="flex justify-center py-4">
+                    <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : followingUsers.length > 0 ? (
+                  <div className="max-h-60 overflow-y-auto">
+                    <ConnectionUserList 
+                      users={followingUsers.slice(0, 3)} 
+                      loading={false} 
+                      type="following"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-600 py-2">
+                    Você ainda não está seguindo ninguém. Busque perfis interessantes para seguir.
+                  </p>
+                )}
               </div>
               <AchievementsSidebar 
                 achievements={achievements}

@@ -55,6 +55,7 @@ export const ProfileHeader = ({
             connections={connections}
             followers={followers}
             following={following}
+            profileId={profile.id}
           />
 
           <ProfileActions 
