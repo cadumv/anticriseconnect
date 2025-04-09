@@ -67,12 +67,9 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
       
       if (existingRequests) {
         const requests = JSON.parse(existingRequests);
-        const updatedRequests = requests.map((req: any) => {
-          if (req.targetId === userId) {
-            return { ...req, status: 'declined' };
-          }
-          return req;
-        });
+        const updatedRequests = requests.filter((req: any) => 
+          !(req.targetId === userId && req.status === 'pending')
+        );
         
         // Update the connection request status
         localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
@@ -102,7 +99,7 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
       
       if (existingRequests) {
         const requests = JSON.parse(existingRequests);
-        // Remove the request entirely or mark as cancelled
+        // Remove the request entirely
         const updatedRequests = requests.filter((req: any) => req.targetId !== targetId);
         
         // Update the connection requests
@@ -129,7 +126,10 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
       
       // Delete the notification showing the request was sent
       deleteNotification(id);
-      toast("Solicitação de parceria cancelada.");
+      toast.success("Solicitação de parceria cancelada");
+      
+      // Force reload for UI update
+      window.location.reload();
     } catch (error) {
       console.error("Error cancelling partnership:", error);
       toast.error("Erro ao cancelar a solicitação");

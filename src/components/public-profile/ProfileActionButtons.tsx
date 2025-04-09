@@ -29,10 +29,8 @@ export const ProfileActionButtons = ({
   const [requestLoading, setRequestLoading] = useState(false);
 
   const handleConnectionAction = async () => {
-    if (isConnectionPending && onCancelConnection) {
+    if (isConnectionPending) {
       setRequestLoading(true);
-      // Add a small delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 300));
       
       try {
         // Get existing connection requests
@@ -90,11 +88,7 @@ export const ProfileActionButtons = ({
       
       setRequestLoading(false);
     } else {
-      setRequestLoading(true);
-      // Add a small delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 300));
       onConnectionRequest();
-      setRequestLoading(false);
     }
   };
 
@@ -123,7 +117,7 @@ export const ProfileActionButtons = ({
         {isConnectionPending ? (
           <>
             <X className="h-4 w-4" />
-            Cancelar solicitação
+            {requestLoading ? "Cancelando..." : "Cancelar solicitação"}
           </>
         ) : (
           <>

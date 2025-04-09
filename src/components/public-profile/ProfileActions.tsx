@@ -80,9 +80,9 @@ export const ProfileActions = ({
           
           localStorage.setItem(ownNotificationsKey, JSON.stringify(updatedOwnNotifications));
         }
+        
+        toast.success("Solicitação de conexão cancelada");
       }
-      
-      toast.success("Solicitação de conexão cancelada");
       
       // Force re-render the component by reloading the page
       window.location.reload();
