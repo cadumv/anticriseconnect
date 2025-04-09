@@ -108,11 +108,11 @@ export const ProfileAvatar = ({ userId, avatarUrl, setAvatarUrl }: ProfileAvatar
     <div className="flex items-center gap-4">
       <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
         {avatarUrl ? (
-          <div className="w-full h-full">
+          <div className="w-full h-full flex items-center justify-center">
             <img 
               src={avatarUrl} 
               alt="Avatar" 
-              className="avatar-image" 
+              className="max-h-full max-w-full object-contain" 
             />
           </div>
         ) : (

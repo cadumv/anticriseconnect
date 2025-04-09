@@ -1,6 +1,5 @@
 
 import { User } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ProfileAvatarProps {
   avatarUrl: string | null;
@@ -11,11 +10,11 @@ export const ProfileAvatar = ({ avatarUrl, name }: ProfileAvatarProps) => {
   return (
     <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
       {avatarUrl ? (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full flex items-center justify-center">
           <img 
             src={avatarUrl} 
             alt={`Foto de ${name}`} 
-            className="avatar-image w-full h-full" 
+            className="max-h-full max-w-full object-contain" 
           />
         </div>
       ) : (
@@ -23,4 +22,4 @@ export const ProfileAvatar = ({ avatarUrl, name }: ProfileAvatarProps) => {
       )}
     </div>
   );
-};
+}
