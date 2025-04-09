@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,66 +51,80 @@ const Messages = () => {
       
       if (connectionIds.length > 0) {
         const profiles = await fetchUserProfiles(connectionIds);
-        setConnectedUsers(profiles);
+        
+        // Filter out users that already have conversations
+        const filteredProfiles = profiles.filter(profile => 
+          !conversations.some(conv => conv.recipientId === profile.id)
+        );
+        
+        setConnectedUsers(filteredProfiles);
       }
     } catch (error) {
       console.error("Error loading connected users:", error);
     }
   };
 
-  const loadConversations = () => {
+  const loadConversations = async () => {
     setIsLoading(true);
     
     const storedConversations: Conversation[] = [];
     
-    supabase
-      .from("profiles")
-      .select("id, name, avatar_url")
-      .not("id", "eq", user?.id)
-      .then(({ data, error }) => {
-        if (error) {
-          console.error("Error fetching profiles:", error);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (data) {
-          data.forEach(profile => {
-            const storageKey = `chat_history_${user?.id}_${profile.id}`;
-            const chatHistory = localStorage.getItem(storageKey);
-            
-            if (chatHistory) {
-              try {
-                const messages = JSON.parse(chatHistory);
-                if (messages.length > 0) {
-                  const lastMsg = messages[messages.length - 1];
-                  
-                  storedConversations.push({
-                    id: `conv_${profile.id}`,
-                    recipientId: profile.id,
-                    recipientName: profile.name,
-                    recipientAvatar: profile.avatar_url,
-                    lastMessage: lastMsg.content.length > 30 ? 
-                      `${lastMsg.content.substring(0, 30)}...` : 
-                      lastMsg.content,
-                    timestamp: lastMsg.timestamp
-                  });
-                }
-              } catch (err) {
-                console.error("Error parsing chat history:", err);
-              }
-            }
-          });
-          
-          storedConversations.sort((a, b) => 
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-          
-          setConversations(storedConversations);
-        }
-        
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, name, avatar_url")
+        .not("id", "eq", user?.id);
+      
+      if (error) {
+        console.error("Error fetching profiles:", error);
         setIsLoading(false);
-      });
+        return;
+      }
+      
+      if (data) {
+        data.forEach(profile => {
+          const storageKey = `chat_history_${user?.id}_${profile.id}`;
+          const chatHistory = localStorage.getItem(storageKey);
+          
+          if (chatHistory) {
+            try {
+              const messages = JSON.parse(chatHistory);
+              if (messages.length > 0) {
+                const lastMsg = messages[messages.length - 1];
+                
+                storedConversations.push({
+                  id: `conv_${profile.id}`,
+                  recipientId: profile.id,
+                  recipientName: profile.name,
+                  recipientAvatar: profile.avatar_url,
+                  lastMessage: lastMsg.content.length > 30 ? 
+                    `${lastMsg.content.substring(0, 30)}...` : 
+                    lastMsg.content,
+                  timestamp: lastMsg.timestamp
+                });
+              }
+            } catch (err) {
+              console.error("Error parsing chat history:", err);
+            }
+          }
+        });
+        
+        storedConversations.sort((a, b) => 
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        );
+        
+        setConversations(storedConversations);
+        
+        // After setting conversations, load connected users to filter them properly
+        if (user) {
+          loadConnectedUsers();
+        }
+      }
+    } catch (error) {
+      console.error("Error in loadConversations:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredConversations = conversations.filter(conversation =>
@@ -185,47 +200,10 @@ const Messages = () => {
             </div>
           ) : (
             <>
-              {filteredConnectedUsers.length > 0 && (
-                <div className="mb-4">
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Conexões</h3>
-                  <div className="space-y-2">
-                    {filteredConnectedUsers.map(connectedUser => (
-                      <div 
-                        key={`user-${connectedUser.id}`}
-                        className="flex items-center p-3 hover:bg-gray-50 rounded-md cursor-pointer"
-                        onClick={() => handleOpenChat(connectedUser.id, connectedUser.name)}
-                      >
-                        <Avatar className="h-12 w-12 mr-3">
-                          {connectedUser.avatar_url ? (
-                            <img 
-                              src={connectedUser.avatar_url}
-                              alt={connectedUser.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="h-full w-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-lg font-medium">
-                              {connectedUser.name.charAt(0).toUpperCase()}
-                            </div>
-                          )}
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between">
-                            <p className="font-medium truncate">{connectedUser.name}</p>
-                            <UserPlus className="h-4 w-4 text-gray-400" />
-                          </div>
-                          <p className="text-sm text-gray-500 truncate">
-                            {connectedUser.engineering_type || "Engenheiro"}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
+              {/* Conversations first */}
               {filteredConversations.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Conversas anteriores</h3>
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Conversas iniciadas</h3>
                   <div className="space-y-2">
                     {filteredConversations.map(conversation => (
                       <div 
@@ -254,6 +232,45 @@ const Messages = () => {
                             </span>
                           </div>
                           <p className="text-sm text-gray-500 truncate">{conversation.lastMessage}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Connections after conversations */}
+              {filteredConnectedUsers.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Conexões</h3>
+                  <div className="space-y-2">
+                    {filteredConnectedUsers.map(connectedUser => (
+                      <div 
+                        key={`user-${connectedUser.id}`}
+                        className="flex items-center p-3 hover:bg-gray-50 rounded-md cursor-pointer"
+                        onClick={() => handleOpenChat(connectedUser.id, connectedUser.name)}
+                      >
+                        <Avatar className="h-12 w-12 mr-3">
+                          {connectedUser.avatar_url ? (
+                            <img 
+                              src={connectedUser.avatar_url}
+                              alt={connectedUser.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="h-full w-full rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-lg font-medium">
+                              {connectedUser.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between">
+                            <p className="font-medium truncate">{connectedUser.name}</p>
+                            <MessageCircle className="h-4 w-4 text-gray-400" />
+                          </div>
+                          <p className="text-sm text-gray-500 truncate">
+                            {connectedUser.engineering_type || "Engenheiro"}
+                          </p>
                         </div>
                       </div>
                     ))}
