@@ -1,8 +1,8 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
-import { ConnectionUser } from "@/utils/connectionUtils";
-import { ConnectionType } from "./ConnectionTypeIcon";
+import { ConnectionType } from "@/utils/connections";
+import { ConnectionUser } from "@/utils/connections";
 
 interface ConnectionUserListProps {
   users: ConnectionUser[];

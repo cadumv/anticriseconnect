@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { updateConnectionStatus } from "@/utils/connectionUtils";
+import { updateConnectionStatus } from "@/utils/connections";
 
 export function usePartnershipActions(userId: string | undefined, markAsRead: (id: string) => void, deleteNotification: (id: string) => void) {
   // Accept a partnership request

@@ -1,10 +1,15 @@
 
 import { useState, useEffect } from "react";
-import { ConnectionUser, fetchConnectionUserIds, fetchUserProfiles } from "@/utils/connectionUtils";
+import { 
+  ConnectionUser, 
+  ConnectionType, 
+  fetchConnectionUserIds, 
+  fetchUserProfiles 
+} from "@/utils/connections";
 
 interface UseConnectionUsersProps {
   userId: string | undefined;
-  type: "connections" | "followers" | "following";
+  type: ConnectionType;
   dialogOpen: boolean;
 }
 

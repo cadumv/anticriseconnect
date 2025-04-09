@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { v4 as uuidv4 } from "uuid";
-import { saveConnectionRequest } from "@/utils/connectionUtils";
+import { saveConnectionRequest } from "@/utils/connections";
 
 interface ConnectionRequestDialogProps {
   isOpen: boolean;
