@@ -1,7 +1,6 @@
-
 import { Avatar } from "@/components/ui/avatar";
 import { MessageCircle } from "lucide-react";
-import { ConnectionUser } from "@/utils/connectionUtils";
+import { ConnectionUser } from "@/utils/connections";
 
 interface ConnectedUserItemProps {
   user: ConnectionUser;

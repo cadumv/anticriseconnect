@@ -1,5 +1,4 @@
-
-import { ConnectionUser } from "@/utils/connectionUtils";
+import { ConnectionUser } from "@/utils/connections";
 import { ConnectedUserItem } from "./ConnectedUserItem";
 
 interface ConnectedUsersListProps {
