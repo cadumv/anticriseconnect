@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { updateConnectionStatus } from "@/utils/connectionUtils";
 
 export function usePartnershipActions(userId: string | undefined, markAsRead: (id: string) => void, deleteNotification: (id: string) => void) {
   // Accept a partnership request
@@ -8,22 +9,10 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
     if (!senderId || !userId) return;
     
     try {
-      // Find the connection request from sender
-      const connectionKey = `connection_requests_${senderId}`;
-      const existingRequests = localStorage.getItem(connectionKey);
+      // Update the connection request status
+      const statusUpdated = updateConnectionStatus(senderId, userId, 'accepted');
       
-      if (existingRequests) {
-        const requests = JSON.parse(existingRequests);
-        const updatedRequests = requests.map((req: any) => {
-          if (req.targetId === userId) {
-            return { ...req, status: 'accepted' };
-          }
-          return req;
-        });
-        
-        // Update the connection request status
-        localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
-        
+      if (statusUpdated) {
         // Create notification for the sender that their request was accepted
         const notification = {
           id: uuidv4(),
@@ -45,6 +34,8 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
         markAsRead(id);
         
         toast.success("Solicitação de parceria aceita com sucesso!");
+      } else {
+        toast.error("Não foi possível encontrar a solicitação");
       }
     } catch (error) {
       console.error("Error accepting partnership:", error);
@@ -61,19 +52,8 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
     }
     
     try {
-      // Find the connection request from sender
-      const connectionKey = `connection_requests_${senderId}`;
-      const existingRequests = localStorage.getItem(connectionKey);
-      
-      if (existingRequests) {
-        const requests = JSON.parse(existingRequests);
-        const updatedRequests = requests.filter((req: any) => 
-          !(req.targetId === userId && req.status === 'pending')
-        );
-        
-        // Update the connection request status
-        localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
-      }
+      // Update the connection request status to declined or remove it
+      const statusUpdated = updateConnectionStatus(senderId, userId, 'declined');
       
       // Delete the notification
       deleteNotification(id);

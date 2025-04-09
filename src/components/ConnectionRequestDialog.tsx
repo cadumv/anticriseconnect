@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { v4 as uuidv4 } from "uuid";
+import { saveConnectionRequest } from "@/utils/connectionUtils";
 
 interface ConnectionRequestDialogProps {
   isOpen: boolean;
@@ -50,33 +51,20 @@ export const ConnectionRequestDialog = ({
         senderName = senderProfile.name || senderName;
       }
       
-      // Save this connection request to localStorage (in a real app this would be in a DB)
-      const connectionKey = `connection_requests_${currentUserId}`;
-      const existingRequests = localStorage.getItem(connectionKey);
-      const requests = existingRequests ? JSON.parse(existingRequests) : [];
-      
-      const newRequest = {
-        targetId: targetProfileId,
+      // Save the connection request using our utility function
+      const requestSaved = saveConnectionRequest(
+        currentUserId,
+        targetProfileId,
         message,
-        timestamp: new Date().toISOString(),
-        status: 'pending', // 'pending', 'accepted', 'declined'
-        senderName: senderName
-      };
+        senderName
+      );
       
-      // Check if request already exists
-      const existingRequest = requests.find((req: any) => req.targetId === targetProfileId);
-      if (existingRequest) {
+      if (!requestSaved) {
         toast("Solicitação já enviada para este perfil");
         setIsSubmitting(false);
         onClose();
         return;
       }
-      
-      // Add to the requests array
-      requests.push(newRequest);
-      
-      // Update localStorage
-      localStorage.setItem(connectionKey, JSON.stringify(requests));
       
       // Create a notification for the recipient
       createNotificationForRecipient(targetProfileId, currentUserId, message, senderName);

@@ -144,3 +144,74 @@ export async function fetchUserProfiles(userIds: string[]): Promise<ConnectionUs
     return [];
   }
 }
+
+/**
+ * Saves a connection request
+ */
+export function saveConnectionRequest(
+  senderId: string, 
+  targetId: string, 
+  message: string, 
+  senderName: string
+): boolean {
+  try {
+    // Save this connection request to localStorage
+    const connectionKey = `connection_requests_${senderId}`;
+    const existingRequests = localStorage.getItem(connectionKey);
+    const requests = existingRequests ? JSON.parse(existingRequests) : [];
+    
+    // Check if request already exists
+    const existingRequest = requests.find((req: any) => req.targetId === targetId);
+    if (existingRequest) {
+      return false;
+    }
+    
+    const newRequest = {
+      targetId,
+      message,
+      timestamp: new Date().toISOString(),
+      status: 'pending',
+      senderName
+    };
+    
+    // Add to the requests array
+    requests.push(newRequest);
+    
+    // Update localStorage
+    localStorage.setItem(connectionKey, JSON.stringify(requests));
+    return true;
+  } catch (error) {
+    console.error('Error saving connection request:', error);
+    return false;
+  }
+}
+
+/**
+ * Updates a connection request status
+ */
+export function updateConnectionStatus(
+  senderId: string, 
+  targetId: string, 
+  status: 'accepted' | 'declined'
+): boolean {
+  try {
+    const connectionKey = `connection_requests_${senderId}`;
+    const existingRequests = localStorage.getItem(connectionKey);
+    
+    if (!existingRequests) return false;
+    
+    const requests = JSON.parse(existingRequests);
+    const updatedRequests = requests.map((req: any) => {
+      if (req.targetId === targetId) {
+        return { ...req, status };
+      }
+      return req;
+    });
+    
+    localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
+    return true;
+  } catch (error) {
+    console.error('Error updating connection status:', error);
+    return false;
+  }
+}
