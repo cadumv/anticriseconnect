@@ -81,11 +81,17 @@ export const ConnectionRequestDialog = ({
       // Create a notification for the recipient
       createNotificationForRecipient(targetProfileId, currentUserId, message, senderName);
       
+      // Also create a notification for the sender to track the request
+      createNotificationForSender(currentUserId, targetProfileId, targetProfileName);
+      
       toast.success("Solicitação de conexão enviada!");
       
       // Close the dialog - don't reload the page to maintain state
       setIsSubmitting(false);
       onClose();
+      
+      // Force reload to update the UI
+      window.location.reload();
     } catch (error) {
       console.error('Error sending connection request:', error);
       toast.error("Erro ao enviar solicitação");
@@ -118,6 +124,33 @@ export const ConnectionRequestDialog = ({
       console.log(`Notification created for user ${recipientId} from sender ${senderId}`);
     } catch (error) {
       console.error('Error creating notification:', error);
+    }
+  };
+  
+  // Function to create a notification for the sender to track the request
+  const createNotificationForSender = (senderId: string, targetId: string, targetName: string) => {
+    try {
+      // Create a notification
+      const notificationKey = `notifications_${senderId}`;
+      const existingNotifications = localStorage.getItem(notificationKey);
+      const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
+      
+      const newNotification = {
+        id: uuidv4(),
+        type: "partnership",
+        message: `Você enviou uma solicitação de conexão para ${targetName}. Aguardando resposta.`,
+        read: false,
+        date: new Date().toISOString(),
+        link: `/profile/${targetId}`,
+        senderId: senderId  // In this case, the sender is also the owner of the notification
+      };
+      
+      notifications.push(newNotification);
+      localStorage.setItem(notificationKey, JSON.stringify(notifications));
+      
+      console.log(`Notification created for sender ${senderId} about target ${targetId}`);
+    } catch (error) {
+      console.error('Error creating sender notification:', error);
     }
   };
   

@@ -105,7 +105,7 @@ export const NotificationItem = ({
                 className="h-7 text-xs"
                 asChild
               >
-                <Link to={notification.senderId ? `/profile/${notification.senderId}` : "#"}>
+                <Link to={notification.link}>
                   <User className="h-3 w-3 mr-1" /> Visitar perfil
                 </Link>
               </Button>

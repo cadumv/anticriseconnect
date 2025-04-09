@@ -19,6 +19,7 @@ interface ProfileHeaderProps {
   currentUser: AuthUser | null;
   isFollowing: boolean;
   followLoading: boolean;
+  isConnectionPending: boolean; 
   onFollowToggle: () => void;
   onConnectionRequest: () => void;
 }
@@ -28,6 +29,7 @@ export const ProfileHeader = ({
   currentUser,
   isFollowing,
   followLoading,
+  isConnectionPending,
   onFollowToggle,
   onConnectionRequest,
 }: ProfileHeaderProps) => {
@@ -61,6 +63,7 @@ export const ProfileHeader = ({
             currentUser={currentUser}
             isFollowing={isFollowing}
             followLoading={followLoading}
+            isConnectionPending={isConnectionPending}
             onFollowToggle={onFollowToggle}
             onConnectionRequest={onConnectionRequest}
           />
