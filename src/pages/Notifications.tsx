@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { NotificationType, TimeFilter } from "@/components/notifications/types";
 import { NotificationsSection } from "@/components/notifications/NotificationsSection";
 import { filterNotificationsByTime } from "@/components/notifications/NotificationsHelper";
+import { v4 as uuidv4 } from "uuid";
 
 const Notifications = () => {
   const { user, loading } = useAuth();
@@ -59,7 +60,7 @@ const Notifications = () => {
     }
     
     toast({
-      description: "Notificação marcada como lida",
+      title: "Notificação marcada como lida"
     });
   };
   
@@ -74,7 +75,7 @@ const Notifications = () => {
     }
     
     toast({
-      description: "Notificação removida com sucesso",
+      title: "Notificação removida com sucesso"
     });
   };
   
@@ -89,7 +90,7 @@ const Notifications = () => {
     }
     
     toast({
-      description: `Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`,
+      title: `Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`
     });
   };
 
@@ -169,7 +170,7 @@ const Notifications = () => {
       // Delete the notification
       deleteNotification(id);
       toast({
-        description: "Solicitação de parceria recusada.",
+        title: "Solicitação de parceria recusada."
       });
     } catch (error) {
       console.error("Error declining partnership:", error);
