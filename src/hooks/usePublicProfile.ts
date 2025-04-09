@@ -1,6 +1,6 @@
 
 import { User } from "@supabase/supabase-js";
-import { ProfileData, Publication } from "@/types/profile";
+import { ProfileData, Publication, Achievement } from "@/types/profile";
 import { Post } from "@/types/post";
 import { useProfileData } from "./profile/useProfileData";
 import { usePublications } from "./profile/usePublications";
@@ -8,9 +8,10 @@ import { useFollowStatus } from "./profile/useFollowStatus";
 import { useConnectionStatus } from "./profile/useConnectionStatus";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { AchievementsManager } from "@/services/AchievementsManager";
 
 interface UsePublicProfileReturn {
-  profile: ProfileData | null;
+  profile: (ProfileData & { achievements?: Achievement[] }) | null;
   publications: Publication[];
   publicationLoading: boolean;
   userPosts: Post[];
@@ -31,6 +32,20 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
   
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
+  const [profileWithAchievements, setProfileWithAchievements] = useState<(ProfileData & { achievements?: Achievement[] }) | null>(null);
+
+  // Add achievements to profile data
+  useEffect(() => {
+    if (profile && id) {
+      const achievements = AchievementsManager.getUserAchievements(id);
+      setProfileWithAchievements({
+        ...profile,
+        achievements: achievements
+      });
+    } else {
+      setProfileWithAchievements(profile);
+    }
+  }, [profile, id]);
 
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -90,7 +105,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
   }, [id, profile]);
 
   return {
-    profile,
+    profile: profileWithAchievements,
     publications,
     publicationLoading,
     userPosts,
