@@ -11,7 +11,7 @@ interface NotificationItemProps {
   onMarkAsRead: (id: string) => void;
   onDelete: (id: string) => void;
   onAccept?: (id: string, senderId?: string) => void;
-  onDecline?: (id: string) => void;
+  onDecline?: (id: string, senderId?: string) => void;
 }
 
 export const NotificationItem = ({
@@ -52,7 +52,7 @@ export const NotificationItem = ({
                       variant="outline" 
                       size="sm" 
                       className="h-7 text-xs text-red-600" 
-                      onClick={() => onDecline(notification.id)}
+                      onClick={() => onDecline(notification.id, notification.senderId)}
                     >
                       <X className="h-3 w-3 mr-1" /> Recusar
                     </Button>

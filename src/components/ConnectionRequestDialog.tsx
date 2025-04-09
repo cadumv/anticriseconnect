@@ -42,6 +42,14 @@ export const ConnectionRequestDialog = ({
     setIsSubmitting(true);
     
     try {
+      // Get the sender's profile information for the notification
+      let senderName = "Usuário";
+      const senderProfileData = localStorage.getItem(`profile_${currentUserId}`);
+      if (senderProfileData) {
+        const senderProfile = JSON.parse(senderProfileData);
+        senderName = senderProfile.name || senderName;
+      }
+      
       // Save this connection request to localStorage (in a real app this would be in a DB)
       const connectionKey = `connection_requests_${currentUserId}`;
       const existingRequests = localStorage.getItem(connectionKey);
@@ -51,7 +59,8 @@ export const ConnectionRequestDialog = ({
         targetId: targetProfileId,
         message,
         timestamp: new Date().toISOString(),
-        status: 'pending' // 'pending', 'accepted', 'declined'
+        status: 'pending', // 'pending', 'accepted', 'declined'
+        senderName: senderName
       };
       
       // Check if request already exists
@@ -70,47 +79,24 @@ export const ConnectionRequestDialog = ({
       localStorage.setItem(connectionKey, JSON.stringify(requests));
       
       // Create a notification for the recipient
-      createNotificationForRecipient(targetProfileId, currentUserId, message);
-      
-      // Auto-accept for demo purposes (normally would wait for other user to accept)
-      if (targetProfileId === "demo") {
-        const updatedRequests = requests.map((req: any) => {
-          if (req.targetId === targetProfileId) {
-            return { ...req, status: 'accepted' };
-          }
-          return req;
-        });
-        
-        localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
-      }
+      createNotificationForRecipient(targetProfileId, currentUserId, message, senderName);
       
       toast.success("Solicitação de conexão enviada!");
       
-      // Force window to reload to update connection status throughout the UI
-      window.location.reload();
+      // Close the dialog - don't reload the page to maintain state
+      setIsSubmitting(false);
+      onClose();
     } catch (error) {
       console.error('Error sending connection request:', error);
       toast.error("Erro ao enviar solicitação");
-    } finally {
       setIsSubmitting(false);
       onClose();
     }
   };
   
   // Function to create a notification for the recipient
-  const createNotificationForRecipient = (recipientId: string, senderId: string, requestMessage: string) => {
+  const createNotificationForRecipient = (recipientId: string, senderId: string, requestMessage: string, senderName: string) => {
     try {
-      // Get the sender's name from localStorage or fetch it from the database
-      // For demo purposes, we'll use a placeholder
-      let senderName = "Usuário";
-      
-      // Try to get sender profile from localStorage
-      const senderProfileData = localStorage.getItem(`profile_${senderId}`);
-      if (senderProfileData) {
-        const senderProfile = JSON.parse(senderProfileData);
-        senderName = senderProfile.name || senderName;
-      }
-      
       // Create a notification
       const notificationKey = `notifications_${recipientId}`;
       const existingNotifications = localStorage.getItem(notificationKey);
@@ -128,6 +114,8 @@ export const ConnectionRequestDialog = ({
       
       notifications.push(newNotification);
       localStorage.setItem(notificationKey, JSON.stringify(notifications));
+      
+      console.log(`Notification created for user ${recipientId} from sender ${senderId}`);
     } catch (error) {
       console.error('Error creating notification:', error);
     }

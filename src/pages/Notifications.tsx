@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Bell, AtSign, Handshake } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { NotificationType, TimeFilter } from "@/components/notifications/types";
 import { NotificationsSection } from "@/components/notifications/NotificationsSection";
 import { filterNotificationsByTime } from "@/components/notifications/NotificationsHelper";
@@ -96,12 +96,12 @@ const Notifications = () => {
   const acceptPartnership = (id: string, senderId?: string) => {
     if (!senderId || !user) return;
     
-    // Find the connection request
-    const connectionKey = `connection_requests_${senderId}`;
-    const existingRequests = localStorage.getItem(connectionKey);
-    
-    if (existingRequests) {
-      try {
+    try {
+      // Find the connection request from sender
+      const connectionKey = `connection_requests_${senderId}`;
+      const existingRequests = localStorage.getItem(connectionKey);
+      
+      if (existingRequests) {
         const requests = JSON.parse(existingRequests);
         const updatedRequests = requests.map((req: any) => {
           if (req.targetId === user.id) {
@@ -113,27 +113,68 @@ const Notifications = () => {
         // Update the connection request status
         localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
         
+        // Create notification for the sender that their request was accepted
+        const notification = {
+          id: uuidv4(),
+          type: "partnership",
+          message: `${user.user_metadata?.name || "Usuário"} aceitou sua solicitação de conexão!`,
+          read: false,
+          date: new Date().toISOString(),
+          link: `/profile/${user.id}`,
+          senderId: user.id
+        };
+        
+        const senderNotificationsKey = `notifications_${senderId}`;
+        const senderNotifications = localStorage.getItem(senderNotificationsKey);
+        const parsedSenderNotifications = senderNotifications ? JSON.parse(senderNotifications) : [];
+        parsedSenderNotifications.push(notification);
+        localStorage.setItem(senderNotificationsKey, JSON.stringify(parsedSenderNotifications));
+        
         // Mark notification as read
         markAsRead(id);
         
-        toast({
-          description: "Solicitação de parceria aceita com sucesso!",
-        });
-        
-        // Refresh the page to update connection status
-        window.location.reload();
-      } catch (error) {
-        console.error("Error accepting partnership:", error);
+        toast.success("Solicitação de parceria aceita com sucesso!");
       }
+    } catch (error) {
+      console.error("Error accepting partnership:", error);
+      toast.error("Erro ao aceitar a solicitação");
     }
   };
 
-  const declinePartnership = (id: string) => {
-    // For now, just delete the notification
-    deleteNotification(id);
-    toast({
-      description: "Solicitação de parceria recusada.",
-    });
+  const declinePartnership = (id: string, senderId?: string) => {
+    if (!senderId || !user) {
+      // Just delete the notification if we don't have a sender ID
+      deleteNotification(id);
+      return;
+    }
+    
+    try {
+      // Find the connection request from sender
+      const connectionKey = `connection_requests_${senderId}`;
+      const existingRequests = localStorage.getItem(connectionKey);
+      
+      if (existingRequests) {
+        const requests = JSON.parse(existingRequests);
+        const updatedRequests = requests.map((req: any) => {
+          if (req.targetId === user.id) {
+            return { ...req, status: 'declined' };
+          }
+          return req;
+        });
+        
+        // Update the connection request status
+        localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
+      }
+      
+      // Delete the notification
+      deleteNotification(id);
+      toast({
+        description: "Solicitação de parceria recusada.",
+      });
+    } catch (error) {
+      console.error("Error declining partnership:", error);
+      toast.error("Erro ao recusar a solicitação");
+    }
   };
   
   if (loading) {
