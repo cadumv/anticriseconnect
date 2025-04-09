@@ -7,7 +7,6 @@ interface Message {
   senderId: string;
   recipientId: string;
   content: string;
-  imageUrl?: string;
   timestamp: string;
   isFromCurrentUser: boolean;
 }
@@ -48,7 +47,7 @@ export function MessageList({ messages, activeConversation }: MessageListProps) 
                     <img 
                       src={activeConversation.recipientAvatar}
                       alt={activeConversation.recipientName}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain" // Changed from object-cover to object-contain
                       style={{ objectFit: "contain" }}
                     />
                   ) : (
@@ -65,16 +64,7 @@ export function MessageList({ messages, activeConversation }: MessageListProps) 
                     : 'bg-white border border-gray-200 rounded-bl-none'
                 }`}
               >
-                {msg.imageUrl && (
-                  <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">
-                    <img 
-                      src={msg.imageUrl} 
-                      alt="Message attachment" 
-                      className="rounded-lg max-h-40 max-w-full mb-2 object-contain"
-                    />
-                  </a>
-                )}
-                {msg.content && <p className="break-words text-sm">{msg.content}</p>}
+                <p className="break-words text-sm">{msg.content}</p>
                 <span className={`text-xs block mt-1 ${msg.isFromCurrentUser ? 'text-blue-100' : 'text-gray-500'}`}>
                   {formatMessageTime(msg.timestamp)}
                 </span>

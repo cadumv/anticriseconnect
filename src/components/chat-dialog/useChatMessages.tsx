@@ -46,8 +46,8 @@ export function useChatMessages(recipientId: string) {
     }
   };
 
-  const handleSendMessage = (content: string, imageUrl?: string) => {
-    if ((!content.trim() && !imageUrl) || !user) return;
+  const handleSendMessage = (content: string) => {
+    if (!content.trim() || !user) return;
     
     try {
       const newMessage: Message = {
@@ -55,7 +55,6 @@ export function useChatMessages(recipientId: string) {
         senderId: user.id,
         recipientId: recipientId,
         content: content,
-        imageUrl: imageUrl,
         timestamp: new Date().toISOString(),
         isFromCurrentUser: true
       };

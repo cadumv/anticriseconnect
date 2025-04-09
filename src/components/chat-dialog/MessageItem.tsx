@@ -27,16 +27,7 @@ export function MessageItem({ message, recipientName }: MessageItemProps) {
             : 'bg-white border border-gray-200 rounded-bl-none'
         }`}
       >
-        {message.imageUrl && (
-          <a href={message.imageUrl} target="_blank" rel="noopener noreferrer">
-            <img 
-              src={message.imageUrl} 
-              alt="Message attachment" 
-              className="rounded-lg max-h-60 max-w-full mb-2 object-contain"
-            />
-          </a>
-        )}
-        {message.content && <p className="break-words">{message.content}</p>}
+        <p className="break-words">{message.content}</p>
         <span className={`text-xs block mt-1 ${message.isFromCurrentUser ? 'text-blue-100' : 'text-gray-500'}`}>
           {formatMessageDate(message.timestamp)}
         </span>
