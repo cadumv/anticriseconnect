@@ -85,7 +85,9 @@ export const ProfileActionButtons = ({
         toast.error("Erro ao cancelar solicitação");
       }
       
-      onCancelConnection();
+      // Force reload to update the UI states
+      window.location.reload();
+      
       setRequestLoading(false);
     } else {
       setRequestLoading(true);

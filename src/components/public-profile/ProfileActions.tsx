@@ -32,8 +32,10 @@ export const ProfileActions = ({
   }
 
   // Function to cancel a connection request
-  const handleCancelRequest = () => {
+  const handleCancelRequest = async () => {
     if (!currentUser) return;
+    
+    setRequestLoading(true);
     
     try {
       // Get existing connection requests
@@ -87,6 +89,8 @@ export const ProfileActions = ({
     } catch (error) {
       console.error("Error cancelling connection request:", error);
       toast.error("Erro ao cancelar solicitação");
+    } finally {
+      setRequestLoading(false);
     }
   };
 
@@ -114,8 +118,9 @@ export const ProfileActions = ({
           onClick={handleCancelRequest}
           className="gap-1"
           variant="outline"
+          disabled={requestLoading}
         >
-          <X className="h-4 w-4" /> Cancelar solicitação
+          <X className="h-4 w-4" /> {requestLoading ? "Cancelando..." : "Cancelar solicitação"}
         </Button>
       ) : (
         <Button 
