@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { AchievementsManager } from "@/services/AchievementsManager";
 
 interface UsePublicProfileReturn {
-  profile: (ProfileData & { achievements?: Achievement[] }) | null;
+  profile: (ProfileData & { achievements?: Achievement[]; postCount?: number }) | null;
   publications: Publication[];
   publicationLoading: boolean;
   userPosts: Post[];
@@ -32,7 +32,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
   
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
-  const [profileWithAchievements, setProfileWithAchievements] = useState<(ProfileData & { achievements?: Achievement[] }) | null>(null);
+  const [profileWithAchievements, setProfileWithAchievements] = useState<(ProfileData & { achievements?: Achievement[]; postCount?: number }) | null>(null);
 
   // Add achievements to profile data
   useEffect(() => {
@@ -59,9 +59,9 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
       
       setPostsLoading(true);
       try {
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
           .from('posts')
-          .select('*')
+          .select('*', { count: 'exact' })
           .eq('user_id', id)
           .order('created_at', { ascending: false });
         
@@ -92,6 +92,14 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
         });
         
         setUserPosts(formattedPosts);
+        
+        // Update post count in profile
+        if (profileWithAchievements) {
+          setProfileWithAchievements({
+            ...profileWithAchievements,
+            postCount: count || 0
+          });
+        }
       } catch (error) {
         console.error("Error processing user posts:", error);
       } finally {
@@ -102,7 +110,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
     if (id) {
       fetchUserPosts();
     }
-  }, [id, profile]);
+  }, [id, profile, profileWithAchievements]);
 
   return {
     profile: profileWithAchievements,
