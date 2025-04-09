@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Edit3, Eye, FileText } from "lucide-react";
+import { Edit3, FileText } from "lucide-react";
 import { ProfileActionButtons } from "./ProfileActionButtons";
 import { ProfileData } from "@/types/profile";
 import { User } from "@supabase/supabase-js";
@@ -91,10 +91,6 @@ export const ProfileCoverSection = ({
               
               <div className="mt-4 flex items-center gap-8">
                 <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">4 visualizações do perfil</span>
-                </div>
-                <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">{postCount || 0} publicações</span>
                 </div>
@@ -106,3 +102,4 @@ export const ProfileCoverSection = ({
     </div>
   );
 };
+
