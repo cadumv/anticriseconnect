@@ -84,6 +84,9 @@ export const ProfileCoverSection = ({
                       isConnectionPending={isConnectionPending}
                       onFollowToggle={onFollowToggle}
                       onConnectionRequest={onConnectionRequest}
+                      profileId={profile.id}
+                      currentUserId={user?.id}
+                      onCancelConnection={onConnectionRequest}
                     />
                   )}
                 </div>
