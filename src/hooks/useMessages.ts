@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Conversation } from "@/components/messages/types";
-import { ConnectionUser, fetchConnectionUserIds, fetchUserProfiles } from "@/utils/connectionUtils";
+import { ConnectionUser, fetchConnectionUserIds, fetchUserProfiles } from "@/utils/connections";
 
 export function useMessages(userId: string | undefined) {
   const navigate = useNavigate();
