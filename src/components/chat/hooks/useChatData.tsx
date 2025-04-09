@@ -17,6 +17,7 @@ export interface Message {
   senderId: string;
   recipientId: string;
   content: string;
+  imageUrl?: string;
   timestamp: string;
   isFromCurrentUser: boolean;
 }
@@ -62,14 +63,18 @@ export function useChatData(userId: string) {
                 // Get the last message
                 const lastMsg = messages[messages.length - 1];
                 
+                const lastMessageText = lastMsg.imageUrl 
+                  ? (lastMsg.content ? `${lastMsg.content} [Imagem]` : "[Imagem]") 
+                  : lastMsg.content;
+                
                 storedConversations.push({
                   id: `conv_${profile.id}`,
                   recipientId: profile.id,
                   recipientName: profile.name,
                   recipientAvatar: profile.avatar_url,
-                  lastMessage: lastMsg.content.length > 30 ? 
-                    `${lastMsg.content.substring(0, 30)}...` : 
-                    lastMsg.content,
+                  lastMessage: lastMessageText.length > 30 ? 
+                    `${lastMessageText.substring(0, 30)}...` : 
+                    lastMessageText,
                   timestamp: lastMsg.timestamp,
                   unread: Math.random() > 0.7 // Simulate some unread messages
                 });
@@ -114,8 +119,8 @@ export function useChatData(userId: string) {
     }
   };
   
-  const handleSendMessage = (message: string) => {
-    if (!message.trim() || !activeChat) return;
+  const handleSendMessage = (message: string, imageUrl?: string) => {
+    if ((!message.trim() && !imageUrl) || !activeChat) return;
     
     try {
       const recipientId = activeChat;
@@ -125,6 +130,7 @@ export function useChatData(userId: string) {
         senderId: userId,
         recipientId: recipientId,
         content: message,
+        imageUrl: imageUrl,
         timestamp: new Date().toISOString(),
         isFromCurrentUser: true
       };
@@ -142,10 +148,16 @@ export function useChatData(userId: string) {
         const updated = [...prev];
         const index = updated.findIndex(c => c.recipientId === recipientId);
         
+        const lastMessageText = imageUrl 
+          ? (message ? `${message} [Imagem]` : "[Imagem]") 
+          : message;
+        
         if (index >= 0) {
           updated[index] = {
             ...updated[index],
-            lastMessage: message.length > 30 ? `${message.substring(0, 30)}...` : message,
+            lastMessage: lastMessageText.length > 30 ? 
+              `${lastMessageText.substring(0, 30)}...` : 
+              lastMessageText,
             timestamp: new Date().toISOString(),
             unread: false
           };

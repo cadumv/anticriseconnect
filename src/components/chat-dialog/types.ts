@@ -4,6 +4,7 @@ export interface Message {
   senderId: string;
   recipientId: string;
   content: string;
+  imageUrl?: string;
   timestamp: string;
   isFromCurrentUser: boolean;
 }
