@@ -87,8 +87,58 @@ export function usePartnershipActions(userId: string | undefined, markAsRead: (i
     }
   };
 
+  // Cancel a partnership request that the current user sent
+  const cancelPartnership = (id: string, targetId?: string) => {
+    if (!targetId || !userId) {
+      // Just delete the notification if we don't have a target ID
+      deleteNotification(id);
+      return;
+    }
+    
+    try {
+      // Find the connection request the user sent
+      const connectionKey = `connection_requests_${userId}`;
+      const existingRequests = localStorage.getItem(connectionKey);
+      
+      if (existingRequests) {
+        const requests = JSON.parse(existingRequests);
+        // Remove the request entirely or mark as cancelled
+        const updatedRequests = requests.filter((req: any) => req.targetId !== targetId);
+        
+        // Update the connection requests
+        localStorage.setItem(connectionKey, JSON.stringify(updatedRequests));
+        
+        // Try to find and remove notification from target user
+        try {
+          const targetNotificationsKey = `notifications_${targetId}`;
+          const targetNotifications = localStorage.getItem(targetNotificationsKey);
+          
+          if (targetNotifications) {
+            const parsedTargetNotifications = JSON.parse(targetNotifications);
+            // Filter out notifications about this connection request
+            const updatedTargetNotifications = parsedTargetNotifications.filter((notif: any) => 
+              !(notif.senderId === userId && notif.type === "partnership")
+            );
+            
+            localStorage.setItem(targetNotificationsKey, JSON.stringify(updatedTargetNotifications));
+          }
+        } catch (notifError) {
+          console.error("Error removing notification from target:", notifError);
+        }
+      }
+      
+      // Delete the notification showing the request was sent
+      deleteNotification(id);
+      toast("Solicitação de parceria cancelada.");
+    } catch (error) {
+      console.error("Error cancelling partnership:", error);
+      toast.error("Erro ao cancelar a solicitação");
+    }
+  };
+
   return {
     acceptPartnership,
-    declinePartnership
+    declinePartnership,
+    cancelPartnership
   };
 }

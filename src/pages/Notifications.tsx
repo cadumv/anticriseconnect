@@ -22,7 +22,7 @@ const Notifications = () => {
     deleteAllNotifications
   } = useNotifications(user?.id);
   
-  const { acceptPartnership, declinePartnership } = usePartnershipActions(
+  const { acceptPartnership, declinePartnership, cancelPartnership } = usePartnershipActions(
     user?.id, 
     markAsRead, 
     deleteNotification
@@ -69,6 +69,7 @@ const Notifications = () => {
           onDelete={deleteNotification}
           onAccept={acceptPartnership}
           onDecline={declinePartnership}
+          onCancel={cancelPartnership}
         />
       </div>
     </div>

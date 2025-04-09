@@ -4,6 +4,7 @@ import { Trash2, Check, X, ExternalLink, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { NotificationType } from "./types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NotificationItemProps {
   notification: NotificationType;
@@ -12,6 +13,7 @@ interface NotificationItemProps {
   onDelete: (id: string) => void;
   onAccept?: (id: string, senderId?: string) => void;
   onDecline?: (id: string, senderId?: string) => void;
+  onCancel?: (id: string, targetId?: string) => void;
 }
 
 export const NotificationItem = ({
@@ -20,8 +22,14 @@ export const NotificationItem = ({
   onMarkAsRead,
   onDelete,
   onAccept,
-  onDecline
+  onDecline,
+  onCancel
 }: NotificationItemProps) => {
+  const { user } = useAuth();
+  // Check if this notification is for a partnership request sent by this user
+  const isUsersSentRequest = notification.type === "partnership" && 
+                             notification.senderId === user?.id;
+
   return (
     <div 
       className={`p-3 rounded-md border ${notification.read ? 'bg-white' : 'bg-blue-50 border-blue-100'}`}
@@ -38,7 +46,7 @@ export const NotificationItem = ({
           <div className="flex flex-wrap gap-2 mt-2">
             {!notification.read && (
               <>
-                {notification.type === "partnership" && onAccept && onDecline ? (
+                {notification.type === "partnership" && !isUsersSentRequest && onAccept && onDecline ? (
                   <>
                     <Button 
                       variant="outline" 
@@ -57,6 +65,15 @@ export const NotificationItem = ({
                       <X className="h-3 w-3 mr-1" /> Recusar
                     </Button>
                   </>
+                ) : isUsersSentRequest && onCancel ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs text-orange-600" 
+                    onClick={() => onCancel(notification.id, notification.link.split('/').pop())}
+                  >
+                    <X className="h-3 w-3 mr-1" /> Cancelar solicitação
+                  </Button>
                 ) : (
                   <Button 
                     variant="outline" 

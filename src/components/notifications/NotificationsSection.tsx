@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,8 @@ interface NotificationsSectionProps {
   onMarkAsRead: (id: string) => void;
   onDelete: (id: string) => void;
   onAccept?: (id: string, senderId?: string) => void;
-  onDecline?: (id: string) => void;
+  onDecline?: (id: string, senderId?: string) => void;
+  onCancel?: (id: string, targetId?: string) => void;
 }
 
 export const NotificationsSection = ({
@@ -33,7 +35,8 @@ export const NotificationsSection = ({
   onMarkAsRead,
   onDelete,
   onAccept,
-  onDecline
+  onDecline,
+  onCancel
 }: NotificationsSectionProps) => {
   return (
     <Card>
@@ -71,6 +74,7 @@ export const NotificationsSection = ({
                 onDelete={onDelete}
                 onAccept={onAccept}
                 onDecline={onDecline}
+                onCancel={onCancel}
               />
             ))}
           </div>
