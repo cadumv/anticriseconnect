@@ -59,9 +59,7 @@ const Notifications = () => {
       localStorage.setItem(notificationKey, JSON.stringify(updatedNotifications));
     }
     
-    toast({
-      title: "Notificação marcada como lida"
-    });
+    toast("Notificação marcada como lida");
   };
   
   const deleteNotification = (id: string) => {
@@ -74,9 +72,7 @@ const Notifications = () => {
       localStorage.setItem(notificationKey, JSON.stringify(updatedNotifications));
     }
     
-    toast({
-      title: "Notificação removida com sucesso"
-    });
+    toast("Notificação removida com sucesso");
   };
   
   const deleteAllNotifications = (type: "mention" | "partnership") => {
@@ -89,9 +85,7 @@ const Notifications = () => {
       localStorage.setItem(notificationKey, JSON.stringify(updatedNotifications));
     }
     
-    toast({
-      title: `Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`
-    });
+    toast(`Todas as notificações de ${type === "mention" ? "menções" : "parcerias"} foram removidas`);
   };
 
   const acceptPartnership = (id: string, senderId?: string) => {
@@ -169,9 +163,7 @@ const Notifications = () => {
       
       // Delete the notification
       deleteNotification(id);
-      toast({
-        title: "Solicitação de parceria recusada."
-      });
+      toast("Solicitação de parceria recusada.");
     } catch (error) {
       console.error("Error declining partnership:", error);
       toast.error("Erro ao recusar a solicitação");
