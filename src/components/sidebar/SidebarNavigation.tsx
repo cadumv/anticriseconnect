@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { NavLink } from "react-router-dom";
@@ -19,7 +20,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
-export const SidebarNavigation = () => {
+interface SidebarNavigationProps {
+  collapsed?: boolean;
+}
+
+export const SidebarNavigation = ({ collapsed = false }: SidebarNavigationProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -74,7 +79,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Home className="h-5 w-5" />
-          <span>Início</span>
+          {!collapsed && <span>Início</span>}
         </NavLink>
         <NavLink
           to="/search"
@@ -85,7 +90,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Search className="h-5 w-5" />
-          <span>Buscar</span>
+          {!collapsed && <span>Buscar</span>}
         </NavLink>
         <NavLink
           to="/notifications"
@@ -103,7 +108,7 @@ export const SidebarNavigation = () => {
               </span>
             )}
           </div>
-          <span>Notificações</span>
+          {!collapsed && <span>Notificações</span>}
         </NavLink>
         <NavLink
           to="/messages"
@@ -114,7 +119,7 @@ export const SidebarNavigation = () => {
           }
         >
           <MessageSquare className="h-5 w-5" />
-          <span>Mensagens</span>
+          {!collapsed && <span>Mensagens</span>}
         </NavLink>
         <NavLink
           to="/profile"
@@ -125,7 +130,7 @@ export const SidebarNavigation = () => {
           }
         >
           <User className="h-5 w-5" />
-          <span>Perfil</span>
+          {!collapsed && <span>Perfil</span>}
         </NavLink>
         <NavLink
           to="/publications"
@@ -136,7 +141,7 @@ export const SidebarNavigation = () => {
           }
         >
           <BookOpen className="h-5 w-5" />
-          <span>Publicações</span>
+          {!collapsed && <span>Publicações</span>}
         </NavLink>
         <NavLink
           to="/jobs"
@@ -147,7 +152,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Briefcase className="h-5 w-5" />
-          <span>Vagas</span>
+          {!collapsed && <span>Vagas</span>}
         </NavLink>
         <NavLink
           to="/connections"
@@ -158,7 +163,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Users className="h-5 w-5" />
-          <span>Conexões</span>
+          {!collapsed && <span>Conexões</span>}
         </NavLink>
         <NavLink
           to="/news"
@@ -169,7 +174,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Newspaper className="h-5 w-5" />
-          <span>Notícias</span>
+          {!collapsed && <span>Notícias</span>}
         </NavLink>
       </div>
       <div className="space-y-1">
@@ -182,7 +187,7 @@ export const SidebarNavigation = () => {
           }
         >
           <Settings className="h-5 w-5" />
-          <span>Configurações</span>
+          {!collapsed && <span>Configurações</span>}
         </NavLink>
         <Button
           variant="ghost"
@@ -190,7 +195,7 @@ export const SidebarNavigation = () => {
           onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 mr-3" />
-          <span>Sair</span>
+          {!collapsed && <span>Sair</span>}
         </Button>
       </div>
     </div>
