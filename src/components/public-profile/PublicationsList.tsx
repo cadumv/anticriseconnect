@@ -7,9 +7,10 @@ import { FileText, Clock, Calendar, Eye } from "lucide-react";
 
 interface PublicationsListProps {
   publications: Publication[];
+  loading?: boolean;
 }
 
-export const PublicationsList = ({ publications }: PublicationsListProps) => {
+export const PublicationsList = ({ publications, loading = false }: PublicationsListProps) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -25,7 +26,11 @@ export const PublicationsList = ({ publications }: PublicationsListProps) => {
         )}
       </CardHeader>
       <CardContent>
-        {publications.length > 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        ) : publications.length > 0 ? (
           <div className="space-y-6">
             {publications.map((publication) => (
               <div 
