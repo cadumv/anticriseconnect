@@ -21,6 +21,7 @@ interface UsePublicProfileReturn {
   isFollowing: boolean;
   followLoading: boolean;
   isConnectionAccepted: boolean;
+  isConnectionPending: boolean;
   handleFollowToggle: () => Promise<void>;
 }
 
@@ -28,7 +29,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
   const { profile, loading, error } = useProfileData(id, user);
   const { publications, loading: publicationLoading } = usePublications(id);
   const { isFollowing, followLoading, handleFollowToggle } = useFollowStatus(id, user);
-  const { isConnectionAccepted } = useConnectionStatus(id, user);
+  const { isConnectionAccepted, isConnectionPending } = useConnectionStatus(id, user);
   
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
@@ -120,6 +121,7 @@ export const usePublicProfile = (id: string | undefined, user: User | null): Use
     isFollowing,
     followLoading,
     isConnectionAccepted,
+    isConnectionPending,
     handleFollowToggle
   };
 };

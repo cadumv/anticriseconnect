@@ -1,4 +1,3 @@
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileAboutSection } from "./ProfileAboutSection";
@@ -18,6 +17,7 @@ interface ProfileContentSectionProps {
   userPosts: Post[];
   postsLoading: boolean;
   isConnectionAccepted: boolean;
+  isConnectionPending: boolean;
   onOpenConnectionDialog: () => void;
   liked: Record<string, boolean>;
   saved: Record<string, boolean>;
@@ -33,6 +33,7 @@ export const ProfileContentSection = ({
   userPosts,
   postsLoading,
   isConnectionAccepted,
+  isConnectionPending,
   onOpenConnectionDialog,
   liked,
   saved,
@@ -40,12 +41,10 @@ export const ProfileContentSection = ({
   onSavePost,
   onSharePost
 }: ProfileContentSectionProps) => {
-  // Usando useState para controlar a renderização de UserPostsList
   const [showPosts, setShowPosts] = useState(true);
 
   return (
     <div className="space-y-6">
-      {/* About Section */}
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Sobre</CardTitle>
@@ -58,7 +57,6 @@ export const ProfileContentSection = ({
         </CardContent>
       </Card>
 
-      {/* Experience Section */}
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Experiência</CardTitle>
@@ -68,7 +66,6 @@ export const ProfileContentSection = ({
         </CardContent>
       </Card>
 
-      {/* Education Section */}
       <Card className="shadow-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-xl">Educação</CardTitle>
@@ -78,7 +75,6 @@ export const ProfileContentSection = ({
         </CardContent>
       </Card>
 
-      {/* Tabbed Content for Posts and Publications */}
       <Tabs defaultValue="posts" className="w-full">
         <TabsList className="w-full justify-start border-b rounded-none px-0 h-auto">
           <TabsTrigger 
@@ -136,6 +132,7 @@ export const ProfileContentSection = ({
             <CardContent className="pt-6">
               <ProfileContactSection 
                 isConnectionAccepted={isConnectionAccepted}
+                isConnectionPending={isConnectionPending}
                 onOpenConnectionDialog={onOpenConnectionDialog}
               />
             </CardContent>

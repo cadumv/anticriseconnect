@@ -30,6 +30,7 @@ const PublicProfile = () => {
     isFollowing,
     followLoading,
     isConnectionAccepted,
+    isConnectionPending,
     handleFollowToggle
   } = usePublicProfile(id, user);
 
@@ -98,6 +99,7 @@ const PublicProfile = () => {
               userPosts={userPosts}
               postsLoading={postsLoading}
               isConnectionAccepted={isConnectionAccepted}
+              isConnectionPending={isConnectionPending}
               onOpenConnectionDialog={() => setIsConnectionDialogOpen(true)}
               liked={liked}
               saved={saved}
