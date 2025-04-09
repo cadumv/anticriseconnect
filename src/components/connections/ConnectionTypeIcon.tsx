@@ -12,24 +12,30 @@ export const ConnectionTypeIcon = ({ type }: ConnectionTypeIconProps) => {
     case "connections":
       return <Handshake className="h-4 w-4 text-blue-500" />;
     case "followers":
-      return <Users className="h-4 w-4 text-blue-500" />;
+      return <Users className="h-4 w-4 text-green-500" />;
     case "following":
-      return <UserPlus className="h-4 w-4 text-blue-500" />;
+      return <UserPlus className="h-4 w-4 text-indigo-500" />;
   }
 };
 
 export const getConnectionTypeTitle = (type: ConnectionType): string => {
   switch (type) {
-    case "connections": return "Conexões";
-    case "followers": return "Seguidores";
-    case "following": return "Seguindo";
+    case "connections":
+      return "Conexões";
+    case "followers":
+      return "Seguidores";
+    case "following":
+      return "Seguindo";
   }
 };
 
 export const getConnectionTypeDescription = (type: ConnectionType): string => {
   switch (type) {
-    case "connections": return "Pessoas que se conectaram com você para trocas anticrise.";
-    case "followers": return "Pessoas que seguem seu perfil.";
-    case "following": return "Perfis que você segue.";
+    case "connections":
+      return "Pessoas com quem você tem conexão profissional.";
+    case "followers":
+      return "Pessoas que seguem seu perfil.";
+    case "following":
+      return "Perfis que você segue.";
   }
 };

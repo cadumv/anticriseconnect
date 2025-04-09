@@ -1,28 +1,36 @@
 
 import { useState, useEffect } from "react";
 import { ConnectionUser, fetchConnectionUserIds, fetchUserProfiles } from "@/utils/connectionUtils";
-import { ConnectionType } from "@/components/connections/ConnectionTypeIcon";
 
 interface UseConnectionUsersProps {
   userId: string | undefined;
-  type: ConnectionType;
+  type: "connections" | "followers" | "following";
   dialogOpen: boolean;
 }
 
-export function useConnectionUsers({ userId, type, dialogOpen }: UseConnectionUsersProps) {
+interface UseConnectionUsersReturn {
+  users: ConnectionUser[];
+  loading: boolean;
+}
+
+export const useConnectionUsers = ({ 
+  userId, 
+  type, 
+  dialogOpen 
+}: UseConnectionUsersProps): UseConnectionUsersReturn => {
   const [users, setUsers] = useState<ConnectionUser[]>([]);
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    const loadUsers = async () => {
+    const fetchUsers = async () => {
       if (!userId || !dialogOpen) return;
       
       setLoading(true);
       try {
-        // Get user IDs based on connection type
+        // First get the IDs based on connection type
         const userIds = await fetchConnectionUserIds(userId, type);
         
-        // If we have user IDs, fetch their profile data
+        // Then fetch the user profiles for those IDs
         if (userIds.length > 0) {
           const profiles = await fetchUserProfiles(userIds);
           setUsers(profiles);
@@ -30,15 +38,15 @@ export function useConnectionUsers({ userId, type, dialogOpen }: UseConnectionUs
           setUsers([]);
         }
       } catch (error) {
-        console.error('Error loading users:', error);
+        console.error(`Error fetching ${type}:`, error);
         setUsers([]);
       } finally {
         setLoading(false);
       }
     };
     
-    loadUsers();
+    fetchUsers();
   }, [userId, type, dialogOpen]);
   
   return { users, loading };
-}
+};
