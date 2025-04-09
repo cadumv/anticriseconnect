@@ -11,6 +11,7 @@ interface ProfileCoverSectionProps {
   isFollowing: boolean;
   followLoading: boolean;
   isConnectionPending: boolean;
+  isConnectionAccepted: boolean;  // Added the missing property
   postCount: number;
   onFollowToggle: () => Promise<void>;
   onConnectionRequest: () => void;
@@ -22,6 +23,7 @@ export const ProfileCoverSection = ({
   isFollowing,
   followLoading,
   isConnectionPending,
+  isConnectionAccepted,  // Added the missing property
   postCount,
   onFollowToggle,
   onConnectionRequest
@@ -82,6 +84,7 @@ export const ProfileCoverSection = ({
                       isFollowing={isFollowing}
                       followLoading={followLoading}
                       isConnectionPending={isConnectionPending}
+                      isConnectionAccepted={isConnectionAccepted}  // Added the missing property
                       onFollowToggle={onFollowToggle}
                       onConnectionRequest={onConnectionRequest}
                       profileId={profile.id}

@@ -90,6 +90,7 @@ const PublicProfile = () => {
           isFollowing={isFollowing}
           followLoading={followLoading}
           isConnectionPending={isConnectionPending}
+          isConnectionAccepted={isConnectionAccepted} // Added the missing property
           postCount={profile.postCount || 0}
           onFollowToggle={handleSuccessfulFollowToggle}
           onConnectionRequest={handleConnectionRequest}
