@@ -108,11 +108,13 @@ export const ProfileAvatar = ({ userId, avatarUrl, setAvatarUrl }: ProfileAvatar
     <div className="flex items-center gap-4">
       <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
         {avatarUrl ? (
-          <img 
-            src={avatarUrl} 
-            alt="Avatar" 
-            className="w-full h-full object-contain" // Changed from object-cover to object-contain
-          />
+          <div className="w-full h-full">
+            <img 
+              src={avatarUrl} 
+              alt="Avatar" 
+              className="avatar-image" 
+            />
+          </div>
         ) : (
           <span className="text-3xl font-bold text-blue-500">
             {"U"}

@@ -19,11 +19,13 @@ export const ProfileHeaderAvatar = ({ user }: ProfileHeaderAvatarProps) => {
   return (
     <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
       {user?.user_metadata?.avatar_url ? (
-        <img 
-          src={`${user.user_metadata.avatar_url}?v=${avatarKey}`} 
-          alt="Foto de perfil" 
-          className="w-full h-full object-contain" // Changed from object-cover to object-contain
-        />
+        <div className="w-full h-full">
+          <img 
+            src={`${user.user_metadata.avatar_url}?v=${avatarKey}`} 
+            alt="Foto de perfil" 
+            className="avatar-image" 
+          />
+        </div>
       ) : (
         <span className="text-3xl font-bold text-blue-500">
           {user?.user_metadata?.name?.[0]?.toUpperCase() || "U"}
