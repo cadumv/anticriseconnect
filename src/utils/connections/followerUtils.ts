@@ -6,13 +6,24 @@ import { supabase } from "@/lib/supabase";
  */
 export function getFollowing(userId: string): string[] {
   try {
+    if (!userId) {
+      console.log('No userId provided to getFollowing');
+      return [];
+    }
+    
     const followingData = localStorage.getItem(`following_${userId}`);
     if (followingData) {
-      const userIds = JSON.parse(followingData);
-      if (!Array.isArray(userIds)) {
+      try {
+        const userIds = JSON.parse(followingData);
+        if (!Array.isArray(userIds)) {
+          console.log('Following data is not an array:', userIds);
+          return [];
+        }
+        return userIds.filter(id => typeof id === 'string');
+      } catch (error) {
+        console.error("Error parsing following data:", error);
         return [];
       }
-      return userIds;
     }
     return [];
   } catch (error) {
@@ -26,6 +37,11 @@ export function getFollowing(userId: string): string[] {
  */
 export async function getFollowers(userId: string): Promise<string[]> {
   try {
+    if (!userId) {
+      console.log('No userId provided to getFollowers');
+      return [];
+    }
+    
     const userIds: string[] = [];
     
     const { data: allUsers, error } = await supabase

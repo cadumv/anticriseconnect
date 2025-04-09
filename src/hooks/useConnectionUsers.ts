@@ -28,18 +28,31 @@ export const useConnectionUsers = ({
   
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!userId || !dialogOpen) return;
+      if (!userId) {
+        console.log('No userId provided to useConnectionUsers hook');
+        return;
+      }
+      
+      if (!dialogOpen && type !== "following") {
+        // Don't fetch if dialog not open (except for following which is shown on homepage)
+        return;
+      }
       
       setLoading(true);
       try {
+        console.log(`Fetching ${type} for user ${userId}`);
+        
         // First get the IDs based on connection type
         const userIds = await fetchConnectionUserIds(userId, type);
+        console.log(`Got ${userIds.length} ${type} user IDs:`, userIds);
         
         // Then fetch the user profiles for those IDs
         if (userIds.length > 0) {
           const profiles = await fetchUserProfiles(userIds);
+          console.log(`Fetched ${profiles.length} user profiles`);
           setUsers(profiles);
         } else {
+          console.log(`No ${type} found for user ${userId}`);
           setUsers([]);
         }
       } catch (error) {

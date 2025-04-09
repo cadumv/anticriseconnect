@@ -7,10 +7,15 @@ import { getAcceptedConnections } from "./connectionRequestUtils";
  * Fetches user IDs based on connection type
  */
 export async function fetchConnectionUserIds(
-  userId: string, 
+  userId: string | undefined, 
   type: ConnectionType
 ): Promise<string[]> {
   try {
+    if (!userId) {
+      console.log(`No userId provided to fetchConnectionUserIds for type ${type}`);
+      return [];
+    }
+    
     console.log(`Fetching ${type} for user ${userId}`);
     
     switch (type) {
