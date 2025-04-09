@@ -8,6 +8,8 @@ interface ProfileStatsProps {
 }
 
 export const ProfileStats = ({ connections, followers, following }: ProfileStatsProps) => {
+  console.log(`ProfileStats rendering with: Connections: ${connections}, Followers: ${followers}, Following: ${following}`);
+  
   return (
     <div className="flex items-center gap-4 text-sm mr-2">
       <StatItem type="connections" count={connections} />

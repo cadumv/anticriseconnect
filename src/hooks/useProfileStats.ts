@@ -20,7 +20,12 @@ export function useProfileStats(profileId: string, currentUser: User | null): Pr
     const fetchCounts = async () => {
       try {
         // Only proceed if we have a valid profile ID
-        if (!profileId) return;
+        if (!profileId) {
+          console.log("No profile ID provided to useProfileStats");
+          return;
+        }
+        
+        console.log(`useProfileStats - Fetching stats for profile ${profileId}`);
         
         // Use our connection utilities to fetch all the relevant user IDs
         const connectionIds = await fetchConnectionUserIds(profileId, "connections");

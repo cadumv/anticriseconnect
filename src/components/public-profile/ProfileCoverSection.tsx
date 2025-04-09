@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Edit3, FileText } from "lucide-react";
 import { ProfileActionButtons } from "./ProfileActionButtons";
+import { ProfileHeader } from "./ProfileHeader";
 import { ProfileData } from "@/types/profile";
 import { User } from "@supabase/supabase-js";
 
@@ -11,7 +12,7 @@ interface ProfileCoverSectionProps {
   isFollowing: boolean;
   followLoading: boolean;
   isConnectionPending: boolean;
-  isConnectionAccepted: boolean;  // Added the missing property
+  isConnectionAccepted: boolean;
   postCount: number;
   onFollowToggle: () => Promise<void>;
   onConnectionRequest: () => void;
@@ -23,7 +24,7 @@ export const ProfileCoverSection = ({
   isFollowing,
   followLoading,
   isConnectionPending,
-  isConnectionAccepted,  // Added the missing property
+  isConnectionAccepted,
   postCount,
   onFollowToggle,
   onConnectionRequest
@@ -63,37 +64,16 @@ export const ProfileCoverSection = ({
             </div>
             
             <div className="sm:pt-4 sm:flex-1">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                <div className="-mt-12 sm:mt-0">
-                  <h2 className="text-2xl font-bold">{profile.name}</h2>
-                  {profile.engineering_type && (
-                    <p className="text-gray-600 mt-1">{profile.engineering_type} • {" "}
-                      <button 
-                        className="text-blue-600 hover:underline"
-                        onClick={onConnectionRequest}
-                      >
-                        Informações de contato
-                      </button>
-                    </p>
-                  )}
-                </div>
-                
-                <div className="mt-4 sm:mt-0 flex gap-2 flex-wrap">
-                  {user && user.id !== profile.id && (
-                    <ProfileActionButtons
-                      isFollowing={isFollowing}
-                      followLoading={followLoading}
-                      isConnectionPending={isConnectionPending}
-                      isConnectionAccepted={isConnectionAccepted}  // Added the missing property
-                      onFollowToggle={onFollowToggle}
-                      onConnectionRequest={onConnectionRequest}
-                      profileId={profile.id}
-                      currentUserId={user?.id}
-                      onCancelConnection={onConnectionRequest}
-                    />
-                  )}
-                </div>
-              </div>
+              <ProfileHeader
+                profile={profile}
+                currentUser={user}
+                isFollowing={isFollowing}
+                followLoading={followLoading}
+                isConnectionPending={isConnectionPending}
+                isConnectionAccepted={isConnectionAccepted}
+                onFollowToggle={onFollowToggle}
+                onConnectionRequest={onConnectionRequest}
+              />
               
               <div className="mt-4 flex items-center gap-8">
                 <div className="flex items-center gap-2">

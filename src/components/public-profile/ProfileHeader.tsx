@@ -37,6 +37,8 @@ export const ProfileHeader = ({
 }: ProfileHeaderProps) => {
   // Use our custom hook to get profile stats
   const { connections, followers, following } = useProfileStats(profile.id, currentUser);
+  
+  console.log(`ProfileHeader rendering stats - Connections: ${connections}, Followers: ${followers}, Following: ${following}`);
 
   return (
     <div className="flex flex-col gap-4">
