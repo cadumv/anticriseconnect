@@ -6,7 +6,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Minimize2 } from "lucide-react";
 import { ConversationList } from "./conversation/ConversationList";
 import { MessageList } from "./conversation/MessageList";
 import { MessageInput } from "./conversation/MessageInput";
@@ -41,15 +41,20 @@ export function ChatDrawer({ isOpen, onClose, userId }: ChatDrawerProps) {
           <DrawerHeader className="border-b p-4">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-semibold">Mensagens</DrawerTitle>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                  <Minimize2 className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </DrawerHeader>
           
           <div className="flex flex-1 overflow-hidden">
             {/* Conversation List */}
-            <div className={`${activeChat ? 'hidden sm:block' : 'block'}`}>
+            <div className={`w-full sm:w-1/3 border-r ${activeChat ? 'hidden sm:block' : 'block'}`}>
               <ConversationList
                 conversations={conversations}
                 isLoading={isLoading}

@@ -8,6 +8,7 @@ import Index from './pages/Index';
 import { AuthProvider } from "./hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster"
 import { Sidebar } from "./components/Sidebar";
+import { ChatButton } from "./components/chat/ChatButton";
 
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -43,6 +44,7 @@ function App() {
             </Routes>
           </div>
           <Toaster />
+          <ChatButton />
         </div>
       </AuthProvider>
     </BrowserRouter>
