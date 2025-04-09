@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { MessageCircle, Search, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { ChatDialog } from "@/components/ChatDialog";
+import { ChatDialog } from "@/components/chat-dialog/ChatDialog";
 
 interface Conversation {
   id: string;
@@ -34,7 +34,6 @@ const Messages = () => {
     if (user) {
       loadConversations();
     } else {
-      // Redirect to login if not authenticated
       navigate("/login");
     }
   }, [user, navigate]);
@@ -42,12 +41,8 @@ const Messages = () => {
   const loadConversations = () => {
     setIsLoading(true);
     
-    // In a real app, this would fetch conversations from the backend
-    // For this demo, we'll use localStorage to simulate conversations
-    
     const storedConversations: Conversation[] = [];
     
-    // Get all users from the profiles table to create sample conversations
     supabase
       .from("profiles")
       .select("id, name, avatar_url")
@@ -59,7 +54,6 @@ const Messages = () => {
           return;
         }
         
-        // For each profile, check if we have a chat history with them
         if (data) {
           data.forEach(profile => {
             const storageKey = `chat_history_${user?.id}_${profile.id}`;
@@ -69,7 +63,6 @@ const Messages = () => {
               try {
                 const messages = JSON.parse(chatHistory);
                 if (messages.length > 0) {
-                  // Get the last message to display in the conversation list
                   const lastMsg = messages[messages.length - 1];
                   
                   storedConversations.push({
@@ -89,7 +82,6 @@ const Messages = () => {
             }
           });
           
-          // Sort conversations by timestamp (newest first)
           storedConversations.sort((a, b) => 
             new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           );
@@ -109,17 +101,14 @@ const Messages = () => {
     const msgDate = new Date(timestamp);
     const today = new Date();
     
-    // If message is from today, show time only
     if (msgDate.toDateString() === today.toDateString()) {
       return msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     
-    // If message is from this year, show month and day
     if (msgDate.getFullYear() === today.getFullYear()) {
       return msgDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
     }
     
-    // Otherwise show date with year
     return msgDate.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
@@ -133,7 +122,7 @@ const Messages = () => {
 
   const handleCloseChat = () => {
     setSelectedChat(null);
-    loadConversations(); // Reload conversations to update last messages
+    loadConversations();
   };
 
   return (
