@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface SuggestedUserProps {
   id: string;
@@ -28,12 +29,16 @@ export const SuggestedUser = ({
   
   return (
     <div className="flex items-start gap-3 py-3">
-      <Avatar className="h-10 w-10">
-        <AvatarImage src={avatarUrl} style={{ objectFit: "contain" }} />
-        <AvatarFallback>{name.substring(0, 2).toUpperCase()}</AvatarFallback>
-      </Avatar>
+      <Link to={`/profile/${id}`} className="shrink-0">
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={avatarUrl} style={{ objectFit: "contain" }} />
+          <AvatarFallback>{name.substring(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      </Link>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate">{name}</p>
+        <Link to={`/profile/${id}`} className="block">
+          <p className="font-medium text-sm truncate hover:text-blue-600 transition-colors">{name}</p>
+        </Link>
         <p className="text-xs text-gray-500 truncate">{title}</p>
         {subtitle && <p className="text-xs text-gray-500 truncate">{subtitle}</p>}
         <div className="mt-1">
