@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { UserPlus, UserCheck, Handshake, X, Clock } from "lucide-react";
+import { UserPlus, UserCheck, Handshake, X, Clock, Check } from "lucide-react";
 import { User } from "@supabase/supabase-js";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ interface ProfileActionsProps {
   isFollowing: boolean;
   followLoading: boolean;
   isConnectionPending: boolean;
+  isConnectionAccepted: boolean;
   onFollowToggle: () => void;
   onConnectionRequest: () => void;
 }
@@ -22,6 +23,7 @@ export const ProfileActions = ({
   isFollowing,
   followLoading,
   isConnectionPending,
+  isConnectionAccepted,
   onFollowToggle,
   onConnectionRequest,
 }: ProfileActionsProps) => {
@@ -113,7 +115,15 @@ export const ProfileActions = ({
         )}
       </Button>
       
-      {isConnectionPending ? (
+      {isConnectionAccepted ? (
+        <Button 
+          variant="outline"
+          className="gap-1 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+          disabled
+        >
+          <Check className="h-4 w-4" /> Vocês já possuem uma conexão
+        </Button>
+      ) : isConnectionPending ? (
         <Button 
           onClick={handleCancelRequest}
           className="gap-1"
@@ -133,4 +143,4 @@ export const ProfileActions = ({
       )}
     </div>
   );
-};
+}

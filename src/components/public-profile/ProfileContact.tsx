@@ -2,7 +2,7 @@
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { ChatDialog } from "@/components/ChatDialog";
+import { ChatDialog } from "@/components/chat-dialog/ChatDialog";
 
 interface ProfileContactProps {
   profileId: string;

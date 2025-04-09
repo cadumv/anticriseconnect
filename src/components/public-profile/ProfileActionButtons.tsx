@@ -1,14 +1,14 @@
 
 import { Button } from "@/components/ui/button";
-import { Clock, X, Handshake } from "lucide-react";
+import { Clock, X, Handshake, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
 
 interface ProfileActionButtonsProps {
   isFollowing: boolean;
   followLoading: boolean;
   isConnectionPending: boolean;
+  isConnectionAccepted: boolean;
   onFollowToggle: () => void;
   onConnectionRequest: () => void;
   onCancelConnection?: () => void;
@@ -20,6 +20,7 @@ export const ProfileActionButtons = ({
   isFollowing,
   followLoading,
   isConnectionPending,
+  isConnectionAccepted,
   onFollowToggle,
   onConnectionRequest,
   onCancelConnection,
@@ -105,27 +106,33 @@ export const ProfileActionButtons = ({
       >
         {isFollowing ? "Seguindo" : "Seguir"}
       </button>
-      <button 
-        onClick={handleConnectionAction}
-        disabled={requestLoading}
-        className={`inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70 h-10 px-4 py-2
-          ${isConnectionPending 
-            ? "border border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100" 
-            : "border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-          }`}
-      >
-        {isConnectionPending ? (
-          <>
-            <X className="h-4 w-4" />
-            {requestLoading ? "Cancelando..." : "Cancelar solicitação"}
-          </>
-        ) : (
-          <>
-            <Handshake className="h-4 w-4" />
-            Conexão Anticrise
-          </>
-        )}
-      </button>
+      
+      {isConnectionAccepted ? (
+        <button 
+          disabled
+          className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-10 px-4 py-2 border border-green-300 bg-green-50 text-green-700"
+        >
+          <Check className="h-4 w-4" />
+          Vocês já possuem uma conexão
+        </button>
+      ) : isConnectionPending ? (
+        <button 
+          onClick={handleConnectionAction}
+          disabled={requestLoading}
+          className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-70 h-10 px-4 py-2 border border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+        >
+          <X className="h-4 w-4" />
+          {requestLoading ? "Cancelando..." : "Cancelar solicitação"}
+        </button>
+      ) : (
+        <button 
+          onClick={onConnectionRequest}
+          className="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-10 px-4 py-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+        >
+          <Handshake className="h-4 w-4" />
+          Conexão Anticrise
+        </button>
+      )}
     </div>
   );
 };
