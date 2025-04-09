@@ -5,11 +5,7 @@ import {
   Bell, 
   MessageSquare, 
   User, 
-  Settings, 
-  BookOpen,
-  Briefcase,
-  Users,
-  Newspaper
+  Settings
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -24,11 +20,7 @@ export const mainNavItems: NavItem[] = [
   { path: "/search", label: "Buscar", icon: Search },
   { path: "/notifications", label: "Notificações", icon: Bell },
   { path: "/messages", label: "Mensagens", icon: MessageSquare },
-  { path: "/profile", label: "Perfil", icon: User },
-  { path: "/publications", label: "Publicações", icon: BookOpen },
-  { path: "/jobs", label: "Vagas", icon: Briefcase },
-  { path: "/connections", label: "Conexões", icon: Users },
-  { path: "/news", label: "Notícias", icon: Newspaper }
+  { path: "/profile", label: "Perfil", icon: User }
 ];
 
 export const bottomNavItems: NavItem[] = [
